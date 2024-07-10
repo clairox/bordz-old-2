@@ -20,12 +20,20 @@ const makeClient = () => {
 	return new ApolloClient({
 		cache: new InMemoryCache({
 			typePolicies: {
-				Query: {
+				Collection: {
 					fields: {
 						products: {
 							keyArgs: false,
-							merge(existing = [], incoming) {
-								return [...existing, ...incoming]
+							merge(existing = null, incoming, { args }) {
+								if (args?.after === null) {
+									return incoming
+								}
+
+								const merged = {
+									...incoming,
+									nodes: [...(existing?.nodes || []), ...incoming.nodes],
+								}
+								return merged
 							},
 						},
 					},

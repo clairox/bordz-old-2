@@ -1,18 +1,11 @@
 'use client'
 import React from 'react'
-import { useSuspenseQuery } from '@apollo/client'
-import { GET_COLLECTION } from '@/lib/queries'
+import { gql, useSuspenseQuery } from '@apollo/client'
 import ProductListView from '@/components/ProductListView'
 
-const CollectionView: React.FunctionComponent = () => {
-	const { data, error, fetchMore } = useSuspenseQuery(GET_COLLECTION, {
-		variables: {
-			handle: 'skateboard-decks',
-			limit: 40,
-			sortKey: 'CREATED',
-			cursor: null,
-		},
-	})
+const CollectionView: React.FunctionComponent<{ queryRef: any }> = ({ queryRef }) => {
+	const { query, variables } = queryRef.options
+	const { data, error, fetchMore } = useSuspenseQuery(gql(query), { variables })
 
 	if (error) {
 		console.log(error.message)
@@ -22,12 +15,8 @@ const CollectionView: React.FunctionComponent = () => {
 	const collection = (data as any).collection
 	const title = collection.title
 	const cursor = collection.products.pageInfo.endCursor
-	const productCount = collection.products.filters[0].values.reduce(
-		(currentCount: number, value: any) => currentCount + value.count,
-		0
-	)
-	const products = collection.products.edges.map((edge: any) => {
-		const product = edge.node
+	const productCount = collection.products.filters[0].values[0].count
+	const products = collection.products.nodes.map((product: any) => {
 		return {
 			title: product.title,
 			handle: product.handle,
@@ -50,7 +39,7 @@ const CollectionView: React.FunctionComponent = () => {
 			</div>
 			<div>
 				<p>
-					Showing {} of {productCount} products
+					Showing {products.length} of {productCount} products
 				</p>
 				<button
 					onClick={() =>
@@ -59,8 +48,6 @@ const CollectionView: React.FunctionComponent = () => {
 								cursor: cursor,
 							},
 						})
-							.then(result => console.log(result.data))
-							.catch(err => console.log(err))
 					}
 				>
 					Load More

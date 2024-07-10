@@ -9,25 +9,29 @@ const GET_COLLECTION = gql`
 	) {
 		collection(handle: $handle) {
 			title
-			products(first: $limit, after: $cursor, sortKey: $sortKey, reverse: false) {
-				edges {
-					node {
-						id
-						title
-						handle
-						description
-						priceRange {
-							maxVariantPrice {
-								amount
-							}
-						}
-						featuredImage {
-							src
-							width
-							height
+			products(
+				first: $limit
+				after: $cursor
+				sortKey: $sortKey
+				reverse: false
+				filters: { available: true }
+			) {
+				nodes {
+					id
+					title
+					handle
+					description
+					availableForSale
+					priceRange {
+						maxVariantPrice {
+							amount
 						}
 					}
-					cursor
+					featuredImage {
+						src
+						width
+						height
+					}
 				}
 				pageInfo {
 					endCursor

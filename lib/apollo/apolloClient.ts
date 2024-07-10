@@ -3,20 +3,7 @@ import { registerApolloClient } from '@apollo/experimental-nextjs-app-support'
 
 const { getClient, PreloadQuery } = registerApolloClient(() => {
 	return new ApolloClient({
-		cache: new InMemoryCache({
-			typePolicies: {
-				Query: {
-					fields: {
-						products: {
-							keyArgs: false,
-							merge(existing = [], incoming) {
-								return [...existing, ...incoming]
-							},
-						},
-					},
-				},
-			},
-		}),
+		cache: new InMemoryCache(),
 		link: new HttpLink({
 			uri: process.env.NEXT_PUBLIC_SHOPIFY_BASE_URL,
 			headers: {
