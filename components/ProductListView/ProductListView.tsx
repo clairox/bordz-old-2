@@ -19,12 +19,10 @@ const ProductListView: React.FunctionComponent<{
 }> = ({ products, productCount }) => {
 	if (products.length > 0) {
 		return (
-			<div>
-				<div className="grid grid-cols-4">
-					{products.map((item: ProductListItem) => {
-						return <ProductListViewItem key={item.handle} product={item} />
-					})}
-				</div>
+			<div className="grid grid-cols-4">
+				{products.map((item: ProductListItem) => {
+					return <ProductListViewItem key={item.handle} product={item} />
+				})}
 			</div>
 		)
 	}
@@ -34,7 +32,7 @@ const ProductListViewItem: React.FunctionComponent<{ product: ProductListItem }>
 	product,
 }) => {
 	return (
-		<article className="border-l border-b border-black">
+		<article className="border-r border-b border-black">
 			<Link href={`/shop/products/${product.handle}`}>
 				<div className="border-b border-gray">
 					<Image
@@ -44,9 +42,11 @@ const ProductListViewItem: React.FunctionComponent<{ product: ProductListItem }>
 						height={product.featuredImage.height}
 					/>
 				</div>
-				<div className="px-4 pt-4 pb-6 leading-5 tracking-tight">
-					<div className="pb-2 h-14">{product.title}</div>
-					<div>${product.price}</div>
+				<div className="px-4 pt-4 pb-5 leading-5 tracking-tight">
+					<div className="h-12">
+						<span className="line-clamp-2">{product.title}</span>
+					</div>
+					<div className="font-semibold">${product.price}</div>
 				</div>
 			</Link>
 		</article>

@@ -31,27 +31,90 @@ const CollectionView: React.FunctionComponent<{ queryRef: any }> = ({ queryRef }
 
 	return (
 		<div>
-			<div>
-				<div className="border-b border-black text-3xl">
-					<h1>{title}</h1>
+			<div className="border-b border-black">
+				<div>
+					<div className="border-b border-black text-3xl">
+						<h1>{title}</h1>
+					</div>
 				</div>
-				<ProductListView products={products} productCount={productCount} />
+				<div className="flex flex-row justify-between mx-auto w-[50%]">
+					<div>Category 1</div>
+					<div>Category 2</div>
+					<div>Category 3</div>
+				</div>
 			</div>
-			<div>
-				<p>
-					Showing {products.length} of {productCount} products
-				</p>
-				<button
-					onClick={() =>
-						fetchMore({
-							variables: {
-								cursor: cursor,
-							},
-						})
-					}
-				>
-					Load More
-				</button>
+			<div className="grid grid-cols-5">
+				<aside className="border-l border-black">
+					<section>
+						<div className="header border-b border-black">
+							<button className="w-full h-full px-6 py-4 text-left">
+								<span>Sort</span>
+							</button>
+						</div>
+						<div className="content">
+							<ul></ul>
+						</div>
+					</section>
+					<section>
+						<div className="header border-b border-black">
+							<button className="w-full h-full px-6 py-4 text-left">
+								<span>Brand</span>
+							</button>
+						</div>
+						<div className="content">
+							<ul></ul>
+						</div>
+					</section>
+					<section>
+						<div className="header border-b border-black">
+							<button className="w-full h-full px-6 py-4 text-left">
+								<span>Size</span>
+							</button>
+						</div>
+						<div className="content">
+							<ul></ul>
+						</div>
+					</section>
+					<section>
+						<div className="header border-b border-black">
+							<button className="w-full h-full px-6 py-4 text-left">
+								<span>Color</span>
+							</button>
+						</div>
+						<div className="content">
+							<ul></ul>
+						</div>
+					</section>
+					<section>
+						<div className="header border-b border-black">
+							<button className="w-full h-full px-6 py-4 text-left">
+								<span>Price</span>
+							</button>
+						</div>
+						<div className="content">
+							<ul></ul>
+						</div>
+					</section>
+				</aside>
+				<main className="col-span-4 border-l border-black">
+					<ProductListView products={products} productCount={productCount} />
+					<div>
+						<p>
+							Showing {products.length} of {productCount} products
+						</p>
+						<button
+							onClick={() =>
+								fetchMore({
+									variables: {
+										cursor: cursor,
+									},
+								})
+							}
+						>
+							Load More
+						</button>
+					</div>
+				</main>
 			</div>
 		</div>
 	)
