@@ -2,7 +2,7 @@ import { PreloadQuery } from '@/lib/apollo/apolloClient'
 import type { CollectionName } from '@/types'
 import React, { Suspense } from 'react'
 import { GET_COLLECTION } from '@/lib/queries'
-import CollectionView from '@/components/CollectionView/CollectionView'
+import CollectionView from '@/components/CollectionView'
 
 const Page: React.FunctionComponent<{
 	params: { collection: CollectionName }

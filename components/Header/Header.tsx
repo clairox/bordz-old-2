@@ -1,10 +1,10 @@
 import Link from 'next/link'
-import NavMenu from './NavMenu/NavMenu'
-import CartButton from './Actions/CartButton/CartButton'
-import AccountButton from './Actions/AccountButton/AccountButton'
-import WishlistButton from './Actions/WishlistButton/WishlistButton'
-import SearchBar from './SearchBar/SearchBar'
 import Image from 'next/image'
+import NavMenu from './NavMenu'
+import SearchBar from './SearchBar'
+import AccountButton from './Actions/AccountButton'
+import CartButton from './Actions/CartButton'
+import WishlistButton from './Actions/WishlistButton'
 
 const Header: React.FunctionComponent = () => {
 	return (

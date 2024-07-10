@@ -55,7 +55,7 @@ const NavMenuLink: React.FunctionComponent<{ title: string; href: string }> = ({
 	return (
 		<li>
 			<NavigationMenuLink className={navigationMenuTriggerStyle()} asChild>
-				<Link href={href}>{title}</Link>
+				<Link href={'/shop/' + href}>{title}</Link>
 			</NavigationMenuLink>
 		</li>
 	)

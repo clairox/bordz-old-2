@@ -5,7 +5,7 @@ import { X } from '@phosphor-icons/react'
 import Image from 'next/image'
 import React, { useEffect, useState } from 'react'
 import useSWR, { mutate } from 'swr'
-import Counter from '../Counter/Counter'
+import Counter from '@/components/Counter'
 
 const CartBase: React.FunctionComponent<{
 	children: (items: CartItem[], subtotal: number) => React.ReactNode

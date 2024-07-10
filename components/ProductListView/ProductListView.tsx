@@ -35,7 +35,7 @@ const ProductListViewItem: React.FunctionComponent<{ product: ProductListItem }>
 }) => {
 	return (
 		<article className="border-l border-b border-black">
-			<Link href={`/products/${product.handle}`}>
+			<Link href={`/shop/products/${product.handle}`}>
 				<div className="border-b border-gray">
 					<Image
 						src={product.featuredImage.src}

@@ -1,1 +1,1 @@
-export { localCart } from './localCart'
+export { LocalCart } from './localCart'

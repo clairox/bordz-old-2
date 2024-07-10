@@ -1,7 +1,7 @@
 import type { Product } from '@/types'
 import React from 'react'
-import ProductGallery from '@/components/ProductGallery/ProductGallery'
-import AddCartItem from '@/components/AddCartItem/AddCartItem'
+import ProductGallery from '@/components/ProductGallery'
+import AddCartItem from '@/components/AddCartItem'
 import { createStorefrontApiClient } from '@shopify/storefront-api-client'
 
 const client = createStorefrontApiClient({

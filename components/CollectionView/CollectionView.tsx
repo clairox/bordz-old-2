@@ -1,9 +1,8 @@
 'use client'
 import React from 'react'
-import { ProductListView } from '../ProductListView/ProductListView'
 import { useSuspenseQuery } from '@apollo/client'
 import { GET_COLLECTION } from '@/lib/queries'
-import Link from 'next/link'
+import ProductListView from '@/components/ProductListView'
 
 const CollectionView: React.FunctionComponent = () => {
 	const { data, error, fetchMore } = useSuspenseQuery(GET_COLLECTION, {

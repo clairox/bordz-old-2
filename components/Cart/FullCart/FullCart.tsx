@@ -1,15 +1,15 @@
 'use client'
-import { CartBase, CartItemList } from './Cart'
 
-const MiniCart = () => {
+import { CartBase, CartItemList } from '../Cart'
+
+const FullCart = () => {
 	return (
 		<CartBase>
 			{(items, subtotal) => (
-				<div className="flex flex-col">
+				<div className="flex flex-row">
 					<CartItemList items={items} />
 					<div>
 						<div>${(subtotal * 0.01).toFixed(2)}</div>
-						<button>View Bag</button>
 						<button>Checkout</button>
 					</div>
 				</div>
@@ -18,4 +18,4 @@ const MiniCart = () => {
 	)
 }
 
-export default MiniCart
+export default FullCart

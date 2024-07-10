@@ -1,7 +1,7 @@
 'use client'
 import { NavigationMenu, NavigationMenuList } from '@/components/ui/NavigationMenu'
 import React, { useEffect, useState } from 'react'
-import NavMenuItem, { Subcategories } from './NavMenuItem/NavMenuItem'
+import NavMenuItem, { Subcategories } from './NavMenuItem'
 import navMenuData from './navMenuData.json'
 
 const NavMenu = () => {
