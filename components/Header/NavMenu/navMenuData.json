@@ -1,0 +1,115 @@
+{
+	"skate": {
+		"title": "Skate",
+		"subcategories": {
+			"decks": {
+				"title": "Decks",
+				"links": [
+					{
+						"title": "All Decks",
+						"href": "/skateboard-decks"
+					}
+				]
+			},
+			"components": {
+				"title": "Components",
+				"links": [
+					{
+						"title": "Skateboard Trucks",
+						"href": "/skateboard-trucks"
+					},
+					{
+						"title": "Skateboard Wheels",
+						"href": "/skateboard-wheels"
+					},
+					{
+						"title": "Bearings",
+						"href": "/skateboard-bearings"
+					},
+					{
+						"title": "Griptape",
+						"href": "/griptape"
+					},
+					{
+						"title": "Hardware",
+						"href": "/hardware"
+					}
+				]
+			},
+			"skate-accessories": {
+				"title": "Skate Accessories",
+				"links": [
+					{
+						"title": "Tools",
+						"href": "/tools"
+					},
+					{
+						"title": "Wax",
+						"href": "/wax"
+					},
+					{
+						"title": "Skateboard Risers",
+						"href": "/skateboard-risers"
+					},
+					{
+						"title": "Skateboard Bushings",
+						"href": "/skateboard-bushings"
+					}
+				]
+			}
+		}
+	},
+	"snow": {
+		"title": "Snow",
+		"subcategories": {
+			"snowboards": {
+				"title": "Snowboards",
+				"links": [
+					{
+						"title": "All Snowboards",
+						"href": "/snowboards"
+					}
+				]
+			},
+			"snowboard-boots": {
+				"title": "Snowboard Boots",
+				"links": [
+					{
+						"title": "Snowboard Boots",
+						"href": "/snowboard-boots"
+					}
+				]
+			},
+			"snowboard-bindings": {
+				"title": "Snowboard Bindings",
+				"links": [
+					{
+						"title": "Snowboard Bindings",
+						"href": "/snowboard-bindings"
+					}
+				]
+			},
+			"snow-accessories": {
+				"title": "Snow Accessories",
+				"links": [
+					{
+						"title": "Goggles",
+						"href": "/snowboard-goggles"
+					},
+					{
+						"title": "Tools",
+						"href": "/snowboard-tools"
+					},
+					{
+						"title": "Stomp Pads",
+						"href": "/stomp-pads"
+					},
+					{
+						"title": "Wax",
+						"href": "/wax"
+					}
+				]
+			}
+		}
+	}
+}
