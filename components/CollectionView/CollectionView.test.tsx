@@ -8,3 +8,8 @@ describe.skip('load more button', () => {
 	it('should load more products on click')
 	it("should not load more than 'limit' products on click")
 })
+
+describe.skip('collection', () => {
+	it("should not contain products that don't match filters")
+	it('should be sorted by sortBy param')
+})

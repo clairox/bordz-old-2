@@ -2,10 +2,11 @@ import { gql } from '@apollo/client'
 
 const GET_COLLECTION = gql`
 	query GetCollection(
-		$handle: String
-		$limit: Int
+		$handle: String!
+		$limit: Int!
+		$sortKey: ProductCollectionSortKeys!
+		$filters: [ProductFilter!]
 		$cursor: String
-		$sortKey: ProductCollectionSortKeys
 	) {
 		collection(handle: $handle) {
 			title
@@ -14,7 +15,7 @@ const GET_COLLECTION = gql`
 				after: $cursor
 				sortKey: $sortKey
 				reverse: false
-				filters: { available: true }
+				filters: $filters
 			) {
 				nodes {
 					id
@@ -38,7 +39,9 @@ const GET_COLLECTION = gql`
 					hasNextPage
 				}
 				filters {
+					label
 					values {
+						label
 						count
 					}
 				}
