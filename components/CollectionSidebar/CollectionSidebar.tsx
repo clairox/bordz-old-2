@@ -9,7 +9,8 @@ import {
 const CollectionSidebar: React.FunctionComponent<{
 	brands: string[]
 	sizes: string[]
-}> = ({ brands, sizes }) => {
+	colors: string[]
+}> = ({ brands, sizes, colors }) => {
 	const PARAM_DELIMITER = '|'
 
 	const router = useRouter()
@@ -18,30 +19,42 @@ const CollectionSidebar: React.FunctionComponent<{
 
 	const brandRefinements = searchParams.get('brand')?.split(PARAM_DELIMITER) || []
 	const sizeRefinements = searchParams.get('size')?.split(PARAM_DELIMITER) || []
-	const hasRefinements = brandRefinements.length > 0 || sizeRefinements.length > 0
+	const colorRefinements = searchParams.get('color')?.split(PARAM_DELIMITER) || []
+	const hasRefinements =
+		brandRefinements.length > 0 || sizeRefinements.length > 0 || colorRefinements.length > 0
 
 	const toggleBrandRefinement = (brand: string) => {
 		const newBrandRefinements = brandRefinements.includes(brand)
 			? brandRefinements.filter(refinement => refinement !== brand)
 			: [...brandRefinements, brand]
 
-		refine({ brand: newBrandRefinements, size: sizeRefinements })
+		refine({ brand: newBrandRefinements, size: sizeRefinements, color: colorRefinements })
 	}
+
 	const toggleSizeRefinement = (size: string) => {
 		const newSizeRefinements = sizeRefinements.includes(size)
 			? sizeRefinements.filter(refinement => refinement !== size)
 			: [...sizeRefinements, size]
 
-		refine({ brand: brandRefinements, size: newSizeRefinements })
+		refine({ brand: brandRefinements, size: newSizeRefinements, color: colorRefinements })
+	}
+
+	const toggleColorRefinement = (color: string) => {
+		const newColorRefinements = colorRefinements.includes(color)
+			? colorRefinements.filter(refinement => refinement !== color)
+			: [...colorRefinements, color]
+
+		refine({ brand: brandRefinements, size: sizeRefinements, color: newColorRefinements })
 	}
 
 	type Refinements = {
 		brand: string[]
 		size: string[]
+		color: string[]
 	}
 
 	const refine = (refinements: Refinements) => {
-		const { brand, size } = refinements
+		const { brand, size, color } = refinements
 		const newParams = new URLSearchParams()
 		if (brand.length > 0) {
 			newParams.set('brand', brand.join(PARAM_DELIMITER))
@@ -49,6 +62,10 @@ const CollectionSidebar: React.FunctionComponent<{
 
 		if (size.length > 0) {
 			newParams.set('size', size.join(PARAM_DELIMITER))
+		}
+
+		if (color.length > 0) {
+			newParams.set('color', color.join(PARAM_DELIMITER))
 		}
 
 		const url = newParams.size > 0 ? pathname + '?' + newParams.toString() : pathname
@@ -97,6 +114,21 @@ const CollectionSidebar: React.FunctionComponent<{
 									onClick={() => toggleSizeRefinement(size)}
 								>
 									x {size}
+								</li>
+							)
+						})}
+					</ul>
+				)}
+				{colorRefinements.length > 0 && (
+					<ul className="flex flex-wrap gap-2 pt-2 list-none">
+						{colorRefinements.map(color => {
+							return (
+								<li
+									className="cursor-pointer hover:underline"
+									key={color}
+									onClick={() => toggleColorRefinement(color)}
+								>
+									x {color}
 								</li>
 							)
 						})}
@@ -158,7 +190,25 @@ const CollectionSidebar: React.FunctionComponent<{
 						})}
 					</ul>
 				</RefinementsItem>
-				<RefinementsItem title={'Color'}></RefinementsItem>
+				<RefinementsItem title={'Color'}>
+					<ul className="list-none">
+						{colors.map((color: string) => {
+							return (
+								<li className="pl-6 py-1 hover:underline cursor-pointer" key={color}>
+									<label htmlFor={color + ' checkbox'}>
+										<input
+											type="checkbox"
+											id={color + ' checkbox'}
+											checked={colorRefinements.includes(color)}
+											onChange={() => toggleColorRefinement(color)}
+										/>
+										<span className="pl-2">{color}</span>
+									</label>
+								</li>
+							)
+						})}
+					</ul>
+				</RefinementsItem>
 				<RefinementsItem title={'Price'}></RefinementsItem>
 			</RefinementsRoot>
 		</div>

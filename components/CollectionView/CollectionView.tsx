@@ -1,11 +1,14 @@
 'use client'
 import React, { Suspense } from 'react'
-import { useReadQuery } from '@apollo/client'
+import { useQueryRefHandlers, useReadQuery } from '@apollo/client'
 import ProductListView from '@/components/ProductListView'
 import CollectionSidebar from '@/components/CollectionSidebar'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { TransportedQueryRef } from '@apollo/experimental-nextjs-app-support'
 
-const CollectionView: React.FunctionComponent<{ queryRef: any }> = ({ queryRef }) => {
+const CollectionView: React.FunctionComponent<{ queryRef: TransportedQueryRef<unknown> }> = ({
+	queryRef,
+}) => {
 	const { data, error } = useReadQuery(queryRef)
 
 	const pathname = usePathname()
@@ -33,6 +36,11 @@ const CollectionView: React.FunctionComponent<{ queryRef: any }> = ({ queryRef }
 		.find((filter: any) => filter.label === 'Size')
 		.values.filter((value: any) => value.count > 0)
 		.map((value: any) => value.label)
+	const colors =
+		collection.products.filters
+			.find((filter: any) => filter.label === 'Color')
+			.values.filter((value: any) => value.count > 0)
+			.map((value: any) => value.label) || []
 	const products = collection.products.nodes.map((product: any) => {
 		return {
 			title: product.title,
@@ -47,24 +55,24 @@ const CollectionView: React.FunctionComponent<{ queryRef: any }> = ({ queryRef }
 	})
 
 	return (
-		<Suspense key={searchParams.toString()}>
-			<div>
-				<div className="border-b border-black">
-					<div>
-						<div className="border-b border-black text-3xl">
-							<h1>{title}</h1>
-						</div>
-					</div>
-					<div className="flex flex-row justify-between mx-auto w-[50%]">
-						<div>Category 1</div>
-						<div>Category 2</div>
-						<div>Category 3</div>
+		<div>
+			<div className="border-b border-black">
+				<div>
+					<div className="border-b border-black text-3xl">
+						<h1>{title}</h1>
 					</div>
 				</div>
-				<div className="grid grid-cols-5">
-					<aside className="border-l border-black">
-						<CollectionSidebar brands={brands} sizes={sizes} />
-					</aside>
+				<div className="flex flex-row justify-between mx-auto w-[50%]">
+					<div>Category 1</div>
+					<div>Category 2</div>
+					<div>Category 3</div>
+				</div>
+			</div>
+			<div className="grid grid-cols-5">
+				<aside className="border-l border-black">
+					<CollectionSidebar brands={brands} sizes={sizes} colors={colors} />
+				</aside>
+				<Suspense key={searchParams.toString()}>
 					<main className="col-span-4 border-l border-black">
 						<ProductListView products={products} productCount={productCount} />
 						<div>
@@ -84,10 +92,14 @@ const CollectionView: React.FunctionComponent<{ queryRef: any }> = ({ queryRef }
 							)}
 						</div>
 					</main>
-				</div>
+				</Suspense>
 			</div>
-		</Suspense>
+		</div>
 	)
 }
 
 export default CollectionView
+
+// TODO: !! Subcategories header buttons
+// TODO: Use images from Zumiez collection page for featured images
+// TODO: Figure out solution to use.replace() use.refresh()
