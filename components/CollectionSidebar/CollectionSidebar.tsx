@@ -1,7 +1,10 @@
 'use client'
-import React, { useState } from 'react'
+import React from 'react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
-import { RefinementsRoot, RefinementsItem } from '../ProductRefinements/ProductRefinements'
+import {
+	RefinementsRoot,
+	RefinementsItem,
+} from '@/components/ProductRefinements/ProductRefinements'
 
 const CollectionSidebar: React.FunctionComponent<{
 	brands: string[]
@@ -163,3 +166,6 @@ const CollectionSidebar: React.FunctionComponent<{
 }
 
 export default CollectionSidebar
+
+// TODO: !! Sorting
+// TODO: !! Filter by color and price
