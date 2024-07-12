@@ -1,0 +1,11 @@
+schema:
+  - ${NEXT_PUBLIC_SHOPIFY_BASE_URL}:
+      headers:
+        X-Shopify-Storefront-Access-Token: ${NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN}
+documents: '{app,components,context,lib,test}/**/*.{ts,tsx}'
+generates:
+  './__generated__/':
+    preset: 'client'
+    plugins: []
+    presetConfig:
+      gqlTagName: 'gql'

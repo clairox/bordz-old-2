@@ -1,5 +1,11 @@
+'use client'
 import React from 'react'
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/Accordion'
+import {
+	Accordion,
+	AccordionContent,
+	AccordionItem,
+	AccordionTrigger,
+} from '@/components/ui/Accordion'
 
 const RefinementsRoot: React.FunctionComponent<{ children: React.ReactNode }> = ({ children }) => {
 	return <Accordion type="multiple">{children}</Accordion>
