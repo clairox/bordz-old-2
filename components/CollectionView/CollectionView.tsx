@@ -1,61 +1,60 @@
 'use client'
 import React, { Suspense } from 'react'
-import { useQueryRefHandlers, useReadQuery } from '@apollo/client'
 import ProductListView from '@/components/ProductListView'
 import CollectionSidebar from '@/components/CollectionSidebar'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
-import { TransportedQueryRef } from '@apollo/experimental-nextjs-app-support'
+import type { ProductListItem } from '@/types'
+import { GetCollectionQuery } from '@/__generated__/graphql'
 
-const CollectionView: React.FunctionComponent<{ queryRef: TransportedQueryRef<unknown> }> = ({
-	queryRef,
-}) => {
-	const { data, error } = useReadQuery(queryRef)
-
+const CollectionView: React.FunctionComponent<{
+	collection: GetCollectionQuery['collection']
+}> = ({ collection }) => {
 	const pathname = usePathname()
 	const router = useRouter()
 
 	const searchParams = useSearchParams()
 	const startParam = +(searchParams.get('start') || 0)
 
-	if (error) {
-		console.log(error.message)
+	const title = collection?.title
+	const products = collection?.products?.nodes.map(
+		product =>
+			({
+				title: product.title,
+				handle: product.handle,
+				price: product.priceRange.maxVariantPrice.amount,
+				featuredImage: {
+					src: product.featuredImage?.src,
+					width: product.featuredImage?.width,
+					height: product.featuredImage?.height,
+				},
+			} as ProductListItem)
+	)
+	const productCount = collection?.products?.filters
+		?.find(filter => filter.label === 'Availability')
+		?.values.find(value => value.label === 'In stock')?.count
+	const availableFilters = collection?.products.filters
+		.filter(filter => {
+			const productFilterLabels = ['Brand', 'Size', 'Color']
+			return productFilterLabels.includes(filter.label)
+		})
+		.map(filter => ({
+			label: filter.label.toLowerCase(),
+			values: filter.values.filter(value => value.count > 0).map(value => value.label),
+		}))
+	const hasNextPage = collection?.products.pageInfo.hasNextPage
+
+	if (
+		!title ||
+		!products ||
+		productCount === undefined ||
+		!availableFilters ||
+		hasNextPage === undefined
+	) {
 		return <></>
 	}
 
-	const collection = (data as any).collection
-	const title = collection.title
-	const hasNextPage = collection.products.pageInfo.hasNextPage
-	const productCount = collection.products.filters.find(
-		(filter: any) => filter.label === 'Availability'
-	).values[0].count
-	const brands = collection.products.filters
-		.find((filter: any) => filter.label === 'Brand')
-		.values.filter((value: any) => value.count > 0)
-		.map((value: any) => value.label)
-	const sizes = collection.products.filters
-		.find((filter: any) => filter.label === 'Size')
-		.values.filter((value: any) => value.count > 0)
-		.map((value: any) => value.label)
-	const colors =
-		collection.products.filters
-			.find((filter: any) => filter.label === 'Color')
-			.values.filter((value: any) => value.count > 0)
-			.map((value: any) => value.label) || []
-	const products = collection.products.nodes.map((product: any) => {
-		return {
-			title: product.title,
-			handle: product.handle,
-			price: product.priceRange.maxVariantPrice.amount,
-			featuredImage: {
-				src: product.featuredImage.src,
-				width: product.featuredImage.width,
-				height: product.featuredImage.height,
-			},
-		}
-	})
-
 	return (
-		<div>
+		<div key={`${pathname}/${searchParams.toString()}`}>
 			<div className="border-b border-black">
 				<div>
 					<div className="border-b border-black text-3xl">
@@ -70,11 +69,11 @@ const CollectionView: React.FunctionComponent<{ queryRef: TransportedQueryRef<un
 			</div>
 			<div className="grid grid-cols-5">
 				<aside className="border-l border-black">
-					<CollectionSidebar brands={brands} sizes={sizes} colors={colors} />
+					<CollectionSidebar filters={availableFilters} />
 				</aside>
-				<Suspense key={searchParams.toString()}>
+				<Suspense>
 					<main className="col-span-4 border-l border-black">
-						<ProductListView products={products} productCount={productCount} />
+						<ProductListView products={products} />
 						<div>
 							<p>
 								Showing {products.length} of {productCount} products
@@ -102,4 +101,3 @@ export default CollectionView
 
 // TODO: !! Subcategories header buttons
 // TODO: Use images from Zumiez collection page for featured images
-// TODO: Figure out solution to use.replace() use.refresh()

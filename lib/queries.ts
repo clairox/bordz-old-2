@@ -1,22 +1,15 @@
-import { gql } from '@apollo/client'
+import { gql } from '@/__generated__'
 
-const GET_COLLECTION = gql`
+const GET_COLLECTION = gql(`
 	query GetCollection(
 		$handle: String!
 		$limit: Int!
 		$sortKey: ProductCollectionSortKeys!
 		$filters: [ProductFilter!]
-		$cursor: String
 	) {
 		collection(handle: $handle) {
 			title
-			products(
-				first: $limit
-				after: $cursor
-				sortKey: $sortKey
-				reverse: false
-				filters: $filters
-			) {
+			products(first: $limit, sortKey: $sortKey, reverse: false, filters: $filters) {
 				nodes {
 					id
 					title
@@ -35,7 +28,6 @@ const GET_COLLECTION = gql`
 					}
 				}
 				pageInfo {
-					endCursor
 					hasNextPage
 				}
 				filters {
@@ -48,6 +40,6 @@ const GET_COLLECTION = gql`
 			}
 		}
 	}
-`
+`)
 
 export { GET_COLLECTION }

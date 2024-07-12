@@ -1,22 +1,11 @@
 'use client'
+import { ProductListItem } from '@/types'
 import Image from 'next/image'
 import Link from 'next/link'
 
-type ProductListItem = {
-	title: string
-	handle: string
-	price: number
-	featuredImage: {
-		src: string
-		width: number
-		height: number
-	}
-}
-
 const ProductListView: React.FunctionComponent<{
 	products: ProductListItem[]
-	productCount: number
-}> = ({ products, productCount }) => {
+}> = ({ products }) => {
 	if (products.length > 0) {
 		return (
 			<div className="grid grid-cols-4">

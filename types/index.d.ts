@@ -14,6 +14,25 @@ export type Product = {
 	createdAt: Date
 }
 
+export type ProductListItem = {
+	title: string
+	handle: string
+	price: number
+	featuredImage: ImageData
+}
+
+export type ImageData = {
+	src: string
+	width: number
+	height: number
+	alt?: string
+}
+
+export type ProductFilter = {
+	label: string
+	values: string[]
+}
+
 // TODO: Maybe add size to cart item and add size as params to addItem. Maybe not for now since all items will only have one size
 export type CartItem = {
 	id: number
