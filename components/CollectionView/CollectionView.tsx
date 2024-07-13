@@ -5,10 +5,13 @@ import CollectionSidebar from '@/components/CollectionSidebar'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import type { ProductListItem } from '@/types'
 import { GetCollectionQuery } from '@/__generated__/graphql'
+import Link from 'next/link'
+import _ from 'lodash'
 
 const CollectionView: React.FunctionComponent<{
 	collection: GetCollectionQuery['collection']
-}> = ({ collection }) => {
+	isSubcollection?: boolean
+}> = ({ collection, isSubcollection = false }) => {
 	const pathname = usePathname()
 	const router = useRouter()
 
@@ -41,6 +44,9 @@ const CollectionView: React.FunctionComponent<{
 			label: filter.label.toLowerCase(),
 			values: filter.values.filter(value => value.count > 0).map(value => value.label),
 		}))
+	const subcollections = collection?.products.filters
+		.find(filter => filter.label === 'Subcollection')
+		?.values.map(value => value.label)
 	const hasNextPage = collection?.products.pageInfo.hasNextPage
 
 	if (
@@ -62,9 +68,12 @@ const CollectionView: React.FunctionComponent<{
 					</div>
 				</div>
 				<div className="flex flex-row justify-between mx-auto w-[50%]">
-					<div>Category 1</div>
-					<div>Category 2</div>
-					<div>Category 3</div>
+					{!isSubcollection &&
+						subcollections?.map(subcollection => (
+							<Link href={pathname + '/' + subcollection} key={subcollection}>
+								<span>{_.startCase(subcollection.replace('-', ' '))}</span>
+							</Link>
+						))}
 				</div>
 			</div>
 			<div className="grid grid-cols-5">

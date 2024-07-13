@@ -11,6 +11,7 @@ const { getClient, query, PreloadQuery } = registerApolloClient(() => {
 				'X-Shopify-Storefront-Access-Token':
 					process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN!,
 			},
+			fetchOptions: { cache: 'no-cache' },
 		}),
 	})
 })
