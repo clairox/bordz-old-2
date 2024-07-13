@@ -71,7 +71,7 @@ const CollectionSidebar: React.FunctionComponent<{
 	const clearRefinements = () => {
 		// Using '?u-true' circumvents Page component not rerendering
 		// after navigating to url without query params
-		router.replace(pathname + '?u=true')
+		router.replace(pathname + '?u=true', { scroll: false })
 	}
 
 	return (
@@ -164,3 +164,4 @@ export default CollectionSidebar
 // TODO: !! Sorting
 // TODO: !! Filter by price
 // TODO: !! addRefinement() and removeRefinement() functions
+// TODO: Prevent AccordionItem from closing when refining
