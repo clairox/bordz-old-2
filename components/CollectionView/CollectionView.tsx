@@ -47,6 +47,7 @@ const CollectionView: React.FunctionComponent<{
 	const subcollections = collection?.products.filters
 		.find(filter => filter.label === 'Subcollection')
 		?.values.map(value => value.label)
+		.toSorted()
 	const hasNextPage = collection?.products.pageInfo.hasNextPage
 
 	if (
@@ -108,5 +109,5 @@ const CollectionView: React.FunctionComponent<{
 
 export default CollectionView
 
-// TODO: !! Subcategories header buttons
 // TODO: Use images from Zumiez collection page for featured images
+// TODO: Make suspense fallbacks for CollectionView and its children
