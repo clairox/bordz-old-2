@@ -36,7 +36,7 @@ const Page: React.FunctionComponent<{
 		fetchPolicy: 'cache-first',
 	})
 
-	return <CollectionView collection={data.collection} />
+	return <CollectionView collection={data.collection} title={data.collection?.title} />
 }
 
 export default Page

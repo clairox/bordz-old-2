@@ -10,15 +10,15 @@ import _ from 'lodash'
 
 const CollectionView: React.FunctionComponent<{
 	collection: GetCollectionQuery['collection']
+	title?: string
 	isSubcollection?: boolean
-}> = ({ collection, isSubcollection = false }) => {
+}> = ({ collection, title, isSubcollection = false }) => {
 	const pathname = usePathname()
 	const router = useRouter()
 
 	const searchParams = useSearchParams()
 	const startParam = +(searchParams.get('start') || 0)
 
-	const title = collection?.title
 	const products = collection?.products?.nodes.map(
 		product =>
 			({

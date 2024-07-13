@@ -42,7 +42,8 @@ const Page: React.FunctionComponent<{
 		fetchPolicy: 'cache-first',
 	})
 
-	return <CollectionView collection={data.collection} isSubcollection={true} />
+	const title = _.startCase(params.subcollection.replace('-', ' '))
+	return <CollectionView collection={data.collection} title={title} isSubcollection={true} />
 }
 
 export default Page
