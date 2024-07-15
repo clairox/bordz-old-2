@@ -1,5 +1,5 @@
 'use client'
-import React from 'react'
+import React, { useState } from 'react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import {
 	RefinementsRoot,
@@ -7,15 +7,21 @@ import {
 } from '@/components/ProductRefinements/ProductRefinements'
 import { ProductFilter } from '@/types'
 import _ from 'lodash'
+import RangeSlider from '../RangeSlider'
 
 const CollectionSidebar: React.FunctionComponent<{
 	filters: ProductFilter[]
-}> = ({ filters }) => {
+	maxPrice: number
+}> = ({ filters, maxPrice }) => {
 	const PARAM_DELIMITER = '|'
 
 	const router = useRouter()
 	const pathname = usePathname()
 	const searchParams = useSearchParams()
+
+	const MIN_PRICE = 0
+	const MAX_PRICE = Math.ceil(maxPrice / 50) * 50
+	const [filteredPriceRange, setFilteredPriceRange] = useState([MIN_PRICE, MAX_PRICE])
 
 	const currentRefinements = Array.from(searchParams.keys())
 		.filter(key => filters.map(filter => filter.label).includes(key))
@@ -54,6 +60,10 @@ const CollectionSidebar: React.FunctionComponent<{
 		} else {
 			clearRefinements()
 		}
+	}
+
+	const setPriceRefinement = (newPriceRange: number[]) => {
+		setFilteredPriceRange(newPriceRange)
 	}
 
 	const refine = (refinements: { label: string; values: string[] }[]) => {
@@ -153,7 +163,16 @@ const CollectionSidebar: React.FunctionComponent<{
 						</RefinementsItem>
 					)
 				})}
-				<RefinementsItem title={'Price'}></RefinementsItem>
+				<RefinementsItem title={'Price'}>
+					<div className="mx-5">
+						<RangeSlider
+							value={filteredPriceRange}
+							setValue={setPriceRefinement}
+							min={MIN_PRICE}
+							max={MAX_PRICE}
+						/>
+					</div>
+				</RefinementsItem>
 			</RefinementsRoot>
 		</div>
 	)

@@ -50,6 +50,13 @@ const CollectionView: React.FunctionComponent<{
 		.toSorted()
 	const hasNextPage = collection?.products.pageInfo.hasNextPage
 
+	let maxPrice = -Infinity
+	products?.forEach(product => {
+		if (product.price > maxPrice) {
+			maxPrice = product.price
+		}
+	})
+
 	if (
 		!title ||
 		!products ||
@@ -79,7 +86,7 @@ const CollectionView: React.FunctionComponent<{
 			</div>
 			<div className="grid grid-cols-5">
 				<aside className="border-l border-black">
-					<CollectionSidebar filters={availableFilters} />
+					<CollectionSidebar filters={availableFilters} maxPrice={maxPrice} />
 				</aside>
 				<Suspense>
 					<main className="col-span-4 border-l border-black">
