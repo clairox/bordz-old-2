@@ -2,24 +2,74 @@
 import React, { Suspense } from 'react'
 import ProductListView from '@/components/ProductListView'
 import CollectionSidebar from '@/components/CollectionSidebar'
-import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation'
 import type { ProductListItem } from '@/types'
-import { GetCollectionQuery } from '@/__generated__/graphql'
 import Link from 'next/link'
 import _ from 'lodash'
+import { useSuspenseQuery } from '@apollo/client'
+import { GET_COLLECTION } from '@/lib/queries'
+import { GetCollectionQuery, ProductCollectionSortKeys } from '@/__generated__/graphql'
 
-const CollectionView: React.FunctionComponent<{
-	collection: GetCollectionQuery['collection']
-	title?: string
-	isSubcollection?: boolean
-}> = ({ collection, title, isSubcollection = false }) => {
+const CollectionView: React.FunctionComponent = () => {
 	const pathname = usePathname()
 	const router = useRouter()
 
+	const params = useParams()
+	const [collectionParam, subcollectionParam] = params.collection as string[]
 	const searchParams = useSearchParams()
 	const startParam = +(searchParams.get('start') || 0)
 
-	const products = collection?.products?.nodes.map(
+	const handle = collectionParam
+	const limit = 40 + +(searchParams.get('start') || 0) || 40
+	const sortKey = ProductCollectionSortKeys.Created
+	const defaultFilters = subcollectionParam
+		? [
+				{ available: true },
+				{
+					productMetafield: {
+						namespace: 'custom',
+						key: 'subcategory',
+						value: subcollectionParam,
+					},
+				},
+		  ]
+		: [{ available: true }]
+	const filters = [
+		...defaultFilters,
+		...(searchParams
+			.get('brand')
+			?.split('|')
+			.map(brand => ({ productVendor: brand })) || []),
+		...(searchParams
+			.get('size')
+			?.split('|')
+			.map(size => ({ variantOption: { name: 'size', value: size } })) || []),
+		...(searchParams
+			.get('color')
+			?.split('|')
+			.map(color => ({ productMetafield: { namespace: 'custom', key: 'color', value: color } })) ||
+			[]),
+	]
+
+	const { data, error } = useSuspenseQuery(GET_COLLECTION, {
+		variables: { handle, limit, sortKey, filters },
+		fetchPolicy: 'cache-and-network',
+	})
+
+	if (error) {
+		console.error(error)
+		return <></>
+	}
+
+	const collection = (data as GetCollectionQuery).collection
+	const fetchedProducts = collection?.products
+	const fetchedFilters = fetchedProducts?.filters
+
+	const title = params.subcollection
+		? _.startCase((params.subcollection as string).replace('-', ' '))
+		: collection?.title
+
+	const renderableProducts = fetchedProducts?.nodes.map(
 		product =>
 			({
 				title: product.title,
@@ -32,11 +82,13 @@ const CollectionView: React.FunctionComponent<{
 				},
 			} as ProductListItem)
 	)
-	const productCount = collection?.products?.filters
+
+	const productCount = fetchedFilters
 		?.find(filter => filter.label === 'Availability')
 		?.values.find(value => value.label === 'In stock')?.count
-	const availableFilters = collection?.products.filters
-		.filter(filter => {
+
+	const availableFilters = fetchedFilters
+		?.filter(filter => {
 			const productFilterLabels = ['Brand', 'Size', 'Color']
 			return productFilterLabels.includes(filter.label)
 		})
@@ -44,28 +96,30 @@ const CollectionView: React.FunctionComponent<{
 			label: filter.label.toLowerCase(),
 			values: filter.values.filter(value => value.count > 0).map(value => value.label),
 		}))
-	const subcollections = collection?.products.filters
-		.find(filter => filter.label === 'Subcollection')
+
+	const subcollectionTitles = fetchedFilters
+		?.find(filter => filter.label === 'Subcollection')
 		?.values.map(value => value.label)
 		.toSorted()
-	const hasNextPage = collection?.products.pageInfo.hasNextPage
 
-	let maxPrice = -Infinity
-	products?.forEach(product => {
-		if (product.price > maxPrice) {
-			maxPrice = product.price
-		}
-	})
+	const hasNextPage = fetchedProducts?.pageInfo.hasNextPage
 
 	if (
 		!title ||
-		!products ||
+		!renderableProducts ||
 		productCount === undefined ||
 		!availableFilters ||
 		hasNextPage === undefined
 	) {
 		return <></>
 	}
+
+	let maxPrice = -Infinity
+	renderableProducts?.forEach(product => {
+		if (product.price > maxPrice) {
+			maxPrice = product.price
+		}
+	})
 
 	return (
 		<div key={`${pathname}/${searchParams.toString()}`}>
@@ -76,10 +130,10 @@ const CollectionView: React.FunctionComponent<{
 					</div>
 				</div>
 				<div className="flex flex-row justify-between mx-auto w-[50%]">
-					{!isSubcollection &&
-						subcollections?.map(subcollection => (
-							<Link href={pathname + '/' + subcollection} key={subcollection}>
-								<span>{_.startCase(subcollection.replace('-', ' '))}</span>
+					{subcollectionParam === undefined &&
+						subcollectionTitles?.map(title => (
+							<Link href={pathname + '/' + title} key={title}>
+								<span>{_.startCase(title.replace('-', ' '))}</span>
 							</Link>
 						))}
 				</div>
@@ -90,10 +144,10 @@ const CollectionView: React.FunctionComponent<{
 				</aside>
 				<Suspense>
 					<main className="col-span-4 border-l border-black">
-						<ProductListView products={products} />
+						<ProductListView products={renderableProducts} />
 						<div>
 							<p>
-								Showing {products.length} of {productCount} products
+								Showing {renderableProducts.length} of {productCount} products
 							</p>
 							{hasNextPage && (
 								<button

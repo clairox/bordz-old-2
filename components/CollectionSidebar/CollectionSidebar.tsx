@@ -81,7 +81,7 @@ const CollectionSidebar: React.FunctionComponent<{
 	const clearRefinements = () => {
 		// Using '?u-true' circumvents Page component not rerendering
 		// after navigating to url without query params
-		router.replace(pathname + '?u=true', { scroll: false })
+		router.replace(pathname, { scroll: false })
 	}
 
 	return (

@@ -45,7 +45,7 @@ export type CartItem = {
 
 export type UnsavedCartItem = Omit<CartItem, 'id' | 'cartId', 'createdAt'>
 
-export type CollectionName =
+export type CollectionTitle =
 	| 'new'
 	| 'skateboard-decks'
 	| 'skateboard-trucks'

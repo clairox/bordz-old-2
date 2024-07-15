@@ -1,5 +1,4 @@
-import { query } from '@/lib/apollo/apolloClient'
-import type { CollectionName } from '@/types'
+import { PreloadQuery } from '@/lib/apollo/apolloClient'
 import React from 'react'
 import { GET_COLLECTION } from '@/lib/queries'
 import CollectionView from '@/components/CollectionView'
@@ -7,20 +6,22 @@ import { ProductCollectionSortKeys } from '@/__generated__/graphql'
 import _ from 'lodash'
 
 const CollectionPage: React.FunctionComponent<{
-	params: { collection: CollectionName; subcollection?: string }
-	searchParams: { start?: number; brand?: string; size?: string; color?: string }
+	params: { collection: string[] }
+	searchParams: { [key: string]: string }
 }> = async ({ params, searchParams }) => {
-	const handle = params.collection
+	const [collectionParam, subcollectionParam] = params.collection
+
+	const handle = collectionParam
 	const limit = 40 + +(searchParams.start || 0) || 40
 	const sortKey = ProductCollectionSortKeys.Created
-	const defaultFilters = params.subcollection
+	const defaultFilters = subcollectionParam
 		? [
 				{ available: true },
 				{
 					productMetafield: {
 						namespace: 'custom',
 						key: 'subcategory',
-						value: params.subcollection,
+						value: subcollectionParam,
 					},
 				},
 		  ]
@@ -37,26 +38,10 @@ const CollectionPage: React.FunctionComponent<{
 			[]),
 	]
 
-	const { data, error, loading } = await query({
-		query: GET_COLLECTION,
-		variables: {
-			handle,
-			limit,
-			sortKey,
-			filters,
-		},
-		fetchPolicy: 'cache-first',
-	})
-
-	const title = params.subcollection
-		? _.startCase(params.subcollection.replace('-', ' '))
-		: data.collection?.title
 	return (
-		<CollectionView
-			collection={data.collection}
-			title={title}
-			isSubcollection={params.subcollection !== undefined}
-		/>
+		<PreloadQuery query={GET_COLLECTION} variables={{ handle, limit, sortKey, filters }}>
+			<CollectionView />
+		</PreloadQuery>
 	)
 }
 

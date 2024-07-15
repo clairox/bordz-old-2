@@ -33,7 +33,7 @@ const makeClient = () => {
 									...incoming,
 									nodes: [...(existing?.nodes || []), ...incoming.nodes],
 								}
-								return merged
+								return incoming
 							},
 						},
 					},
