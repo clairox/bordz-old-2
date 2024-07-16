@@ -1,13 +1,10 @@
 'use client'
 import React, { useState } from 'react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
-import {
-	RefinementsRoot,
-	RefinementsItem,
-} from '@/components/ProductRefinements/ProductRefinements'
 import { ProductFilter } from '@/types'
 import _ from 'lodash'
-import RangeSlider from '../../RangeSlider'
+import RangeSlider from '@/components/RangeSlider'
+import { CollectionSidebarMenu, CollectionSidebarMenuItem } from '../CollectionSidebarMenu'
 
 const CollectionSidebar: React.FunctionComponent<{
 	openRefinements: string[]
@@ -116,8 +113,11 @@ const CollectionSidebar: React.FunctionComponent<{
 					})}
 			</div>
 
-			<RefinementsRoot openRefinements={openRefinements} setOpenRefinements={setOpenRefinements}>
-				<RefinementsItem title={'Sort'}>
+			<CollectionSidebarMenu
+				openRefinements={openRefinements}
+				setOpenRefinements={setOpenRefinements}
+			>
+				<CollectionSidebarMenuItem title={'Sort'}>
 					<ul className="list-none">
 						<li className="pl-6 py-1 hover:underline cursor-pointer">
 							<p>Recommended</p>
@@ -132,11 +132,11 @@ const CollectionSidebar: React.FunctionComponent<{
 							<p>Price: High to Low</p>
 						</li>
 					</ul>
-				</RefinementsItem>
+				</CollectionSidebarMenuItem>
 				{filters.map(filter => {
 					const { label, values } = filter
 					return (
-						<RefinementsItem title={_.capitalize(label)} key={label}>
+						<CollectionSidebarMenuItem title={_.capitalize(label)} key={label}>
 							<ul className="list-none">
 								{values.map((value: string) => {
 									return (
@@ -161,10 +161,10 @@ const CollectionSidebar: React.FunctionComponent<{
 									)
 								})}
 							</ul>
-						</RefinementsItem>
+						</CollectionSidebarMenuItem>
 					)
 				})}
-				<RefinementsItem title={'Price'}>
+				<CollectionSidebarMenuItem title={'Price'}>
 					<div className="mx-5">
 						<RangeSlider
 							value={filteredPriceRange}
@@ -173,8 +173,8 @@ const CollectionSidebar: React.FunctionComponent<{
 							max={MAX_PRICE}
 						/>
 					</div>
-				</RefinementsItem>
-			</RefinementsRoot>
+				</CollectionSidebarMenuItem>
+			</CollectionSidebarMenu>
 		</div>
 	)
 }

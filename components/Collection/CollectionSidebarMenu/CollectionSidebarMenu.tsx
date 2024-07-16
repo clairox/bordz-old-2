@@ -7,7 +7,7 @@ import {
 	AccordionTrigger,
 } from '@/components/ui/Accordion'
 
-const RefinementsRoot: React.FunctionComponent<{
+const CollectionSidebarMenu: React.FunctionComponent<{
 	openRefinements: string[]
 	setOpenRefinements: (refinements: string[]) => void
 	children: React.ReactNode
@@ -23,7 +23,7 @@ const RefinementsRoot: React.FunctionComponent<{
 	)
 }
 
-const RefinementsItem: React.FunctionComponent<{
+const CollectionSidebarMenuItem: React.FunctionComponent<{
 	title: string
 	children?: React.ReactNode
 }> = ({ title, children }) => {
@@ -37,4 +37,4 @@ const RefinementsItem: React.FunctionComponent<{
 	)
 }
 
-export { RefinementsRoot, RefinementsItem }
+export { CollectionSidebarMenu, CollectionSidebarMenuItem }
