@@ -3,14 +3,14 @@ import React, { Suspense, useState } from 'react'
 import ProductListView from '@/components/ProductListView'
 import CollectionSidebar from '@/components/CollectionSidebar'
 import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation'
-import type { ProductListItem } from '@/types'
 import Link from 'next/link'
 import _ from 'lodash'
-import { useSuspenseQuery } from '@apollo/client'
-import { GET_COLLECTION } from '@/lib/queries'
-import { GetCollectionQuery, ProductCollectionSortKeys } from '@/__generated__/graphql'
+import { ProductCollectionSortKeys } from '@/__generated__/graphql'
+import { useCollection } from '@/hooks/useCollection'
 
 const CollectionView: React.FunctionComponent = () => {
+	const [openRefinements, setOpenRefinements] = useState<string[]>([])
+
 	const pathname = usePathname()
 	const router = useRouter()
 
@@ -51,60 +51,24 @@ const CollectionView: React.FunctionComponent = () => {
 			[]),
 	]
 
-	const { data, error } = useSuspenseQuery(GET_COLLECTION, {
-		variables: { handle, limit, sortKey, filters },
-		fetchPolicy: 'cache-and-network',
-	})
-
-	const [openRefinements, setOpenRefinements] = useState<string[]>([])
+	const {
+		collection,
+		renderableProducts,
+		productCount,
+		availableFilters,
+		subcollectionTitles,
+		hasNextPage,
+		error,
+	} = useCollection(handle, limit, sortKey, filters)
 
 	if (error) {
 		console.error(error)
 		return <></>
 	}
 
-	const collection = (data as GetCollectionQuery).collection
-	const fetchedProducts = collection?.products
-	const fetchedFilters = fetchedProducts?.filters
-
 	const title = params.subcollection
 		? _.startCase((params.subcollection as string).replace('-', ' '))
 		: collection?.title
-
-	const renderableProducts = fetchedProducts?.nodes.map(
-		product =>
-			({
-				title: product.title,
-				handle: product.handle,
-				price: product.priceRange.maxVariantPrice.amount,
-				featuredImage: {
-					src: product.featuredImage?.src,
-					width: product.featuredImage?.width,
-					height: product.featuredImage?.height,
-				},
-			} as ProductListItem)
-	)
-
-	const productCount = fetchedFilters
-		?.find(filter => filter.label === 'Availability')
-		?.values.find(value => value.label === 'In stock')?.count
-
-	const availableFilters = fetchedFilters
-		?.filter(filter => {
-			const productFilterLabels = ['Brand', 'Size', 'Color']
-			return productFilterLabels.includes(filter.label)
-		})
-		.map(filter => ({
-			label: filter.label.toLowerCase(),
-			values: filter.values.filter(value => value.count > 0).map(value => value.label),
-		}))
-
-	const subcollectionTitles = fetchedFilters
-		?.find(filter => filter.label === 'Subcollection')
-		?.values.map(value => value.label)
-		.toSorted()
-
-	const hasNextPage = fetchedProducts?.pageInfo.hasNextPage
 
 	if (
 		!title ||
