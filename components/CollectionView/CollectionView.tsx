@@ -1,5 +1,5 @@
 'use client'
-import React, { Suspense } from 'react'
+import React, { Suspense, useState } from 'react'
 import ProductListView from '@/components/ProductListView'
 import CollectionSidebar from '@/components/CollectionSidebar'
 import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation'
@@ -55,6 +55,8 @@ const CollectionView: React.FunctionComponent = () => {
 		variables: { handle, limit, sortKey, filters },
 		fetchPolicy: 'cache-and-network',
 	})
+
+	const [openRefinements, setOpenRefinements] = useState<string[]>([])
 
 	if (error) {
 		console.error(error)
@@ -140,7 +142,12 @@ const CollectionView: React.FunctionComponent = () => {
 			</div>
 			<div className="grid grid-cols-5">
 				<aside className="border-l border-black">
-					<CollectionSidebar filters={availableFilters} maxPrice={maxPrice} />
+					<CollectionSidebar
+						filters={availableFilters}
+						maxPrice={maxPrice}
+						openRefinements={openRefinements}
+						setOpenRefinements={setOpenRefinements}
+					/>
 				</aside>
 				<Suspense>
 					<main className="col-span-4 border-l border-black">

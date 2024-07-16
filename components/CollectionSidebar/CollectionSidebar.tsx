@@ -10,9 +10,11 @@ import _ from 'lodash'
 import RangeSlider from '../RangeSlider'
 
 const CollectionSidebar: React.FunctionComponent<{
+	openRefinements: string[]
+	setOpenRefinements: (refinements: string[]) => void
 	filters: ProductFilter[]
 	maxPrice: number
-}> = ({ filters, maxPrice }) => {
+}> = ({ openRefinements, setOpenRefinements, filters, maxPrice }) => {
 	const PARAM_DELIMITER = '|'
 
 	const router = useRouter()
@@ -79,8 +81,6 @@ const CollectionSidebar: React.FunctionComponent<{
 	}
 
 	const clearRefinements = () => {
-		// Using '?u-true' circumvents Page component not rerendering
-		// after navigating to url without query params
 		router.replace(pathname, { scroll: false })
 	}
 
@@ -115,7 +115,8 @@ const CollectionSidebar: React.FunctionComponent<{
 						)
 					})}
 			</div>
-			<RefinementsRoot>
+
+			<RefinementsRoot openRefinements={openRefinements} setOpenRefinements={setOpenRefinements}>
 				<RefinementsItem title={'Sort'}>
 					<ul className="list-none">
 						<li className="pl-6 py-1 hover:underline cursor-pointer">

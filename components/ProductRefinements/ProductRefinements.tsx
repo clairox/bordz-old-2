@@ -7,8 +7,20 @@ import {
 	AccordionTrigger,
 } from '@/components/ui/Accordion'
 
-const RefinementsRoot: React.FunctionComponent<{ children: React.ReactNode }> = ({ children }) => {
-	return <Accordion type="multiple">{children}</Accordion>
+const RefinementsRoot: React.FunctionComponent<{
+	openRefinements: string[]
+	setOpenRefinements: (refinements: string[]) => void
+	children: React.ReactNode
+}> = ({ openRefinements, setOpenRefinements, children }) => {
+	return (
+		<Accordion
+			type="multiple"
+			value={openRefinements}
+			onValueChange={newValue => setOpenRefinements(newValue)}
+		>
+			{children}
+		</Accordion>
+	)
 }
 
 const RefinementsItem: React.FunctionComponent<{
