@@ -68,7 +68,7 @@ const CollectionView: React.FunctionComponent = () => {
 			[]),
 	] as any
 
-	const { maxPrice } = useCollectionMaxPrice(handle, limit, sortKey, filters)
+	const { maxPrice } = useCollectionMaxPrice(handle, limit, filters)
 
 	const filtersWithPrice = filters.concat(
 		...(searchParams.get('priceMin') && searchParams.get('priceMax')

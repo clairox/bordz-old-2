@@ -1,19 +1,10 @@
-import {
-	GetCollectionQuery,
-	ProductCollectionSortKeys,
-	ProductFilter,
-} from '@/__generated__/graphql'
+import { GetCollectionQuery, ProductFilter } from '@/__generated__/graphql'
 import { GET_COLLECTION_MAX_PRICE } from '@/lib/queries'
 import { useSuspenseQuery } from '@apollo/client'
 
-const useCollectionMaxPrice = (
-	handle: string,
-	limit: number,
-	sortKey: ProductCollectionSortKeys,
-	filters: ProductFilter[]
-) => {
+const useCollectionMaxPrice = (handle: string, limit: number, filters: ProductFilter[]) => {
 	const { data, error } = useSuspenseQuery(GET_COLLECTION_MAX_PRICE, {
-		variables: { handle, limit, sortKey, filters },
+		variables: { handle, limit, filters },
 		fetchPolicy: 'no-cache',
 	})
 

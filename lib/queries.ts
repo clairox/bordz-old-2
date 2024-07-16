@@ -48,11 +48,10 @@ const GET_COLLECTION_MAX_PRICE = gql(`
 	query GetCollectionMaxPrice(
 		$handle: String!
 		$limit: Int!
-		$sortKey: ProductCollectionSortKeys!
 		$filters: [ProductFilter!]
 	) {
 		collection(handle: $handle) {
-			products(first: $limit, sortKey: $sortKey, reverse: false, filters: $filters) {
+			products(first: $limit, filters: $filters) {
 				nodes {
 					priceRange {
 						maxVariantPrice {
