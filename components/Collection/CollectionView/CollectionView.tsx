@@ -1,13 +1,13 @@
 'use client'
 import React, { useState } from 'react'
-import CollectionProductList from '@/components/Collection/CollectionProductList'
-import CollectionSidebar from '@/components/Collection/CollectionSidebar'
+import CollectionHeader from '../CollectionHeader'
+import CollectionFooter from '../CollectionFooter'
+import CollectionProductList from '../CollectionProductList'
+import CollectionSidebar from '../CollectionSidebar'
 import { useParams, usePathname, useSearchParams } from 'next/navigation'
 import _ from 'lodash'
 import { ProductCollectionSortKeys } from '@/__generated__/graphql'
-import { useCollection } from '@/hooks/useCollection'
-import CollectionHeader from '../CollectionHeader/CollectionHeader'
-import CollectionFooter from '../CollectionFooter/CollectionFooter'
+import { useCollection } from '@/hooks/useCollection/useCollection'
 
 const CollectionView: React.FunctionComponent = () => {
 	const [openRefinements, setOpenRefinements] = useState<string[]>([])
