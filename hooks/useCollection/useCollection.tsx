@@ -11,10 +11,11 @@ const useCollection = (
 	handle: string,
 	limit: number,
 	sortKey: ProductCollectionSortKeys,
-	filters: ProductFilter[]
+	filters: ProductFilter[],
+	reverse?: boolean
 ) => {
 	const { data, error } = useSuspenseQuery(GET_COLLECTION, {
-		variables: { handle, limit, sortKey, filters },
+		variables: { handle, limit, sortKey, filters, reverse },
 		fetchPolicy: 'cache-and-network',
 	})
 

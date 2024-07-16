@@ -19,9 +19,26 @@ const CollectionView: React.FunctionComponent = () => {
 	const [collectionParam, subcollectionParam] = params.collection as string[]
 	const searchParams = useSearchParams()
 
+	type SortByParamsType = {
+		[key: string]: ProductCollectionSortKeys
+	}
+
+	const sortByParams: SortByParamsType = {
+		recommended: ProductCollectionSortKeys.BestSelling,
+		newest: ProductCollectionSortKeys.Created,
+		priceLowToHigh: ProductCollectionSortKeys.Price,
+		priceHighToLow: ProductCollectionSortKeys.Price,
+	}
+
 	const handle = collectionParam
 	const limit = 40 + +(searchParams.get('start') || 0) || 40
-	const sortKey = ProductCollectionSortKeys.Created
+
+	const sortByParam = (
+		searchParams.get('sortBy') ? searchParams.get('sortBy') : 'recommended'
+	) as keyof SortByParamsType
+	const sortKey = sortByParams[sortByParam]
+	const reverse = sortByParam === 'recommended' || sortByParam === 'priceHighToLow' ? true : false
+
 	const defaultFilters = subcollectionParam
 		? [
 				{ available: true },
@@ -68,7 +85,7 @@ const CollectionView: React.FunctionComponent = () => {
 		subcollectionTitles,
 		hasNextPage,
 		error,
-	} = useCollection(handle, limit, sortKey, filtersWithPrice)
+	} = useCollection(handle, limit, sortKey, filtersWithPrice, reverse)
 
 	if (error) {
 		console.error(error)

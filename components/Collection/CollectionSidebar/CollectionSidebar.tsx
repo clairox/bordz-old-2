@@ -5,6 +5,7 @@ import { ProductFilter } from '@/types'
 import _ from 'lodash'
 import { CollectionSidebarMenu, CollectionSidebarMenuItem } from '../CollectionSidebarMenu'
 import PriceRangeSlider from '@/components/PriceRangeSlider'
+import { ProductCollectionSortKeys } from '@/__generated__/graphql'
 
 const CollectionSidebar: React.FunctionComponent<{
 	filters: ProductFilter[]
@@ -17,6 +18,8 @@ const CollectionSidebar: React.FunctionComponent<{
 	const router = useRouter()
 	const pathname = usePathname()
 	const searchParams = useSearchParams()
+
+	const sortByParam = searchParams.get('sortBy')
 
 	const MIN_PRICE = 0
 	const MAX_PRICE = maxPrice
@@ -105,12 +108,31 @@ const CollectionSidebar: React.FunctionComponent<{
 			newParams.set(name, value)
 		})
 
+		if (sortByParam) {
+			newParams.set('sortBy', sortByParam)
+		}
+
 		const url = newParams.size > 0 ? pathname + '?' + newParams.toString() : pathname
 		router.replace(url, { scroll: false })
 	}
 
 	const clearRefinements = () => {
-		router.replace(pathname, { scroll: false })
+		if (sortByParam) {
+			const newParams = new URLSearchParams()
+			newParams.set('sortBy', sortByParam)
+			const url = pathname + '?' + newParams.toString()
+			return router.replace(url, { scroll: false })
+		}
+
+		return router.replace(pathname, { scroll: false })
+	}
+
+	const sortBy = (sortByParam: string) => {
+		const newParams = new URLSearchParams(searchParams)
+		newParams.set('sortBy', sortByParam)
+
+		const url = pathname + '?' + newParams.toString()
+		router.replace(url, { scroll: false })
 	}
 
 	return (
@@ -144,7 +166,10 @@ const CollectionSidebar: React.FunctionComponent<{
 						)
 					})}
 				{minPriceParam && maxPriceParam && (
-					<div className="cursor-pointer hover:underline" onClick={() => deletePriceRefinement()}>
+					<div
+						className="pt-2 cursor-pointer hover:underline"
+						onClick={() => deletePriceRefinement()}
+					>
 						x ${minPriceParam} - ${maxPriceParam}
 					</div>
 				)}
@@ -156,16 +181,36 @@ const CollectionSidebar: React.FunctionComponent<{
 			>
 				<CollectionSidebarMenuItem title={'Sort'}>
 					<ul className="list-none">
-						<li className="pl-6 py-1 hover:underline cursor-pointer">
+						<li
+							className={`pl-6 py-1 hover:underline cursor-pointer ${
+								sortByParam === 'recommended' || !sortByParam ? 'font-semibold' : ''
+							}`}
+							onClick={() => sortBy('recommended')}
+						>
 							<p>Recommended</p>
 						</li>
-						<li className="pl-6 py-1 hover:underline cursor-pointer">
-							<p className="font-semibold">Newest</p>
+						<li
+							className={`pl-6 py-1 hover:underline cursor-pointer ${
+								sortByParam === 'newest' ? 'font-semibold' : ''
+							}`}
+							onClick={() => sortBy('newest')}
+						>
+							<p>Newest</p>
 						</li>
-						<li className="pl-6 py-1 hover:underline cursor-pointer">
+						<li
+							className={`pl-6 py-1 hover:underline cursor-pointer ${
+								sortByParam === 'priceLowToHigh' ? 'font-semibold' : ''
+							}`}
+							onClick={() => sortBy('priceLowToHigh')}
+						>
 							<p>Price: Low to High</p>
 						</li>
-						<li className="pl-6 py-1 hover:underline cursor-pointer">
+						<li
+							className={`pl-6 py-1 hover:underline cursor-pointer ${
+								sortByParam === 'priceHighToLow' ? 'font-semibold' : ''
+							}`}
+							onClick={() => sortBy('priceHighToLow')}
+						>
 							<p>Price: High to Low</p>
 						</li>
 					</ul>
@@ -219,6 +264,4 @@ const CollectionSidebar: React.FunctionComponent<{
 
 export default CollectionSidebar
 
-// TODO: !! Sorting
-// TODO: !! Filter by price
 // TODO: !! addRefinement() and removeRefinement() functions

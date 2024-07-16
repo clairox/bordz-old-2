@@ -6,10 +6,11 @@ const GET_COLLECTION = gql(`
 		$limit: Int!
 		$sortKey: ProductCollectionSortKeys!
 		$filters: [ProductFilter!]
+		$reverse: Boolean = false
 	) {
 		collection(handle: $handle) {
 			title
-			products(first: $limit, sortKey: $sortKey, reverse: false, filters: $filters) {
+			products(first: $limit, sortKey: $sortKey, reverse: $reverse, filters: $filters) {
 				nodes {
 					id
 					title
@@ -65,3 +66,5 @@ const GET_COLLECTION_MAX_PRICE = gql(`
 `)
 
 export { GET_COLLECTION, GET_COLLECTION_MAX_PRICE }
+
+// TODO: !! Remove sortKey and reverse from GET_COLLECTION_MAX_PRICE

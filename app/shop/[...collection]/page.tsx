@@ -11,9 +11,26 @@ const CollectionPage: React.FunctionComponent<{
 }> = async ({ params, searchParams }) => {
 	const [collectionParam, subcollectionParam] = params.collection
 
+	type SortByParamsType = {
+		[key: string]: ProductCollectionSortKeys
+	}
+
+	const sortByParams: SortByParamsType = {
+		recommended: ProductCollectionSortKeys.BestSelling,
+		newest: ProductCollectionSortKeys.Created,
+		priceLowToHigh: ProductCollectionSortKeys.Price,
+		priceHighToLow: ProductCollectionSortKeys.Price,
+	}
+
 	const handle = collectionParam
 	const limit = 40 + +(searchParams.start || 0) || 40
-	const sortKey = ProductCollectionSortKeys.Created
+
+	const sortByParam = (
+		searchParams.sortBy ? searchParams.sortBy : 'recommended'
+	) as keyof SortByParamsType
+	const sortKey = sortByParams[sortByParam]
+	const reverse = sortByParam === 'recommended' || sortByParam === 'priceHighToLow' ? true : false
+
 	const defaultFilters = subcollectionParam
 		? [
 				{ available: true },
@@ -42,7 +59,7 @@ const CollectionPage: React.FunctionComponent<{
 	]
 
 	return (
-		<PreloadQuery query={GET_COLLECTION} variables={{ handle, limit, sortKey, filters }}>
+		<PreloadQuery query={GET_COLLECTION} variables={{ handle, limit, sortKey, filters, reverse }}>
 			<CollectionView />
 		</PreloadQuery>
 	)
