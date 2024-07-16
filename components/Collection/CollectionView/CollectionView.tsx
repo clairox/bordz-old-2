@@ -1,23 +1,22 @@
 'use client'
-import React, { Suspense, useState } from 'react'
-import ProductListView from '@/components/ProductListView'
-import CollectionSidebar from '@/components/CollectionSidebar'
-import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation'
-import Link from 'next/link'
+import React, { useState } from 'react'
+import CollectionProductList from '@/components/Collection/CollectionProductList'
+import CollectionSidebar from '@/components/Collection/CollectionSidebar'
+import { useParams, usePathname, useSearchParams } from 'next/navigation'
 import _ from 'lodash'
 import { ProductCollectionSortKeys } from '@/__generated__/graphql'
 import { useCollection } from '@/hooks/useCollection'
+import CollectionHeader from '../CollectionHeader/CollectionHeader'
+import CollectionFooter from '../CollectionFooter/CollectionFooter'
 
 const CollectionView: React.FunctionComponent = () => {
 	const [openRefinements, setOpenRefinements] = useState<string[]>([])
 
 	const pathname = usePathname()
-	const router = useRouter()
 
 	const params = useParams()
 	const [collectionParam, subcollectionParam] = params.collection as string[]
 	const searchParams = useSearchParams()
-	const startParam = +(searchParams.get('start') || 0)
 
 	const handle = collectionParam
 	const limit = 40 + +(searchParams.get('start') || 0) || 40
@@ -66,8 +65,8 @@ const CollectionView: React.FunctionComponent = () => {
 		return <></>
 	}
 
-	const title = params.subcollection
-		? _.startCase((params.subcollection as string).replace('-', ' '))
+	const title = subcollectionParam
+		? _.startCase((subcollectionParam as string).replace('-', ' '))
 		: collection?.title
 
 	if (
@@ -89,21 +88,7 @@ const CollectionView: React.FunctionComponent = () => {
 
 	return (
 		<div key={`${pathname}/${searchParams.toString()}`}>
-			<div className="border-b border-black">
-				<div>
-					<div className="border-b border-black text-3xl">
-						<h1>{title}</h1>
-					</div>
-				</div>
-				<div className="flex flex-row justify-between mx-auto w-[50%]">
-					{subcollectionParam === undefined &&
-						subcollectionTitles?.map(title => (
-							<Link href={pathname + '/' + title} key={title}>
-								<span>{_.startCase(title.replace('-', ' '))}</span>
-							</Link>
-						))}
-				</div>
-			</div>
+			<CollectionHeader title={title} subcollectionTitles={subcollectionTitles} />
 			<div className="grid grid-cols-5">
 				<aside className="border-l border-black">
 					<CollectionSidebar
@@ -113,27 +98,14 @@ const CollectionView: React.FunctionComponent = () => {
 						setOpenRefinements={setOpenRefinements}
 					/>
 				</aside>
-				<Suspense>
-					<main className="col-span-4 border-l border-black">
-						<ProductListView products={renderableProducts} />
-						<div>
-							<p>
-								Showing {renderableProducts.length} of {productCount} products
-							</p>
-							{hasNextPage && (
-								<button
-									onClick={() => {
-										const params = new URLSearchParams(searchParams.toString())
-										params.set('start', (startParam + 40).toString())
-										router.replace(pathname + '?' + params.toString(), { scroll: false })
-									}}
-								>
-									Load More
-								</button>
-							)}
-						</div>
-					</main>
-				</Suspense>
+				<main className="col-span-4 border-l border-black">
+					<CollectionProductList products={renderableProducts} />
+					<CollectionFooter
+						products={renderableProducts}
+						productCount={productCount}
+						hasNextPage={hasNextPage}
+					/>
+				</main>
 			</div>
 		</div>
 	)

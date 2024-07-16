@@ -28,7 +28,7 @@
 		"**/*.tsx",
 		".next/types/**/*.ts",
 		"components/CartItemQuantityCounter",
-		"components/CollectionView"
+		"components/Collection/CollectionView"
 	],
 	"exclude": ["node_modules"]
 }

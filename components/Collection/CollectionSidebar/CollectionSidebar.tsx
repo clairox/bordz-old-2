@@ -7,7 +7,7 @@ import {
 } from '@/components/ProductRefinements/ProductRefinements'
 import { ProductFilter } from '@/types'
 import _ from 'lodash'
-import RangeSlider from '../RangeSlider'
+import RangeSlider from '../../RangeSlider'
 
 const CollectionSidebar: React.FunctionComponent<{
 	openRefinements: string[]

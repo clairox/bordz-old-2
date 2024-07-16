@@ -1,7 +1,7 @@
 import { PreloadQuery } from '@/lib/apollo/apolloClient'
 import React from 'react'
 import { GET_COLLECTION } from '@/lib/queries'
-import CollectionView from '@/components/CollectionView'
+import CollectionView from '@/components/Collection/CollectionView'
 import { ProductCollectionSortKeys } from '@/__generated__/graphql'
 import _ from 'lodash'
 

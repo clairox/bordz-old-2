@@ -3,21 +3,21 @@ import { ProductListItem } from '@/types'
 import Image from 'next/image'
 import Link from 'next/link'
 
-const ProductListView: React.FunctionComponent<{
+const CollectionProductList: React.FunctionComponent<{
 	products: ProductListItem[]
 }> = ({ products }) => {
 	if (products.length > 0) {
 		return (
 			<div className="grid grid-cols-4">
 				{products.map((item: ProductListItem) => {
-					return <ProductListViewItem key={item.handle} product={item} />
+					return <CollectionProductListItem key={item.handle} product={item} />
 				})}
 			</div>
 		)
 	}
 }
 
-const ProductListViewItem: React.FunctionComponent<{ product: ProductListItem }> = ({
+const CollectionProductListItem: React.FunctionComponent<{ product: ProductListItem }> = ({
 	product,
 }) => {
 	return (
@@ -42,4 +42,4 @@ const ProductListViewItem: React.FunctionComponent<{ product: ProductListItem }>
 	)
 }
 
-export { ProductListView }
+export default CollectionProductList
