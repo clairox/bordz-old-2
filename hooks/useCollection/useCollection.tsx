@@ -50,6 +50,13 @@ const useCollection = (
 			values: filter.values.filter(value => value.count > 0).map(value => value.label),
 		}))
 
+	const priceFilter = JSON.parse(
+		fetchedFilters
+			?.find(filter => filter.label === 'Price')
+			?.values.find(value => value.label === 'Price')?.input
+	).price
+	const filteredPriceRange = [priceFilter.min, priceFilter.max]
+
 	const subcollectionTitles = fetchedFilters
 		?.find(filter => filter.label === 'Subcollection')
 		?.values.map(value => value.label)
@@ -62,6 +69,7 @@ const useCollection = (
 		renderableProducts,
 		productCount,
 		availableFilters,
+		filteredPriceRange,
 		subcollectionTitles,
 		hasNextPage,
 		error,

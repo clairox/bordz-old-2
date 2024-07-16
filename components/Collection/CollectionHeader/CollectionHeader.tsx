@@ -20,9 +20,9 @@ const CollectionHeader: React.FunctionComponent<{
 			</div>
 			<div className="flex flex-row justify-between mx-auto w-[50%]">
 				{subcollectionParam === undefined &&
-					subcollectionTitles?.map(title => (
-						<Link href={pathname + '/' + title} key={title}>
-							<span>{_.startCase(title.replace('-', ' '))}</span>
+					subcollectionTitles?.map(subcollectionTitle => (
+						<Link href={pathname + '/' + subcollectionTitle} key={subcollectionTitle}>
+							<span>{_.startCase(subcollectionTitle.replace('-', ' '))}</span>
 						</Link>
 					))}
 			</div>

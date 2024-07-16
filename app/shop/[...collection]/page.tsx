@@ -36,6 +36,9 @@ const CollectionPage: React.FunctionComponent<{
 			?.split('|')
 			.map(color => ({ productMetafield: { namespace: 'custom', key: 'color', value: color } })) ||
 			[]),
+		...(searchParams.priceMin && searchParams.priceMax
+			? [{ price: { min: +searchParams.priceMin, max: +searchParams.priceMax } }]
+			: []),
 	]
 
 	return (

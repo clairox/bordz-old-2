@@ -8,6 +8,7 @@ import { useParams, usePathname, useSearchParams } from 'next/navigation'
 import _ from 'lodash'
 import { ProductCollectionSortKeys } from '@/__generated__/graphql'
 import { useCollection } from '@/hooks/useCollection/useCollection'
+import { useCollectionMaxPrice } from '@/hooks/useCollectionMaxPrice'
 
 const CollectionView: React.FunctionComponent = () => {
 	const [openRefinements, setOpenRefinements] = useState<string[]>([])
@@ -48,17 +49,26 @@ const CollectionView: React.FunctionComponent = () => {
 			?.split('|')
 			.map(color => ({ productMetafield: { namespace: 'custom', key: 'color', value: color } })) ||
 			[]),
-	]
+	] as any
+
+	const { maxPrice } = useCollectionMaxPrice(handle, limit, sortKey, filters)
+
+	const filtersWithPrice = filters.concat(
+		...(searchParams.get('priceMin') && searchParams.get('priceMax')
+			? [{ price: { min: +searchParams.get('priceMin')!, max: +searchParams.get('priceMax')! } }]
+			: [])
+	)
 
 	const {
 		collection,
 		renderableProducts,
 		productCount,
 		availableFilters,
+		filteredPriceRange,
 		subcollectionTitles,
 		hasNextPage,
 		error,
-	} = useCollection(handle, limit, sortKey, filters)
+	} = useCollection(handle, limit, sortKey, filtersWithPrice)
 
 	if (error) {
 		console.error(error)
@@ -74,17 +84,12 @@ const CollectionView: React.FunctionComponent = () => {
 		!renderableProducts ||
 		productCount === undefined ||
 		!availableFilters ||
+		filteredPriceRange === undefined ||
+		maxPrice === undefined ||
 		hasNextPage === undefined
 	) {
 		return <></>
 	}
-
-	let maxPrice = -Infinity
-	renderableProducts?.forEach(product => {
-		if (product.price > maxPrice) {
-			maxPrice = product.price
-		}
-	})
 
 	return (
 		<div key={`${pathname}/${searchParams.toString()}`}>

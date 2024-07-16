@@ -34,6 +34,7 @@ const GET_COLLECTION = gql(`
 					label
 					values {
 						label
+						input
 						count
 					}
 				}
@@ -42,4 +43,25 @@ const GET_COLLECTION = gql(`
 	}
 `)
 
-export { GET_COLLECTION }
+const GET_COLLECTION_MAX_PRICE = gql(`
+	query GetCollectionMaxPrice(
+		$handle: String!
+		$limit: Int!
+		$sortKey: ProductCollectionSortKeys!
+		$filters: [ProductFilter!]
+	) {
+		collection(handle: $handle) {
+			products(first: $limit, sortKey: $sortKey, reverse: false, filters: $filters) {
+				nodes {
+					priceRange {
+						maxVariantPrice {
+							amount
+						}
+					}
+				}
+			}
+		}
+	}
+`)
+
+export { GET_COLLECTION, GET_COLLECTION_MAX_PRICE }

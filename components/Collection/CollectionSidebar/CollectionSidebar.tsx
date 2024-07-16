@@ -1,17 +1,17 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { ProductFilter } from '@/types'
 import _ from 'lodash'
-import RangeSlider from '@/components/RangeSlider'
 import { CollectionSidebarMenu, CollectionSidebarMenuItem } from '../CollectionSidebarMenu'
+import PriceRangeSlider from '@/components/PriceRangeSlider'
 
 const CollectionSidebar: React.FunctionComponent<{
-	openRefinements: string[]
-	setOpenRefinements: (refinements: string[]) => void
 	filters: ProductFilter[]
 	maxPrice: number
-}> = ({ openRefinements, setOpenRefinements, filters, maxPrice }) => {
+	openRefinements: string[]
+	setOpenRefinements: (refinements: string[]) => void
+}> = ({ filters, maxPrice, openRefinements, setOpenRefinements }) => {
 	const PARAM_DELIMITER = '|'
 
 	const router = useRouter()
@@ -19,8 +19,16 @@ const CollectionSidebar: React.FunctionComponent<{
 	const searchParams = useSearchParams()
 
 	const MIN_PRICE = 0
-	const MAX_PRICE = Math.ceil(maxPrice / 50) * 50
-	const [filteredPriceRange, setFilteredPriceRange] = useState([MIN_PRICE, MAX_PRICE])
+	const MAX_PRICE = maxPrice
+	const minPriceParam = searchParams.get('priceMin')
+	const maxPriceParam = searchParams.get('priceMax')
+	const minRenderedPrice = +(minPriceParam || MIN_PRICE)
+	const maxRenderedPrice = +(maxPriceParam || MAX_PRICE)
+
+	const [renderedPriceRange, setRenderedPriceRange] = useState<number[]>([
+		minRenderedPrice,
+		maxRenderedPrice,
+	])
 
 	const currentRefinements = Array.from(searchParams.keys())
 		.filter(key => filters.map(filter => filter.label).includes(key))
@@ -29,7 +37,7 @@ const CollectionSidebar: React.FunctionComponent<{
 			values: searchParams.get(key)?.split(PARAM_DELIMITER) || [],
 		}))
 
-	const hasRefinements = currentRefinements.length > 0
+	const hasRefinements = currentRefinements.length > 0 || minPriceParam || maxPriceParam
 
 	const toggleRefinement = (type: string, filterName: string) => {
 		const refinementType = currentRefinements.find(refinement => refinement.label === type)
@@ -62,7 +70,31 @@ const CollectionSidebar: React.FunctionComponent<{
 	}
 
 	const setPriceRefinement = (newPriceRange: number[]) => {
-		setFilteredPriceRange(newPriceRange)
+		const [min, max] = newPriceRange
+
+		const newRefinements = [
+			...currentRefinements.filter(
+				refinement => refinement.label !== 'priceMin' && refinement.label !== 'priceMax'
+			),
+			{ label: 'priceMin', values: [min.toString()] },
+			{ label: 'priceMax', values: [max.toString()] },
+		]
+
+		refine(newRefinements)
+	}
+
+	const deletePriceRefinement = () => {
+		const newRefinements = [
+			...currentRefinements.filter(
+				refinement => refinement.label !== 'priceMin' && refinement.label !== 'priceMax'
+			),
+		]
+
+		if (newRefinements.length > 0) {
+			refine(newRefinements)
+		} else {
+			clearRefinements()
+		}
 	}
 
 	const refine = (refinements: { label: string; values: string[] }[]) => {
@@ -111,6 +143,11 @@ const CollectionSidebar: React.FunctionComponent<{
 							</ul>
 						)
 					})}
+				{minPriceParam && maxPriceParam && (
+					<div className="cursor-pointer hover:underline" onClick={() => deletePriceRefinement()}>
+						x ${minPriceParam} - ${maxPriceParam}
+					</div>
+				)}
 			</div>
 
 			<CollectionSidebarMenu
@@ -166,9 +203,10 @@ const CollectionSidebar: React.FunctionComponent<{
 				})}
 				<CollectionSidebarMenuItem title={'Price'}>
 					<div className="mx-5">
-						<RangeSlider
-							value={filteredPriceRange}
+						<PriceRangeSlider
 							setValue={setPriceRefinement}
+							renderedValue={renderedPriceRange}
+							setRenderedValue={setRenderedPriceRange}
 							min={MIN_PRICE}
 							max={MAX_PRICE}
 						/>
@@ -184,4 +222,3 @@ export default CollectionSidebar
 // TODO: !! Sorting
 // TODO: !! Filter by price
 // TODO: !! addRefinement() and removeRefinement() functions
-// TODO: Prevent AccordionItem from closing when refining
