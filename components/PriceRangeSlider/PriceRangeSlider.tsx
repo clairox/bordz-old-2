@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import RangeSlider from '../RangeSlider'
 
 const roundUp = (value: number, to: number) => Math.ceil(value / to) * to

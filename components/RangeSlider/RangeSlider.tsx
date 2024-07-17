@@ -18,6 +18,7 @@ const RangeSlider: React.FunctionComponent<{
 			minStepsBetweenThumbs={2}
 			min={min}
 			max={max}
+			data-testid="slider"
 		/>
 	)
 }
