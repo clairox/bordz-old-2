@@ -65,5 +65,3 @@ const GET_COLLECTION_MAX_PRICE = gql(`
 `)
 
 export { GET_COLLECTION, GET_COLLECTION_MAX_PRICE }
-
-// TODO: !! Remove sortKey and reverse from GET_COLLECTION_MAX_PRICE

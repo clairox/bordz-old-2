@@ -1,15 +1,112 @@
-describe.skip('collection title', () => {
-	it('should not be empty string')
+import { render } from '@testing-library/react'
+import CollectionView from './CollectionView'
+
+const mocks = vi.hoisted(() => {
+	return {
+		replace: vi.fn(),
+		useRouterMock: vi.fn(),
+		useParamsMock: vi.fn(),
+		usePathnameMock: vi.fn(),
+		useSearchParamsMock: vi.fn(),
+		useCollectionMaxPriceMock: vi.fn(),
+		useCollectionMock: vi.fn(),
+	}
 })
 
-describe.skip('load more button', () => {
-	it('should not be displayed if all products shown')
-	it('should be displayed if less than total products shown')
-	it('should load more products on click')
-	it("should not load more than 'limit' products on click")
-})
+vi.mock('next/navigation', () => ({
+	useRouter: mocks.useRouterMock.mockReturnValue({ replace: mocks.replace }),
+	useParams: mocks.useParamsMock.mockReturnValue({ collection: ['test-collection'] }),
+	usePathname: mocks.usePathnameMock.mockReturnValue('/test-collection'),
+	useSearchParams: mocks.useSearchParamsMock.mockReturnValue(new URLSearchParams()),
+}))
 
-describe.skip('collection', () => {
-	it("should not contain products that don't match filters")
-	it('should be sorted by sortBy param')
+vi.mock('@/hooks/useCollectionMaxPrice', () => ({
+	useCollectionMaxPrice: mocks.useCollectionMaxPriceMock.mockReturnValue({
+		maxPrice: 60,
+		error: null,
+	}),
+}))
+
+vi.mock('@/hooks/useCollection', () => ({
+	useCollection: mocks.useCollectionMock.mockReturnValue({
+		collection: { title: 'Test Collection' },
+		renderableProducts: [
+			{
+				title: 'Test Product',
+				handle: 'test-product',
+				price: 59.95,
+				featuredImage: {
+					src: '/testUrl.com/testSrc',
+					width: 50,
+					height: 50,
+				},
+			},
+		],
+		productCount: 1,
+		availableFilters: [
+			{
+				label: 'brand',
+				values: ['Brand 1', 'Brand 2', 'Brand 3'],
+			},
+			{
+				label: 'size',
+				values: ['Size 1', 'Size 2', 'Size 3'],
+			},
+			{
+				label: 'color',
+				values: ['Color 1', 'Color 2'],
+			},
+		],
+		filteredPriceRange: [0, 60],
+		subCollectionTitles: ['Subcollection 1', 'Subcollection 2'],
+		hasNextPage: false,
+		error: null,
+	}),
+}))
+
+describe('CollectionView', () => {
+	it('renders CollectionHeader with correct title', () => {
+		const { getByRole, unmount } = render(<CollectionView />)
+
+		expect(getByRole('heading', { level: 1, name: 'Test Collection' })).toBeInTheDocument()
+		unmount()
+	})
+
+	it('renders CollectionSidebar', () => {
+		const { getByText, unmount } = render(<CollectionView />)
+
+		expect(getByText('Refine By:')).toBeInTheDocument()
+		unmount()
+	})
+
+	it('renders CollectionProductList', () => {
+		const { getByText, unmount } = render(<CollectionView />)
+
+		expect(getByText('Test Product')).toBeInTheDocument()
+		unmount()
+	})
+
+	it('renders CollectionFooter', () => {
+		const { getByText, unmount } = render(<CollectionView />)
+
+		expect(getByText('Showing 1 of 1 products')).toBeInTheDocument()
+		unmount()
+	})
+
+	it('handles errors gracefully', () => {
+		mocks.useCollectionMock.mockReturnValueOnce({
+			collection: null,
+			renderableProducts: null,
+			productCount: undefined,
+			availableFilters: null,
+			filteredPriceRange: undefined,
+			subcollectionTitles: null,
+			hasNextPage: undefined,
+			error: new Error('Test error'),
+		})
+
+		const { container } = render(<CollectionView />)
+
+		expect(container).toBeEmptyDOMElement()
+	})
 })

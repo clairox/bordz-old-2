@@ -7,7 +7,7 @@ import CollectionSidebar from '../CollectionSidebar'
 import { useParams, usePathname, useSearchParams } from 'next/navigation'
 import _ from 'lodash'
 import { ProductCollectionSortKeys } from '@/__generated__/graphql'
-import { useCollection } from '@/hooks/useCollection/useCollection'
+import { useCollection } from '@/hooks/useCollection'
 import { useCollectionMaxPrice } from '@/hooks/useCollectionMaxPrice'
 
 const CollectionView: React.FunctionComponent = () => {
@@ -123,8 +123,8 @@ const CollectionView: React.FunctionComponent = () => {
 				<main className="col-span-4 border-l border-black">
 					<CollectionProductList products={renderableProducts} />
 					<CollectionFooter
-						products={renderableProducts}
-						productCount={productCount}
+						renderedProductCount={renderableProducts.length}
+						totalProductCount={productCount}
 						hasNextPage={hasNextPage}
 					/>
 				</main>

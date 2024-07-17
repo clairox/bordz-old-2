@@ -3,10 +3,10 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import React from 'react'
 
 const CollectionFooter: React.FunctionComponent<{
-	products: ProductListItem[]
-	productCount: number
+	renderedProductCount: number
+	totalProductCount: number
 	hasNextPage: boolean
-}> = ({ products, productCount, hasNextPage }) => {
+}> = ({ renderedProductCount, totalProductCount, hasNextPage }) => {
 	const router = useRouter()
 	const pathname = usePathname()
 	const searchParams = useSearchParams()
@@ -21,7 +21,7 @@ const CollectionFooter: React.FunctionComponent<{
 	return (
 		<div>
 			<p>
-				Showing {products.length} of {productCount} products
+				Showing {renderedProductCount} of {totalProductCount} products
 			</p>
 			{hasNextPage && <button onClick={handleLoadMore}>Load More</button>}
 		</div>

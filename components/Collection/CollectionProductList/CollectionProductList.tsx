@@ -43,3 +43,4 @@ const CollectionProductListItem: React.FunctionComponent<{ product: ProductListI
 }
 
 export default CollectionProductList
+export { CollectionProductListItem }

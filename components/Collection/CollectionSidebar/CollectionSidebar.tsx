@@ -1,11 +1,11 @@
 'use client'
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { ProductFilter } from '@/types'
 import _ from 'lodash'
 import { CollectionSidebarMenu, CollectionSidebarMenuItem } from '../CollectionSidebarMenu'
 import PriceRangeSlider from '@/components/PriceRangeSlider'
-import { ProductCollectionSortKeys } from '@/__generated__/graphql'
+import CollectionSidebarHeader from '../CollectionSidebarHeader/CollectionSidebarHeader'
 
 const CollectionSidebar: React.FunctionComponent<{
 	filters: ProductFilter[]
@@ -33,17 +33,15 @@ const CollectionSidebar: React.FunctionComponent<{
 		maxRenderedPrice,
 	])
 
-	const currentRefinements = Array.from(searchParams.keys())
+	const selectedRefinements = Array.from(searchParams.keys())
 		.filter(key => filters.map(filter => filter.label).includes(key))
 		.map(key => ({
 			label: key,
 			values: searchParams.get(key)?.split(PARAM_DELIMITER) || [],
 		}))
 
-	const hasRefinements = currentRefinements.length > 0 || minPriceParam || maxPriceParam
-
 	const toggleRefinement = (type: string, filterName: string) => {
-		const refinementType = currentRefinements.find(refinement => refinement.label === type)
+		const refinementType = selectedRefinements.find(refinement => refinement.label === type)
 
 		const newRefinementType = {
 			label: type,
@@ -61,7 +59,7 @@ const CollectionSidebar: React.FunctionComponent<{
 		}
 
 		const newRefinements = [
-			...currentRefinements.filter(refinement => refinement.label !== type),
+			...selectedRefinements.filter(refinement => refinement.label !== type),
 			...(newRefinementType.values.length > 0 ? [newRefinementType] : []),
 		]
 
@@ -76,7 +74,7 @@ const CollectionSidebar: React.FunctionComponent<{
 		const [min, max] = newPriceRange
 
 		const newRefinements = [
-			...currentRefinements.filter(
+			...selectedRefinements.filter(
 				refinement => refinement.label !== 'priceMin' && refinement.label !== 'priceMax'
 			),
 			{ label: 'priceMin', values: [min.toString()] },
@@ -88,7 +86,7 @@ const CollectionSidebar: React.FunctionComponent<{
 
 	const deletePriceRefinement = () => {
 		const newRefinements = [
-			...currentRefinements.filter(
+			...selectedRefinements.filter(
 				refinement => refinement.label !== 'priceMin' && refinement.label !== 'priceMax'
 			),
 		]
@@ -137,83 +135,105 @@ const CollectionSidebar: React.FunctionComponent<{
 
 	return (
 		<div>
-			<div className="px-5 py-4 border-b border-black">
-				<div className="flex justify-between">
-					<div className="font-semibold">Refine By:</div>
-					{hasRefinements && (
-						<button className="underline cursor-pointer" onClick={clearRefinements}>
-							Reset
-						</button>
-					)}
-				</div>
-				{currentRefinements.length > 0 &&
-					currentRefinements.map(refinementType => {
-						const { label, values } = refinementType
-						return (
-							<ul className="flex flex-wrap gap-2 pt-2 list-none" key={label}>
-								{values.map(value => {
-									return (
-										<li
-											className="cursor-pointer hover:underline"
-											key={label + '.' + value}
-											onClick={() => toggleRefinement(label, value)}
-										>
-											x {value}
-										</li>
-									)
-								})}
-							</ul>
-						)
-					})}
-				{minPriceParam && maxPriceParam && (
-					<div
-						className="pt-2 cursor-pointer hover:underline"
-						onClick={() => deletePriceRefinement()}
-					>
-						x ${minPriceParam} - ${maxPriceParam}
-					</div>
-				)}
-			</div>
+			<CollectionSidebarHeader
+				selectedRefinements={selectedRefinements}
+				priceRefinement={
+					minPriceParam && maxPriceParam ? [minPriceParam, maxPriceParam] : undefined
+				}
+				clearRefinements={clearRefinements}
+				toggleRefinement={toggleRefinement}
+				deletePriceRefinement={deletePriceRefinement}
+			/>
 
 			<CollectionSidebarMenu
 				openRefinements={openRefinements}
 				setOpenRefinements={setOpenRefinements}
 			>
 				<CollectionSidebarMenuItem title={'Sort'}>
-					<ul className="list-none">
-						<li
-							className={`pl-6 py-1 hover:underline cursor-pointer ${
-								sortByParam === 'recommended' || !sortByParam ? 'font-semibold' : ''
-							}`}
-							onClick={() => sortBy('recommended')}
-						>
-							<p>Recommended</p>
-						</li>
-						<li
-							className={`pl-6 py-1 hover:underline cursor-pointer ${
-								sortByParam === 'newest' ? 'font-semibold' : ''
-							}`}
-							onClick={() => sortBy('newest')}
-						>
-							<p>Newest</p>
-						</li>
-						<li
-							className={`pl-6 py-1 hover:underline cursor-pointer ${
-								sortByParam === 'priceLowToHigh' ? 'font-semibold' : ''
-							}`}
-							onClick={() => sortBy('priceLowToHigh')}
-						>
-							<p>Price: Low to High</p>
-						</li>
-						<li
-							className={`pl-6 py-1 hover:underline cursor-pointer ${
-								sortByParam === 'priceHighToLow' ? 'font-semibold' : ''
-							}`}
-							onClick={() => sortBy('priceHighToLow')}
-						>
-							<p>Price: High to Low</p>
-						</li>
-					</ul>
+					<div>
+						<div className="pl-6 py-1">
+							<input
+								type="radio"
+								className="appearance-none"
+								id="sortByRecommended"
+								name="sortBy"
+								value="recommended"
+								checked={sortByParam === 'recommended' || sortByParam === null}
+								onChange={e => sortBy(e.target.value)}
+							/>
+							<label
+								className={`${
+									sortByParam === 'recommended' || !sortByParam
+										? 'font-semibold'
+										: 'hover:underline cursor-pointer'
+								}`}
+								htmlFor="sortByRecommended"
+							>
+								Recommended
+							</label>
+						</div>
+						<div className="pl-6 py-1">
+							<input
+								type="radio"
+								className="appearance-none"
+								id="sortByNewest"
+								name="sortBy"
+								value="newest"
+								checked={sortByParam === 'newest'}
+								onChange={e => sortBy(e.target.value)}
+							/>
+							<label
+								className={`${
+									sortByParam === 'newest' ? 'font-semibold' : 'hover:underline cursor-pointer'
+								}`}
+								htmlFor="sortByNewest"
+							>
+								Newest
+							</label>
+						</div>
+						<div className="pl-6 py-1">
+							<input
+								type="radio"
+								className="appearance-none"
+								id="sortByPriceLowToHigh"
+								name="sortBy"
+								value="priceLowToHigh"
+								checked={sortByParam === 'priceLowToHigh'}
+								onChange={e => sortBy(e.target.value)}
+							/>
+							<label
+								className={`${
+									sortByParam === 'priceLowToHigh'
+										? 'font-semibold'
+										: 'hover:underline cursor-pointer'
+								}`}
+								htmlFor="sortByPriceLowToHigh"
+							>
+								Price: Low to High
+							</label>
+						</div>
+						<div className="pl-6 py-1">
+							<input
+								type="radio"
+								className="appearance-none"
+								id="sortByPriceHighToLow"
+								name="sortBy"
+								value="priceHighToLow"
+								checked={sortByParam === 'priceHighToLow'}
+								onChange={e => sortBy(e.target.value)}
+							/>
+							<label
+								className={`${
+									sortByParam === 'priceHighToLow'
+										? 'font-semibold'
+										: 'hover:underline cursor-pointer'
+								}`}
+								htmlFor="sortByPriceHighToLow"
+							>
+								Price: High to Low
+							</label>
+						</div>
+					</div>
 				</CollectionSidebarMenuItem>
 				{filters.map(filter => {
 					const { label, values } = filter
@@ -231,7 +251,7 @@ const CollectionSidebar: React.FunctionComponent<{
 													type="checkbox"
 													id={value + ' checkbox'}
 													checked={
-														currentRefinements
+														selectedRefinements
 															.find(refinement => refinement.label === label)
 															?.values.includes(value) || false
 													}
@@ -265,3 +285,4 @@ const CollectionSidebar: React.FunctionComponent<{
 export default CollectionSidebar
 
 // TODO: !! addRefinement() and removeRefinement() functions
+// TODO: Figure out how to pass hook values from parent component without it causing issues
