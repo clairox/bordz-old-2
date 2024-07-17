@@ -5,7 +5,7 @@ import {
 } from '@/__generated__/graphql'
 import { GET_COLLECTION } from '@/lib/queries'
 import { ProductListItem } from '@/types'
-import { useSuspenseQuery } from '@apollo/client'
+import { useSuspenseQuery } from '@apollo/client/react/hooks'
 
 const useCollection = (
 	handle: string,
