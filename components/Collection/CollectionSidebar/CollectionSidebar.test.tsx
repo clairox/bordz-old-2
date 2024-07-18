@@ -26,7 +26,7 @@ const ResizeObserverMock = vi.fn(() => ({
 
 vi.stubGlobal('ResizeObserver', ResizeObserverMock)
 
-const filters: ProductFilter[] = [
+const productFilters: ProductFilter[] = [
 	{
 		label: 'brand',
 		values: ['Brand 1', 'Brand 2', 'Brand 3'],
@@ -48,7 +48,7 @@ describe('CollectionSidebar', () => {
 	it('renders and shows header content', async () => {
 		const { getByText, unmount } = render(
 			<CollectionSidebar
-				filters={filters}
+				productFilters={productFilters}
 				maxPrice={maxPrice}
 				openRefinements={openRefinements}
 				setOpenRefinements={setOpenRefinements}
@@ -62,7 +62,7 @@ describe('CollectionSidebar', () => {
 	it('renders and shows CollectionSidebarMenu', () => {
 		const { getByText, unmount } = render(
 			<CollectionSidebar
-				filters={filters}
+				productFilters={productFilters}
 				maxPrice={maxPrice}
 				openRefinements={openRefinements}
 				setOpenRefinements={setOpenRefinements}
@@ -80,7 +80,7 @@ describe('CollectionSidebar', () => {
 	it('renders and shows CollectionSidebarMenuItem children', () => {
 		const { getByRole, getByText, unmount } = render(
 			<CollectionSidebar
-				filters={filters}
+				productFilters={productFilters}
 				maxPrice={maxPrice}
 				openRefinements={openRefinements}
 				setOpenRefinements={setOpenRefinements}
@@ -101,7 +101,7 @@ describe('CollectionSidebar', () => {
 	it('does not render CollectionSidebarMenuItem children when closed', () => {
 		const { queryByRole, unmount } = render(
 			<CollectionSidebar
-				filters={filters}
+				productFilters={productFilters}
 				maxPrice={maxPrice}
 				openRefinements={['Sort', 'Size', 'Color', 'Price']}
 				setOpenRefinements={setOpenRefinements}
@@ -118,7 +118,7 @@ describe('CollectionSidebar', () => {
 		it("has value 'Recommended' when url params does not contain related search query", () => {
 			const { getByRole, getByText, unmount } = render(
 				<CollectionSidebar
-					filters={filters}
+					productFilters={productFilters}
 					maxPrice={maxPrice}
 					openRefinements={['Sort']}
 					setOpenRefinements={setOpenRefinements}
@@ -137,7 +137,7 @@ describe('CollectionSidebar', () => {
 
 			const { getByRole, getByText, unmount } = render(
 				<CollectionSidebar
-					filters={filters}
+					productFilters={productFilters}
 					maxPrice={maxPrice}
 					openRefinements={['Sort']}
 					setOpenRefinements={setOpenRefinements}
@@ -156,7 +156,7 @@ describe('CollectionSidebar', () => {
 		it('is not checked when url params does not contain related search query', () => {
 			const { getByRole, unmount } = render(
 				<CollectionSidebar
-					filters={filters}
+					productFilters={productFilters}
 					maxPrice={maxPrice}
 					openRefinements={['Brand']}
 					setOpenRefinements={setOpenRefinements}
@@ -172,7 +172,7 @@ describe('CollectionSidebar', () => {
 
 			const { getByRole, unmount } = render(
 				<CollectionSidebar
-					filters={filters}
+					productFilters={productFilters}
 					maxPrice={maxPrice}
 					openRefinements={['Brand']}
 					setOpenRefinements={setOpenRefinements}
@@ -188,7 +188,7 @@ describe('CollectionSidebar', () => {
 		it('has default values when url params does not contain related search query', () => {
 			const { getByText, unmount } = render(
 				<CollectionSidebar
-					filters={filters}
+					productFilters={productFilters}
 					maxPrice={maxPrice}
 					openRefinements={['Price']}
 					setOpenRefinements={setOpenRefinements}
@@ -210,7 +210,7 @@ describe('CollectionSidebar', () => {
 
 			const { queryByText, getByText, unmount } = render(
 				<CollectionSidebar
-					filters={filters}
+					productFilters={productFilters}
 					maxPrice={maxPrice}
 					openRefinements={['Price']}
 					setOpenRefinements={setOpenRefinements}
@@ -231,7 +231,7 @@ describe('CollectionSidebar', () => {
 
 			const { getByRole, unmount } = render(
 				<CollectionSidebar
-					filters={filters}
+					productFilters={productFilters}
 					maxPrice={maxPrice}
 					openRefinements={['Brand']}
 					setOpenRefinements={setOpenRefinements}
@@ -253,7 +253,7 @@ describe('CollectionSidebar', () => {
 
 			const { getByRole, unmount } = render(
 				<CollectionSidebar
-					filters={filters}
+					productFilters={productFilters}
 					maxPrice={maxPrice}
 					openRefinements={['Brand']}
 					setOpenRefinements={setOpenRefinements}
@@ -272,7 +272,7 @@ describe('CollectionSidebar', () => {
 		it('calls useRouter().replace with correct values on click', async () => {
 			const { getByRole, unmount } = render(
 				<CollectionSidebar
-					filters={filters}
+					productFilters={productFilters}
 					maxPrice={maxPrice}
 					openRefinements={['Brand']}
 					setOpenRefinements={setOpenRefinements}
@@ -296,7 +296,7 @@ describe('CollectionSidebar', () => {
 
 			const { getByRole, unmount } = render(
 				<CollectionSidebar
-					filters={filters}
+					productFilters={productFilters}
 					maxPrice={maxPrice}
 					openRefinements={['Brand']}
 					setOpenRefinements={setOpenRefinements}

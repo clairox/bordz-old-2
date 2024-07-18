@@ -6,42 +6,49 @@ import _ from 'lodash'
 import { CollectionSidebarMenu, CollectionSidebarMenuItem } from '../CollectionSidebarMenu'
 import PriceRangeSlider from '@/components/PriceRangeSlider'
 import CollectionSidebarHeader from '../CollectionSidebarHeader/CollectionSidebarHeader'
+import { roundUp } from '@/lib/utils'
+import { getSearchParamValues, isValidPriceRange, processPriceParams } from '@/lib/collectionUtils'
 
 const CollectionSidebar: React.FunctionComponent<{
-	filters: ProductFilter[]
+	productFilters: ProductFilter[]
 	maxPrice: number
 	openRefinements: string[]
 	setOpenRefinements: (refinements: string[]) => void
-}> = ({ filters, maxPrice, openRefinements, setOpenRefinements }) => {
-	const PARAM_DELIMITER = '|'
-
+}> = ({ productFilters, maxPrice, openRefinements, setOpenRefinements }) => {
 	const router = useRouter()
-	const pathname = usePathname()
+	const basePath = usePathname()
 	const searchParams = useSearchParams()
 
 	const sortByParam = searchParams.get('sortBy')
 
 	const MIN_PRICE = 0
-	const MAX_PRICE = maxPrice
-	const minPriceParam = searchParams.get('priceMin')
-	const maxPriceParam = searchParams.get('priceMax')
-	const minRenderedPrice = +(minPriceParam || MIN_PRICE)
-	const maxRenderedPrice = +(maxPriceParam || MAX_PRICE)
+	const MAX_PRICE = roundUp(maxPrice, 5)
 
-	const [renderedPriceRange, setRenderedPriceRange] = useState<number[]>([
-		minRenderedPrice,
-		maxRenderedPrice,
-	])
+	const priceMinParam = searchParams.get('priceMin')
+	const priceMaxParam = searchParams.get('priceMax')
 
-	const selectedRefinements = Array.from(searchParams.keys())
-		.filter(key => filters.map(filter => filter.label).includes(key))
-		.map(key => ({
-			label: key,
-			values: searchParams.get(key)?.split(PARAM_DELIMITER) || [],
-		}))
+	const selectedPriceFilter = processPriceParams(priceMinParam, priceMaxParam)
+
+	let currentPriceRange: number[] = [MIN_PRICE, MAX_PRICE]
+	if (isValidPriceRange(selectedPriceFilter)) {
+		currentPriceRange = selectedPriceFilter
+	}
+
+	const [renderedPriceRange, setRenderedPriceRange] = useState<number[]>(currentPriceRange)
+
+	const getFilterNamesFromSearchParams = (params: URLSearchParams): string[] => {
+		const keys = Array.from(params.keys())
+		const filterNames = productFilters.map(productFilter => productFilter.label)
+		return keys.filter(key => filterNames.includes(key))
+	}
+
+	const selectedFilters = getFilterNamesFromSearchParams(searchParams).map(filterName => ({
+		label: filterName,
+		values: getSearchParamValues(searchParams.get(filterName)),
+	}))
 
 	const toggleRefinement = (type: string, filterName: string) => {
-		const refinementType = selectedRefinements.find(refinement => refinement.label === type)
+		const refinementType = selectedFilters.find(refinement => refinement.label === type)
 
 		const newRefinementType = {
 			label: type,
@@ -59,7 +66,7 @@ const CollectionSidebar: React.FunctionComponent<{
 		}
 
 		const newRefinements = [
-			...selectedRefinements.filter(refinement => refinement.label !== type),
+			...selectedFilters.filter(refinement => refinement.label !== type),
 			...(newRefinementType.values.length > 0 ? [newRefinementType] : []),
 		]
 
@@ -74,7 +81,7 @@ const CollectionSidebar: React.FunctionComponent<{
 		const [min, max] = newPriceRange
 
 		const newRefinements = [
-			...selectedRefinements.filter(
+			...selectedFilters.filter(
 				refinement => refinement.label !== 'priceMin' && refinement.label !== 'priceMax'
 			),
 			{ label: 'priceMin', values: [min.toString()] },
@@ -86,7 +93,7 @@ const CollectionSidebar: React.FunctionComponent<{
 
 	const deletePriceRefinement = () => {
 		const newRefinements = [
-			...selectedRefinements.filter(
+			...selectedFilters.filter(
 				refinement => refinement.label !== 'priceMin' && refinement.label !== 'priceMax'
 			),
 		]
@@ -102,7 +109,7 @@ const CollectionSidebar: React.FunctionComponent<{
 		const newParams = new URLSearchParams()
 		refinements.forEach(refinement => {
 			const name = refinement.label
-			const value = refinement.values.join(PARAM_DELIMITER)
+			const value = refinement.values.join('|')
 			newParams.set(name, value)
 		})
 
@@ -110,7 +117,7 @@ const CollectionSidebar: React.FunctionComponent<{
 			newParams.set('sortBy', sortByParam)
 		}
 
-		const url = newParams.size > 0 ? pathname + '?' + newParams.toString() : pathname
+		const url = newParams.size > 0 ? basePath + '?' + newParams.toString() : basePath
 		router.replace(url, { scroll: false })
 	}
 
@@ -118,28 +125,26 @@ const CollectionSidebar: React.FunctionComponent<{
 		if (sortByParam) {
 			const newParams = new URLSearchParams()
 			newParams.set('sortBy', sortByParam)
-			const url = pathname + '?' + newParams.toString()
+			const url = basePath + '?' + newParams.toString()
 			return router.replace(url, { scroll: false })
 		}
 
-		return router.replace(pathname, { scroll: false })
+		return router.replace(basePath, { scroll: false })
 	}
 
 	const sortBy = (sortByParam: string) => {
 		const newParams = new URLSearchParams(searchParams)
 		newParams.set('sortBy', sortByParam)
 
-		const url = pathname + '?' + newParams.toString()
+		const url = basePath + '?' + newParams.toString()
 		router.replace(url, { scroll: false })
 	}
 
 	return (
 		<div>
 			<CollectionSidebarHeader
-				selectedRefinements={selectedRefinements}
-				priceRefinement={
-					minPriceParam && maxPriceParam ? [minPriceParam, maxPriceParam] : undefined
-				}
+				selectedRefinements={selectedFilters}
+				priceRefinement={selectedPriceFilter}
 				clearRefinements={clearRefinements}
 				toggleRefinement={toggleRefinement}
 				deletePriceRefinement={deletePriceRefinement}
@@ -235,12 +240,12 @@ const CollectionSidebar: React.FunctionComponent<{
 						</div>
 					</div>
 				</CollectionSidebarMenuItem>
-				{filters.map(filter => {
+				{productFilters.map(filter => {
 					const { label, values } = filter
 					return (
 						<CollectionSidebarMenuItem title={_.capitalize(label)} key={label}>
 							<ul className="list-none">
-								{values.map((value: string) => {
+								{values.toSorted().map((value: string) => {
 									return (
 										<li
 											className="pl-6 py-1 hover:underline cursor-pointer"
@@ -251,7 +256,7 @@ const CollectionSidebar: React.FunctionComponent<{
 													type="checkbox"
 													id={value + ' checkbox'}
 													checked={
-														selectedRefinements
+														selectedFilters
 															.find(refinement => refinement.label === label)
 															?.values.includes(value) || false
 													}

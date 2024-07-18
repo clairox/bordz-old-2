@@ -7,7 +7,7 @@ type Refinement = {
 
 const CollectionSidebarHeader: React.FunctionComponent<{
 	selectedRefinements: Refinement[]
-	priceRefinement?: string[]
+	priceRefinement: number[]
 	clearRefinements: () => void
 	toggleRefinement: (label: string, value: string) => void
 	deletePriceRefinement: () => void
@@ -18,9 +18,9 @@ const CollectionSidebarHeader: React.FunctionComponent<{
 	toggleRefinement,
 	deletePriceRefinement,
 }) => {
-	const [minPrice, maxPrice] = priceRefinement
-	const hasRefinements = selectedRefinements.length > 0 || priceRefinement.length === 2
-	
+	const isValidPriceRefinement = priceRefinement.length === 2
+	const hasRefinements = selectedRefinements.length > 0 || isValidPriceRefinement
+
 	return (
 		<div className="px-5 py-4 border-b border-black">
 			<div className="flex justify-between">
@@ -50,12 +50,12 @@ const CollectionSidebarHeader: React.FunctionComponent<{
 						</ul>
 					)
 				})}
-			{minPrice && maxPrice && (
+			{isValidPriceRefinement && (
 				<div
 					className="pt-2 cursor-pointer hover:underline"
 					onClick={() => deletePriceRefinement()}
 				>
-					x ${minPrice} - ${maxPrice}
+					x ${priceRefinement[0]} - ${priceRefinement[1]}
 				</div>
 			)}
 		</div>

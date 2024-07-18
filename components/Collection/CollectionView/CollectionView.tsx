@@ -7,7 +7,13 @@ import CollectionProductList from '../CollectionProductList'
 import CollectionSidebar from '../CollectionSidebar'
 import { useCollection } from '@/hooks/useCollection'
 import { useCollectionMaxPrice } from '@/hooks/useCollectionMaxPrice'
-import { getFilters, getSortKey, MAX_PRODUCTS_PER_LOAD } from '@/lib/collectionUtils'
+import {
+	getFilters,
+	getSortKey,
+	isValidPriceRange,
+	MAX_PRODUCTS_PER_LOAD,
+	processPriceParams,
+} from '@/lib/collectionUtils'
 import _ from 'lodash'
 
 const CollectionView: React.FunctionComponent = () => {
@@ -25,18 +31,20 @@ const CollectionView: React.FunctionComponent = () => {
 	const { sortKey, reverse } = getSortKey(searchParams.get('sortBy'))
 	const filters = getFilters(searchParams, subcollectionParam)
 
-	let filtersWithPriceRange = filters
-	const priceMinSearchParam = searchParams.get('priceMin')
-	const priceMaxSearchParam = searchParams.get('priceMax')
-	const hasValidPriceSearchParams = priceMinSearchParam !== null && priceMaxSearchParam !== null
+	const { maxPrice } = useCollectionMaxPrice(handle, limit, filters)
 
-	if (hasValidPriceSearchParams) {
-		filtersWithPriceRange = filtersWithPriceRange.concat([
-			{ price: { min: +priceMinSearchParam, max: +priceMaxSearchParam } },
+	let filtersWithPriceRange = filters
+	const priceMinParam = searchParams.get('priceMin')
+	const priceMaxParam = searchParams.get('priceMax')
+
+	const selectedPriceFilter = processPriceParams(priceMinParam, priceMaxParam)
+	if (isValidPriceRange(selectedPriceFilter)) {
+		const [minPriceFilter, maxPriceFilter] = selectedPriceFilter
+		filtersWithPriceRange = filters.concat([
+			{ price: { min: minPriceFilter, max: maxPriceFilter } },
 		])
 	}
 
-	const { maxPrice } = useCollectionMaxPrice(handle, limit, filters)
 	const {
 		collection,
 		products,
@@ -81,7 +89,7 @@ const CollectionView: React.FunctionComponent = () => {
 			<div className="grid grid-cols-5">
 				<aside className="border-l border-black">
 					<CollectionSidebar
-						filters={availableFilters}
+						productFilters={availableFilters}
 						maxPrice={maxPrice}
 						openRefinements={openRefinements}
 						setOpenRefinements={setOpenRefinements}

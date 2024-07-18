@@ -1,5 +1,6 @@
 import { ProductCollectionSortKeys, ProductFilter } from '@/__generated__/graphql'
 import { ReadonlyURLSearchParams } from 'next/navigation'
+import { isNumeric, toStrictIntegerOrNaN } from './utils'
 
 export const MAX_PRODUCTS_PER_LOAD = 40
 
@@ -18,7 +19,7 @@ export const getSortKey = (sortByParam: string | null) => {
 	}
 }
 
-const getFiltersFromSearchParam = (
+export const getFiltersFromSearchParam = (
 	searchParam: string | null,
 	filterType: 'brand' | 'size' | 'color'
 ): ProductFilter[] => {
@@ -88,3 +89,22 @@ export const getFiltersServer = (
 		...getFiltersFromSearchParam(searchParams['color'], 'color'),
 	]
 }
+
+export const processPriceParams = (priceMin: string | null, priceMax: string | null): number[] => {
+	if (priceMin === null || priceMax === null || !isNumeric(priceMin) || !isNumeric(priceMax)) {
+		return []
+	}
+
+	const min = parseInt(priceMin)
+	const max = parseInt(priceMax)
+
+	if (max <= min) {
+		return []
+	}
+
+	return [min, max]
+}
+
+export const isValidPriceRange = (priceRange: number[]): boolean =>
+	priceRange[0] < priceRange[1] && priceRange.length === 2
+export const getSearchParamValues = (param: string | null): string[] => param?.split('|') || []

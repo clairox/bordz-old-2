@@ -1,7 +1,6 @@
 import React from 'react'
 import RangeSlider from '../RangeSlider'
-
-const roundUp = (value: number, to: number) => Math.ceil(value / to) * to
+import { roundUp } from '@/lib/utils'
 
 const PriceRangeSlider: React.FunctionComponent<{
 	setValue: (newValue: number[]) => void
