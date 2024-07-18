@@ -12,7 +12,7 @@ const useCollectionMaxPrice = (handle: string, limit: number, filters: ProductFi
 	const fetchedProducts = collection?.products
 
 	const maxPrice = fetchedProducts?.nodes.reduce((previousPrice, currentProduct) => {
-		const currentPrice = currentProduct.priceRange.maxVariantPrice.amount
+		const currentPrice = Number(currentProduct.priceRange.maxVariantPrice.amount)
 		if (currentPrice > previousPrice) {
 			return currentPrice
 		}
