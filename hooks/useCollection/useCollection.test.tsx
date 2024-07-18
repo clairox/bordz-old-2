@@ -81,7 +81,7 @@ describe('useCollection', () => {
 		)
 
 		expect(result.current.collection).toBeDefined()
-		expect(result.current.renderableProducts).toEqual([
+		expect(result.current.products).toEqual([
 			{
 				title: 'Product 1',
 				handle: 'product-1',

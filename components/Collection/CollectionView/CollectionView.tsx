@@ -1,94 +1,63 @@
 'use client'
 import React, { useState } from 'react'
+import {
+	ReadonlyURLSearchParams,
+	useParams,
+	usePathname,
+	useRouter,
+	useSearchParams,
+} from 'next/navigation'
 import CollectionHeader from '../CollectionHeader'
 import CollectionFooter from '../CollectionFooter'
 import CollectionProductList from '../CollectionProductList'
 import CollectionSidebar from '../CollectionSidebar'
-import { useParams, usePathname, useSearchParams } from 'next/navigation'
-import _ from 'lodash'
-import { ProductCollectionSortKeys } from '@/__generated__/graphql'
+import { ProductCollectionSortKeys, ProductFilter } from '@/__generated__/graphql'
 import { useCollection } from '@/hooks/useCollection'
 import { useCollectionMaxPrice } from '@/hooks/useCollectionMaxPrice'
+import _ from 'lodash'
+import { getFilters, getSortKey } from '@/lib/collectionUtils'
 
 const CollectionView: React.FunctionComponent = () => {
-	const [openRefinements, setOpenRefinements] = useState<string[]>([])
-
+	const router = useRouter()
 	const pathname = usePathname()
-
 	const params = useParams()
-	const [collectionParam, subcollectionParam] = params.collection as string[]
 	const searchParams = useSearchParams()
 
-	type SortByParamsType = {
-		[key: string]: ProductCollectionSortKeys
-	}
+	const [openRefinements, setOpenRefinements] = useState<string[]>([])
 
-	const sortByParams: SortByParamsType = {
-		recommended: ProductCollectionSortKeys.BestSelling,
-		newest: ProductCollectionSortKeys.Created,
-		priceLowToHigh: ProductCollectionSortKeys.Price,
-		priceHighToLow: ProductCollectionSortKeys.Price,
-	}
+	const MAX_PRODUCTS_PER_LOAD = 40
+	const [collectionParam, subcollectionParam] = params.collection as string[]
 
 	const handle = collectionParam
-	const limit = 40 + +(searchParams.get('start') || 0) || 40
+	const limit = MAX_PRODUCTS_PER_LOAD + _.toInteger(searchParams.get('start'))
+	const { sortKey, reverse } = getSortKey(searchParams.get('sortBy'))
+	const filters = getFilters(searchParams, subcollectionParam)
 
-	const sortByParam = (
-		searchParams.get('sortBy') ? searchParams.get('sortBy') : 'recommended'
-	) as keyof SortByParamsType
-	const sortKey = sortByParams[sortByParam]
-	const reverse = sortByParam === 'recommended' || sortByParam === 'priceHighToLow' ? true : false
+	let filtersWithPriceRange = filters
+	const priceMinSearchParam = searchParams.get('priceMin')
+	const priceMaxSearchParam = searchParams.get('priceMax')
+	const hasValidPriceSearchParams = priceMinSearchParam !== null && priceMaxSearchParam !== null
 
-	const defaultFilters = subcollectionParam
-		? [
-				{ available: true },
-				{
-					productMetafield: {
-						namespace: 'custom',
-						key: 'subcategory',
-						value: subcollectionParam,
-					},
-				},
-		  ]
-		: [{ available: true }]
-	const filters = [
-		...defaultFilters,
-		...(searchParams
-			.get('brand')
-			?.split('|')
-			.map(brand => ({ productVendor: brand })) || []),
-		...(searchParams
-			.get('size')
-			?.split('|')
-			.map(size => ({ variantOption: { name: 'size', value: size } })) || []),
-		...(searchParams
-			.get('color')
-			?.split('|')
-			.map(color => ({ productMetafield: { namespace: 'custom', key: 'color', value: color } })) ||
-			[]),
-	] as any
+	if (hasValidPriceSearchParams) {
+		filtersWithPriceRange = filtersWithPriceRange.concat([
+			{ price: { min: +priceMinSearchParam, max: +priceMaxSearchParam } },
+		])
+	}
 
 	const { maxPrice } = useCollectionMaxPrice(handle, limit, filters)
-
-	const filtersWithPrice = filters.concat(
-		...(searchParams.get('priceMin') && searchParams.get('priceMax')
-			? [{ price: { min: +searchParams.get('priceMin')!, max: +searchParams.get('priceMax')! } }]
-			: [])
-	)
-
 	const {
 		collection,
-		renderableProducts,
+		products,
 		productCount,
 		availableFilters,
 		filteredPriceRange,
 		subcollectionTitles,
 		hasNextPage,
 		error,
-	} = useCollection(handle, limit, sortKey, filtersWithPrice, reverse)
+	} = useCollection(handle, limit, sortKey, filtersWithPriceRange, reverse)
 
 	if (error) {
-		console.error(error)
+		// TODO: Do error stuff here
 		return <></>
 	}
 
@@ -98,7 +67,7 @@ const CollectionView: React.FunctionComponent = () => {
 
 	if (
 		!title ||
-		!renderableProducts ||
+		!products ||
 		productCount === undefined ||
 		!availableFilters ||
 		filteredPriceRange === undefined ||
@@ -121,9 +90,9 @@ const CollectionView: React.FunctionComponent = () => {
 					/>
 				</aside>
 				<main className="col-span-4 border-l border-black">
-					<CollectionProductList products={renderableProducts} />
+					<CollectionProductList products={products} />
 					<CollectionFooter
-						renderedProductCount={renderableProducts.length}
+						renderedProductCount={products.length}
 						totalProductCount={productCount}
 						hasNextPage={hasNextPage}
 					/>

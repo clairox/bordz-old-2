@@ -30,7 +30,7 @@ vi.mock('@/hooks/useCollectionMaxPrice', () => ({
 vi.mock('@/hooks/useCollection', () => ({
 	useCollection: mocks.useCollectionMock.mockReturnValue({
 		collection: { title: 'Test Collection' },
-		renderableProducts: [
+		products: [
 			{
 				title: 'Test Product',
 				handle: 'test-product',
@@ -96,7 +96,7 @@ describe('CollectionView', () => {
 	it('handles errors gracefully', () => {
 		mocks.useCollectionMock.mockReturnValueOnce({
 			collection: null,
-			renderableProducts: null,
+			products: null,
 			productCount: undefined,
 			availableFilters: null,
 			filteredPriceRange: undefined,

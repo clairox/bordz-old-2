@@ -67,7 +67,7 @@ const useCollection = (
 
 	return {
 		collection,
-		renderableProducts,
+		products: renderableProducts,
 		productCount,
 		availableFilters,
 		filteredPriceRange,
