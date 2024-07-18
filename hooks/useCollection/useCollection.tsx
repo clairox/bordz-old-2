@@ -58,7 +58,7 @@ const useCollection = (
 	).price
 	const filteredPriceRange = [priceFilter.min, priceFilter.max]
 
-	const subcollectionTitles = fetchedFilters
+	const subcollectionNames = fetchedFilters
 		?.find(filter => filter.label === 'Subcollection')
 		?.values.map(value => value.label)
 		.toSorted()
@@ -71,7 +71,7 @@ const useCollection = (
 		productCount,
 		availableFilters,
 		filteredPriceRange,
-		subcollectionTitles,
+		subcollectionNames,
 		hasNextPage,
 		error,
 	}

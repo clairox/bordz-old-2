@@ -98,7 +98,7 @@ describe('useCollection', () => {
 			{ label: 'brand', values: ['Brand 1', 'Brand 2'] },
 		])
 		expect(result.current.filteredPriceRange).toEqual([0, 85])
-		expect(result.current.subcollectionTitles).toEqual(['Subcollection 1', 'Subcollection 2'])
+		expect(result.current.subcollectionNames).toEqual(['Subcollection 1', 'Subcollection 2'])
 		expect(result.current.hasNextPage).toBe(false)
 		expect(result.current.error).toBeUndefined()
 	})

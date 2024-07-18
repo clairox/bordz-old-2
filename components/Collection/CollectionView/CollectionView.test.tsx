@@ -100,7 +100,7 @@ describe('CollectionView', () => {
 			productCount: undefined,
 			availableFilters: null,
 			filteredPriceRange: undefined,
-			subcollectionTitles: null,
+			subcollectionNames: null,
 			hasNextPage: undefined,
 			error: new Error('Test error'),
 		})

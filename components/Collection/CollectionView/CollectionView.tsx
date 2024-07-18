@@ -43,7 +43,7 @@ const CollectionView: React.FunctionComponent = () => {
 		productCount,
 		availableFilters,
 		filteredPriceRange,
-		subcollectionTitles,
+		subcollectionNames,
 		hasNextPage,
 		error,
 	} = useCollection(handle, limit, sortKey, filtersWithPriceRange, reverse)
@@ -71,7 +71,11 @@ const CollectionView: React.FunctionComponent = () => {
 
 	return (
 		<div key={`${pathname}/${searchParams.toString()}`}>
-			<CollectionHeader title={title} subcollectionTitles={subcollectionTitles} />
+			<CollectionHeader
+				title={title}
+				subcollectionNames={subcollectionParam ? undefined : subcollectionNames}
+				basePath={pathname}
+			/>
 			<div className="grid grid-cols-5">
 				<aside className="border-l border-black">
 					<CollectionSidebar
