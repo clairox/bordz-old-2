@@ -69,11 +69,13 @@ const CollectionView: React.FunctionComponent = () => {
 		return <></>
 	}
 
+	const subcollectionNamesOrUndefined = subcollectionParam ? undefined : subcollectionNames
+
 	return (
 		<div key={`${pathname}/${searchParams.toString()}`}>
 			<CollectionHeader
 				title={title}
-				subcollectionNames={subcollectionParam ? undefined : subcollectionNames}
+				subcollectionNames={subcollectionNamesOrUndefined}
 				basePath={pathname}
 			/>
 			<div className="grid grid-cols-5">

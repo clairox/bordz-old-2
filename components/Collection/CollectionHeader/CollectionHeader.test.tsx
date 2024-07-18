@@ -3,24 +3,28 @@ import CollectionHeader from './CollectionHeader'
 import _ from 'lodash'
 
 vi.mock('next/navigation', () => ({
-	useRouter: vi.fn().mockReturnValue({ push: vi.fn() }),
 	usePathname: vi.fn().mockReturnValue('test-collection'),
-	useParams: vi.fn().mockReturnValue({ collection: ['test-collection'] }),
 }))
 
 describe('CollectionHeader', () => {
 	it('renders and shows title', () => {
 		const title = 'Test Collection Title'
-		const { getByRole, unmount } = render(<CollectionHeader title={title} />)
+		const { getByRole, unmount } = render(
+			<CollectionHeader title={title} basePath={'test-collection'} />
+		)
 
 		expect(getByRole('heading', { level: 1, name: title })).toBeVisible()
 		unmount()
 	})
 
 	it('renders and shows subcollection links', () => {
-		const subcollectionTitles = ['subcollection-1', 'subcollection-2']
+		const subcollectionNames = ['subcollection-1', 'subcollection-2']
 		const { getByRole, unmount } = render(
-			<CollectionHeader title={''} subcollectionTitles={subcollectionTitles} />
+			<CollectionHeader
+				title={''}
+				subcollectionNames={subcollectionNames}
+				basePath={'test-collection'}
+			/>
 		)
 
 		expect(getByRole('link', { name: 'Subcollection 1' })).toBeVisible()
@@ -30,9 +34,13 @@ describe('CollectionHeader', () => {
 
 	describe('subcollection link', () => {
 		it('links to subcollection page', () => {
-			const subcollectionTitles = ['subcollection-1', 'subcollection-2']
+			const subcollectionNames = ['subcollection-1', 'subcollection-2']
 			const { getByRole, unmount } = render(
-				<CollectionHeader title={''} subcollectionTitles={subcollectionTitles} />
+				<CollectionHeader
+					title={''}
+					subcollectionNames={subcollectionNames}
+					basePath={'test-collection'}
+				/>
 			)
 
 			expect(getByRole('link', { name: 'Subcollection 1' })).toHaveAttribute(

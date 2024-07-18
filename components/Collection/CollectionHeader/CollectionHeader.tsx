@@ -1,16 +1,14 @@
-import _ from 'lodash'
-import Link from 'next/link'
-import { useParams, usePathname } from 'next/navigation'
 import React from 'react'
+import Link from 'next/link'
+import _ from 'lodash'
+
+const formatTitle = (string: string) => _.startCase(string.replace('-', ' '))
 
 const CollectionHeader: React.FunctionComponent<{
 	title: string
-	subcollectionTitles?: string[]
-}> = ({ title, subcollectionTitles }) => {
-	const pathname = usePathname()
-	const params = useParams()
-	const subcollectionParam = params.collection[1]
-
+	subcollectionNames?: string[]
+	basePath: string
+}> = ({ title, subcollectionNames, basePath }) => {
 	return (
 		<div className="border-b border-black">
 			<div>
@@ -19,10 +17,11 @@ const CollectionHeader: React.FunctionComponent<{
 				</div>
 			</div>
 			<div className="flex flex-row justify-between mx-auto w-[50%]">
-				{subcollectionParam === undefined &&
-					subcollectionTitles?.map(subcollectionTitle => (
-						<Link href={pathname + '/' + subcollectionTitle} key={subcollectionTitle}>
-							<span>{_.startCase(subcollectionTitle.replace('-', ' '))}</span>
+				{subcollectionNames !== undefined &&
+					subcollectionNames.length > 0 &&
+					subcollectionNames?.map(subcollectionName => (
+						<Link href={basePath + '/' + subcollectionName} key={subcollectionName}>
+							<span>{formatTitle(subcollectionName)}</span>
 						</Link>
 					))}
 			</div>
