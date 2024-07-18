@@ -1,21 +1,14 @@
 'use client'
 import React, { useState } from 'react'
-import {
-	ReadonlyURLSearchParams,
-	useParams,
-	usePathname,
-	useRouter,
-	useSearchParams,
-} from 'next/navigation'
+import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation'
 import CollectionHeader from '../CollectionHeader'
 import CollectionFooter from '../CollectionFooter'
 import CollectionProductList from '../CollectionProductList'
 import CollectionSidebar from '../CollectionSidebar'
-import { ProductCollectionSortKeys, ProductFilter } from '@/__generated__/graphql'
 import { useCollection } from '@/hooks/useCollection'
 import { useCollectionMaxPrice } from '@/hooks/useCollectionMaxPrice'
+import { getFilters, getSortKey, MAX_PRODUCTS_PER_LOAD } from '@/lib/collectionUtils'
 import _ from 'lodash'
-import { getFilters, getSortKey } from '@/lib/collectionUtils'
 
 const CollectionView: React.FunctionComponent = () => {
 	const router = useRouter()
@@ -25,7 +18,6 @@ const CollectionView: React.FunctionComponent = () => {
 
 	const [openRefinements, setOpenRefinements] = useState<string[]>([])
 
-	const MAX_PRODUCTS_PER_LOAD = 40
 	const [collectionParam, subcollectionParam] = params.collection as string[]
 
 	const handle = collectionParam
