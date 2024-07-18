@@ -1,6 +1,8 @@
 import { render } from '@testing-library/react'
 import CollectionFooter from './CollectionFooter'
 import userEvent from '@testing-library/user-event'
+import React from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 
 const mocks = vi.hoisted(() => {
 	return {
@@ -17,15 +19,32 @@ vi.mock('next/navigation', () => ({
 	useSearchParams: mocks.useSearchParamsMock.mockReturnValue(new URLSearchParams()),
 }))
 
+const Wrapper: React.FunctionComponent<{
+	renderedProductCount: number
+	totalProductCount: number
+	hasNextPage: boolean
+}> = ({ renderedProductCount, totalProductCount, hasNextPage }) => {
+	const router = useRouter()
+	const searchParams = useSearchParams()
+
+	return (
+		<CollectionFooter
+			renderedProductCount={renderedProductCount}
+			totalProductCount={totalProductCount}
+			hasNextPage={hasNextPage}
+			basePath={'/test-collection'}
+			router={router}
+			searchParams={searchParams}
+		/>
+	)
+}
+
 describe('CollectionFooter', () => {
 	it('renders and shows renderedProductCount and totalProductCount correctly', () => {
 		const renderedProductCount = 10
+
 		const { getByText, unmount } = render(
-			<CollectionFooter
-				renderedProductCount={renderedProductCount}
-				totalProductCount={50}
-				hasNextPage={true}
-			/>
+			<Wrapper renderedProductCount={10} totalProductCount={50} hasNextPage={true} />
 		)
 
 		expect(getByText('Showing 10 of 50 products')).toBeVisible()
@@ -36,11 +55,7 @@ describe('CollectionFooter', () => {
 		it('renders and is visible when hasNextPage is true', () => {
 			const hasNextPage = true
 			const { getByRole, unmount } = render(
-				<CollectionFooter
-					renderedProductCount={10}
-					totalProductCount={50}
-					hasNextPage={hasNextPage}
-				/>
+				<Wrapper renderedProductCount={10} totalProductCount={50} hasNextPage={hasNextPage} />
 			)
 
 			expect(getByRole('button', { name: 'Load More' })).toBeVisible()
@@ -49,11 +64,7 @@ describe('CollectionFooter', () => {
 		it('does not render when hasNextPage is false', () => {
 			const hasNextPage = false
 			const { queryByRole, unmount } = render(
-				<CollectionFooter
-					renderedProductCount={50}
-					totalProductCount={50}
-					hasNextPage={hasNextPage}
-				/>
+				<Wrapper renderedProductCount={50} totalProductCount={50} hasNextPage={hasNextPage} />
 			)
 
 			expect(queryByRole('button', { name: 'Load More' })).not.toBeInTheDocument()
@@ -61,7 +72,7 @@ describe('CollectionFooter', () => {
 		})
 		it('calls useRouter().replace with correct query on click', async () => {
 			const { getByRole, unmount } = render(
-				<CollectionFooter renderedProductCount={10} totalProductCount={50} hasNextPage={true} />
+				<Wrapper renderedProductCount={10} totalProductCount={50} hasNextPage={true} />
 			)
 
 			const loadMoreButton = getByRole('button', { name: 'Load More' })

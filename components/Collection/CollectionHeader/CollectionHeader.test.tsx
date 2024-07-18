@@ -23,7 +23,7 @@ describe('CollectionHeader', () => {
 			<CollectionHeader
 				title={''}
 				subcollectionNames={subcollectionNames}
-				basePath={'test-collection'}
+				basePath={'/test-collection'}
 			/>
 		)
 
@@ -39,13 +39,13 @@ describe('CollectionHeader', () => {
 				<CollectionHeader
 					title={''}
 					subcollectionNames={subcollectionNames}
-					basePath={'test-collection'}
+					basePath={'/test-collection'}
 				/>
 			)
 
 			expect(getByRole('link', { name: 'Subcollection 1' })).toHaveAttribute(
 				'href',
-				'test-collection/subcollection-1'
+				'/test-collection/subcollection-1'
 			)
 			unmount()
 		})

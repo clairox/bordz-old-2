@@ -93,6 +93,9 @@ const CollectionView: React.FunctionComponent = () => {
 						renderedProductCount={products.length}
 						totalProductCount={productCount}
 						hasNextPage={hasNextPage}
+						basePath={pathname}
+						router={router}
+						searchParams={searchParams}
 					/>
 				</main>
 			</div>
