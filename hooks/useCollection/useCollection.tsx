@@ -41,15 +41,17 @@ const useCollection = (
 		?.find(filter => filter.label === 'Availability')
 		?.values.find(value => value.label === 'In stock')?.count
 
-	const availableFilters = fetchedFilters
-		?.filter(filter => {
-			const productFilterLabels = ['Brand', 'Size', 'Color']
-			return productFilterLabels.includes(filter.label)
-		})
-		.map(filter => ({
-			label: filter.label.toLowerCase(),
-			values: filter.values.filter(value => value.count > 0).map(value => value.label),
-		}))
+	const availableFilters = new Map(
+		fetchedFilters
+			?.filter(filter => {
+				const productFilterLabels = ['Brand', 'Size', 'Color']
+				return productFilterLabels.includes(filter.label)
+			})
+			.map(filter => [
+				filter.label.toLowerCase(),
+				filter.values.filter(value => value.count > 0).map(value => value.label),
+			])
+	)
 
 	const priceFilter = JSON.parse(
 		fetchedFilters

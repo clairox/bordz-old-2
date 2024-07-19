@@ -94,9 +94,7 @@ describe('useCollection', () => {
 			},
 		])
 		expect(result.current.productCount).toBe(10)
-		expect(result.current.availableFilters).toEqual([
-			{ label: 'brand', values: ['Brand 1', 'Brand 2'] },
-		])
+		expect(result.current.availableFilters).toEqual(new Map([['brand', ['Brand 1', 'Brand 2']]]))
 		expect(result.current.filteredPriceRange).toEqual([0, 85])
 		expect(result.current.subcollectionNames).toEqual(['Subcollection 1', 'Subcollection 2'])
 		expect(result.current.hasNextPage).toBe(false)

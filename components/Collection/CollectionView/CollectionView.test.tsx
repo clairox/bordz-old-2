@@ -43,20 +43,11 @@ vi.mock('@/hooks/useCollection', () => ({
 			},
 		],
 		productCount: 1,
-		availableFilters: [
-			{
-				label: 'brand',
-				values: ['Brand 1', 'Brand 2', 'Brand 3'],
-			},
-			{
-				label: 'size',
-				values: ['Size 1', 'Size 2', 'Size 3'],
-			},
-			{
-				label: 'color',
-				values: ['Color 1', 'Color 2'],
-			},
-		],
+		availableFilters: new Map([
+			['brand', ['Brand 1', 'Brand 2', 'Brand 3']],
+			['size', ['Size 1', 'Size 2', 'Size 3']],
+			['color', ['Color 1', 'Color 2']],
+		]),
 		filteredPriceRange: [0, 60],
 		subCollectionTitles: ['Subcollection 1', 'Subcollection 2'],
 		hasNextPage: false,

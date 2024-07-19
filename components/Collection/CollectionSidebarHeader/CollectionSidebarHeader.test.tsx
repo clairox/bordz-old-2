@@ -1,30 +1,26 @@
 import { render } from '@testing-library/react'
 import CollectionSidebarHeader from './CollectionSidebarHeader'
 import userEvent from '@testing-library/user-event'
+import { ProductFilterMap } from '@/types'
 
-const clearRefinements = vi.fn()
-const toggleRefinement = vi.fn()
-const deletePriceRefinement = vi.fn()
+const clearFilters = vi.fn()
+const deselectNonPriceFilter = vi.fn()
+const removePriceFilter = vi.fn()
 
-const selectedRefinements = [
-	{
-		label: 'Brand',
-		values: ['Brand 1', 'Brand 2'],
-	},
-	{
-		label: 'Size',
-		values: ['Size 1'],
-	},
-]
+const selectedFilters: ProductFilterMap = new Map([
+	['brand', ['Brand 1', 'Brand 2']],
+	['size', ['Size 1']],
+])
 
 describe('CollectionSidebarHeader', () => {
 	it('does not render reset button when no refinements are selected', () => {
 		const { queryByRole, unmount } = render(
 			<CollectionSidebarHeader
-				selectedRefinements={[]}
-				clearRefinements={clearRefinements}
-				toggleRefinement={toggleRefinement}
-				deletePriceRefinement={deletePriceRefinement}
+				selectedFilters={new Map()}
+				priceFilter={[]}
+				clearFilters={clearFilters}
+				deselectNonPriceFilter={deselectNonPriceFilter}
+				removePriceFilter={removePriceFilter}
 			/>
 		)
 
@@ -35,10 +31,11 @@ describe('CollectionSidebarHeader', () => {
 	it('renders and shows reset button when refinements are selected', () => {
 		const { queryByRole, unmount } = render(
 			<CollectionSidebarHeader
-				selectedRefinements={selectedRefinements}
-				clearRefinements={clearRefinements}
-				toggleRefinement={toggleRefinement}
-				deletePriceRefinement={deletePriceRefinement}
+				selectedFilters={selectedFilters}
+				priceFilter={[]}
+				clearFilters={clearFilters}
+				deselectNonPriceFilter={deselectNonPriceFilter}
+				removePriceFilter={removePriceFilter}
 			/>
 		)
 
@@ -49,10 +46,11 @@ describe('CollectionSidebarHeader', () => {
 	it('does not render selected refinements when no refinements are selected', () => {
 		const { queryByRole, unmount } = render(
 			<CollectionSidebarHeader
-				selectedRefinements={[]}
-				clearRefinements={clearRefinements}
-				toggleRefinement={toggleRefinement}
-				deletePriceRefinement={deletePriceRefinement}
+				selectedFilters={new Map()}
+				priceFilter={[]}
+				clearFilters={clearFilters}
+				deselectNonPriceFilter={deselectNonPriceFilter}
+				removePriceFilter={removePriceFilter}
 			/>
 		)
 		expect(queryByRole('listitem')).not.toBeInTheDocument()
@@ -62,10 +60,11 @@ describe('CollectionSidebarHeader', () => {
 	it('renders and shows selected refinements correctly', () => {
 		const { queryAllByRole, unmount } = render(
 			<CollectionSidebarHeader
-				selectedRefinements={selectedRefinements}
-				clearRefinements={clearRefinements}
-				toggleRefinement={toggleRefinement}
-				deletePriceRefinement={deletePriceRefinement}
+				selectedFilters={selectedFilters}
+				priceFilter={[]}
+				clearFilters={clearFilters}
+				deselectNonPriceFilter={deselectNonPriceFilter}
+				removePriceFilter={removePriceFilter}
 			/>
 		)
 		expect(queryAllByRole('listitem')[0]).toHaveTextContent('Brand 1')
@@ -75,21 +74,19 @@ describe('CollectionSidebarHeader', () => {
 	})
 
 	describe('selected refinement', () => {
-		it('calls toggleRefinement with correct values on click', async () => {
+		it('calls deselectNonPriceFilter with correct values on click', async () => {
 			const { queryAllByRole, unmount } = render(
 				<CollectionSidebarHeader
-					selectedRefinements={selectedRefinements}
-					clearRefinements={clearRefinements}
-					toggleRefinement={toggleRefinement}
-					deletePriceRefinement={deletePriceRefinement}
+					selectedFilters={selectedFilters}
+					priceFilter={[]}
+					clearFilters={clearFilters}
+					deselectNonPriceFilter={deselectNonPriceFilter}
+					removePriceFilter={removePriceFilter}
 				/>
 			)
 
-			const expectedLabel = selectedRefinements[0].label
-			const expectedValue = selectedRefinements[0].values[0]
-
 			await userEvent.click(queryAllByRole('listitem')[0])
-			expect(toggleRefinement).toHaveBeenCalledWith(expectedLabel, expectedValue)
+			expect(deselectNonPriceFilter).toHaveBeenCalledWith('brand', selectedFilters.get('brand')![0])
 			unmount()
 		})
 	})

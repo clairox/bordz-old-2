@@ -1,6 +1,7 @@
 import { ProductCollectionSortKeys, ProductFilter } from '@/__generated__/graphql'
 import { ReadonlyURLSearchParams } from 'next/navigation'
 import { isNumeric, toStrictIntegerOrNaN } from './utils'
+import { ProductFilterMap } from '@/types'
 
 export const MAX_PRODUCTS_PER_LOAD = 40
 
@@ -103,6 +104,60 @@ export const processPriceParams = (priceMin: string | null, priceMax: string | n
 	}
 
 	return [min, max]
+}
+
+export const getFiltersFromSearchParams = (params: URLSearchParams): ProductFilterMap => {
+	const entries = Array.from(params.entries())
+	const productFilterEntries = entries.filter(entry => {
+		const key = entry[0]
+		return key !== 'start' && key !== 'sortBy' && key !== 'priceMin' && key !== 'priceMax'
+	})
+	return new Map(
+		productFilterEntries.map(entry => {
+			const [key, value] = entry
+			return [key, value.split('|')]
+		})
+	)
+}
+
+export const mergeProductFilterMaps = (
+	firstFilterMap: ProductFilterMap,
+	secondFilterMap: ProductFilterMap
+): ProductFilterMap => {
+	const newFilterMap: ProductFilterMap = new Map<string, string[]>()
+
+	const keys1 = Array.from(firstFilterMap.keys())
+	const keys2 = Array.from(secondFilterMap.keys())
+
+	const checkedKeys = new Set()
+
+	keys1.forEach(key => {
+		if (secondFilterMap.get(key) !== undefined) {
+			const uniqueValues = new Set([...firstFilterMap.get(key)!, ...secondFilterMap.get(key)!])
+			const values = Array.from(uniqueValues).toSorted()
+			newFilterMap.set(key, values)
+		} else {
+			newFilterMap.set(key, firstFilterMap.get(key)!)
+		}
+
+		checkedKeys.add(key)
+	})
+
+	keys2.forEach(key => {
+		if (checkedKeys.has(key)) {
+			return
+		}
+
+		if (firstFilterMap.get(key) !== undefined) {
+			const uniqueValues = new Set([...secondFilterMap.get(key)!, ...firstFilterMap.get(key)!])
+			const values = Array.from(uniqueValues).toSorted()
+			newFilterMap.set(key, values)
+		} else {
+			newFilterMap.set(key, secondFilterMap.get(key)!)
+		}
+	})
+
+	return newFilterMap
 }
 
 export const isValidPriceRange = (priceRange: number[]): boolean =>

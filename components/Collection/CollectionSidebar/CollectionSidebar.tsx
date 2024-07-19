@@ -1,20 +1,25 @@
 'use client'
 import React, { useState } from 'react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
-import { ProductFilter } from '@/types'
+import { ProductFilterMap } from '@/types'
 import _ from 'lodash'
 import { CollectionSidebarMenu, CollectionSidebarMenuItem } from '../CollectionSidebarMenu'
 import PriceRangeSlider from '@/components/PriceRangeSlider'
 import CollectionSidebarHeader from '../CollectionSidebarHeader/CollectionSidebarHeader'
 import { roundUp } from '@/lib/utils'
-import { getSearchParamValues, isValidPriceRange, processPriceParams } from '@/lib/collectionUtils'
+import {
+	getFiltersFromSearchParams,
+	isValidPriceRange,
+	mergeProductFilterMaps,
+	processPriceParams,
+} from '@/lib/collectionUtils'
 
 const CollectionSidebar: React.FunctionComponent<{
-	productFilters: ProductFilter[]
+	availableFilters: ProductFilterMap
 	maxPrice: number
 	openRefinements: string[]
 	setOpenRefinements: (refinements: string[]) => void
-}> = ({ productFilters, maxPrice, openRefinements, setOpenRefinements }) => {
+}> = ({ availableFilters, maxPrice, openRefinements, setOpenRefinements }) => {
 	const router = useRouter()
 	const basePath = usePathname()
 	const searchParams = useSearchParams()
@@ -36,81 +41,87 @@ const CollectionSidebar: React.FunctionComponent<{
 
 	const [renderedPriceRange, setRenderedPriceRange] = useState<number[]>(currentPriceRange)
 
-	const getFilterNamesFromSearchParams = (params: URLSearchParams): string[] => {
-		const keys = Array.from(params.keys())
-		const filterNames = productFilters.map(productFilter => productFilter.label)
-		return keys.filter(key => filterNames.includes(key))
+	const selectedFilters = getFiltersFromSearchParams(searchParams)
+	const availableFiltersWithSelectedFilters = mergeProductFilterMaps(
+		availableFilters,
+		selectedFilters
+	)
+
+	const selectNonPriceFilter = (filterKey: string, filterValue: string) => {
+		const existingFilterNames = selectedFilters.get(filterKey)
+		if (existingFilterNames?.includes(filterValue)) {
+			return
+		}
+
+		const updatedFilters: ProductFilterMap = new Map(selectedFilters)
+		if (existingFilterNames === undefined) {
+			updatedFilters.set(filterKey, [filterValue])
+		} else {
+			const uniqueValues = new Set([...existingFilterNames, filterValue])
+			updatedFilters.set(filterKey, Array.from(uniqueValues))
+		}
+
+		refine(updatedFilters)
 	}
 
-	const selectedFilters = getFilterNamesFromSearchParams(searchParams).map(filterName => ({
-		label: filterName,
-		values: getSearchParamValues(searchParams.get(filterName)),
-	}))
-
-	const toggleRefinement = (type: string, filterName: string) => {
-		const refinementType = selectedFilters.find(refinement => refinement.label === type)
-
-		const newRefinementType = {
-			label: type,
-			values: [] as string[],
+	const deselectNonPriceFilter = (filterKey: string, filterValue: string) => {
+		const existingFilterValues = selectedFilters.get(filterKey)
+		if (existingFilterValues === undefined || !existingFilterValues.includes(filterValue)) {
+			return
 		}
 
-		if (refinementType) {
-			if (refinementType.values?.includes(filterName)) {
-				newRefinementType.values = [...refinementType.values.filter(value => value !== filterName)]
-			} else {
-				newRefinementType.values = [...(refinementType.values || []), filterName]
-			}
+		const values = existingFilterValues.filter(value => value !== filterValue)
+		const updatedFilters: ProductFilterMap = new Map(selectedFilters)
+		if (values.length === 0) {
+			updatedFilters.delete(filterKey)
 		} else {
-			newRefinementType.values = [filterName]
+			updatedFilters.set(filterKey, values)
 		}
 
-		const newRefinements = [
-			...selectedFilters.filter(refinement => refinement.label !== type),
-			...(newRefinementType.values.length > 0 ? [newRefinementType] : []),
-		]
-
-		if (newRefinements.length > 0) {
-			refine(newRefinements)
-		} else {
-			clearRefinements()
-		}
+		refine(updatedFilters)
 	}
 
-	const setPriceRefinement = (newPriceRange: number[]) => {
+	const toggleNonPriceFilter = (
+		event: React.ChangeEvent<HTMLInputElement>,
+		filterKey: string,
+		filterValue: string
+	) => {
+		const newChecked = event.target.checked
+		if (newChecked) {
+			return selectNonPriceFilter(filterKey, filterValue)
+		}
+		return deselectNonPriceFilter(filterKey, filterValue)
+	}
+
+	const setPriceFilter = (newPriceRange: number[]) => {
 		const [min, max] = newPriceRange
 
-		const newRefinements = [
-			...selectedFilters.filter(
-				refinement => refinement.label !== 'priceMin' && refinement.label !== 'priceMax'
-			),
-			{ label: 'priceMin', values: [min.toString()] },
-			{ label: 'priceMax', values: [max.toString()] },
-		]
+		const updatedFilters: ProductFilterMap = new Map(selectedFilters)
+		updatedFilters.set('priceMin', [min.toString()])
+		updatedFilters.set('priceMax', [max.toString()])
 
-		refine(newRefinements)
+		refine(updatedFilters)
 	}
 
-	const deletePriceRefinement = () => {
-		const newRefinements = [
-			...selectedFilters.filter(
-				refinement => refinement.label !== 'priceMin' && refinement.label !== 'priceMax'
-			),
-		]
+	const removePriceFilter = () => {
+		const updatedFilters: ProductFilterMap = new Map(selectedFilters)
+		updatedFilters.delete('priceMin')
+		updatedFilters.delete('priceMax')
 
-		if (newRefinements.length > 0) {
-			refine(newRefinements)
-		} else {
-			clearRefinements()
+		refine(updatedFilters)
+	}
+
+	const refine = (pendingRefinements: ProductFilterMap) => {
+		if (pendingRefinements.size === 0) {
+			return router.replace(basePath, { scroll: false })
 		}
-	}
 
-	const refine = (refinements: { label: string; values: string[] }[]) => {
 		const newParams = new URLSearchParams()
-		refinements.forEach(refinement => {
-			const name = refinement.label
-			const value = refinement.values.join('|')
-			newParams.set(name, value)
+
+		const refinementKeys = Array.from(pendingRefinements.keys())
+		refinementKeys.forEach(key => {
+			const values = pendingRefinements.get(key)
+			newParams.set(key, values!.join('|'))
 		})
 
 		if (sortByParam) {
@@ -118,10 +129,10 @@ const CollectionSidebar: React.FunctionComponent<{
 		}
 
 		const url = newParams.size > 0 ? basePath + '?' + newParams.toString() : basePath
-		router.replace(url, { scroll: false })
+		return router.replace(url, { scroll: false })
 	}
 
-	const clearRefinements = () => {
+	const clearFilters = () => {
 		if (sortByParam) {
 			const newParams = new URLSearchParams()
 			newParams.set('sortBy', sortByParam)
@@ -135,19 +146,50 @@ const CollectionSidebar: React.FunctionComponent<{
 	const sortBy = (sortByParam: string) => {
 		const newParams = new URLSearchParams(searchParams)
 		newParams.set('sortBy', sortByParam)
+		newParams.delete('start')
 
 		const url = basePath + '?' + newParams.toString()
 		router.replace(url, { scroll: false })
 	}
 
+	const makeFilterMenuItemElement = (filterKey: string) => {
+		const values = availableFiltersWithSelectedFilters.get(filterKey)
+		let menuItemContent = <></>
+		if (values && values.length > 0) {
+			menuItemContent = (
+				<ul className="list-none">
+					{values.toSorted().map((value: string) => {
+						return (
+							<li
+								className="pl-6 py-1 hover:underline cursor-pointer"
+								key={filterKey + '.' + value}
+							>
+								<label htmlFor={value + ' checkbox'}>
+									<input
+										type="checkbox"
+										id={value + ' checkbox'}
+										checked={selectedFilters.get(filterKey)?.includes(value) || false}
+										onChange={event => toggleNonPriceFilter(event, filterKey, value)}
+									/>
+									<span className="pl-2">{value}</span>
+								</label>
+							</li>
+						)
+					})}
+				</ul>
+			)
+		}
+		return menuItemContent
+	}
+
 	return (
 		<div>
 			<CollectionSidebarHeader
-				selectedRefinements={selectedFilters}
-				priceRefinement={selectedPriceFilter}
-				clearRefinements={clearRefinements}
-				toggleRefinement={toggleRefinement}
-				deletePriceRefinement={deletePriceRefinement}
+				selectedFilters={selectedFilters}
+				priceFilter={selectedPriceFilter}
+				clearFilters={clearFilters}
+				deselectNonPriceFilter={deselectNonPriceFilter}
+				removePriceFilter={removePriceFilter}
 			/>
 
 			<CollectionSidebarMenu
@@ -240,41 +282,19 @@ const CollectionSidebar: React.FunctionComponent<{
 						</div>
 					</div>
 				</CollectionSidebarMenuItem>
-				{productFilters.map(filter => {
-					const { label, values } = filter
-					return (
-						<CollectionSidebarMenuItem title={_.capitalize(label)} key={label}>
-							<ul className="list-none">
-								{values.toSorted().map((value: string) => {
-									return (
-										<li
-											className="pl-6 py-1 hover:underline cursor-pointer"
-											key={label + '.' + value}
-										>
-											<label htmlFor={value + ' checkbox'}>
-												<input
-													type="checkbox"
-													id={value + ' checkbox'}
-													checked={
-														selectedFilters
-															.find(refinement => refinement.label === label)
-															?.values.includes(value) || false
-													}
-													onChange={() => toggleRefinement(label, value)}
-												/>
-												<span className="pl-2">{value}</span>
-											</label>
-										</li>
-									)
-								})}
-							</ul>
-						</CollectionSidebarMenuItem>
-					)
-				})}
+				<CollectionSidebarMenuItem title={'Brand'}>
+					{makeFilterMenuItemElement('brand')}
+				</CollectionSidebarMenuItem>
+				<CollectionSidebarMenuItem title={'Size'}>
+					{makeFilterMenuItemElement('size')}
+				</CollectionSidebarMenuItem>
+				<CollectionSidebarMenuItem title={'Color'}>
+					{makeFilterMenuItemElement('color')}
+				</CollectionSidebarMenuItem>
 				<CollectionSidebarMenuItem title={'Price'}>
 					<div className="mx-5">
 						<PriceRangeSlider
-							setValue={setPriceRefinement}
+							setValue={setPriceFilter}
 							renderedValue={renderedPriceRange}
 							setRenderedValue={setRenderedPriceRange}
 							min={MIN_PRICE}

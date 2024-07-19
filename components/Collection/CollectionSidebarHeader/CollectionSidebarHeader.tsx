@@ -1,61 +1,63 @@
+import { isValidPriceRange } from '@/lib/collectionUtils'
+import { ProductFilterMap } from '@/types'
 import React from 'react'
 
-type Refinement = {
-	label: string
-	values: string[]
-}
-
 const CollectionSidebarHeader: React.FunctionComponent<{
-	selectedRefinements: Refinement[]
-	priceRefinement: number[]
-	clearRefinements: () => void
-	toggleRefinement: (label: string, value: string) => void
-	deletePriceRefinement: () => void
+	selectedFilters: ProductFilterMap
+	priceFilter: number[]
+	clearFilters: () => void
+	deselectNonPriceFilter: (filterKey: string, filterValue: string) => void
+	removePriceFilter: () => void
 }> = ({
-	selectedRefinements,
-	priceRefinement = [],
-	clearRefinements,
-	toggleRefinement,
-	deletePriceRefinement,
+	selectedFilters,
+	priceFilter = [],
+	clearFilters,
+	deselectNonPriceFilter,
+	removePriceFilter,
 }) => {
-	const isValidPriceRefinement = priceRefinement.length === 2
-	const hasRefinements = selectedRefinements.length > 0 || isValidPriceRefinement
+	const hasFilters = selectedFilters.size > 0 || isValidPriceRange(priceFilter)
+
+	const handleFilterClick = (key: string, value: string) => deselectNonPriceFilter(key, value)
+
+	const makeSelectedFilterListElementByKey = (filterKey: string) => {
+		const values = selectedFilters.get(filterKey)
+		if (values === undefined || values.length === 0) {
+			return <></>
+		}
+
+		return (
+			<ul className="flex flex-wrap gap-2 pt-2 list-none" key={filterKey}>
+				{values.map(value => {
+					return (
+						<li
+							className="cursor-pointer hover:underline"
+							key={filterKey + '.' + value}
+							onClick={() => handleFilterClick(filterKey, value)}
+						>
+							x {value}
+						</li>
+					)
+				})}
+			</ul>
+		)
+	}
 
 	return (
 		<div className="px-5 py-4 border-b border-black">
 			<div className="flex justify-between">
 				<div className="font-semibold">Refine By:</div>
-				{hasRefinements && (
-					<button className="underline cursor-pointer" onClick={clearRefinements}>
+				{hasFilters && (
+					<button className="underline cursor-pointer" onClick={clearFilters}>
 						Reset
 					</button>
 				)}
 			</div>
-			{selectedRefinements.length > 0 &&
-				selectedRefinements.map(refinementType => {
-					const { label, values } = refinementType
-					return (
-						<ul className="flex flex-wrap gap-2 pt-2 list-none" key={label}>
-							{values.map(value => {
-								return (
-									<li
-										className="cursor-pointer hover:underline"
-										key={label + '.' + value}
-										onClick={() => toggleRefinement(label, value)}
-									>
-										x {value}
-									</li>
-								)
-							})}
-						</ul>
-					)
-				})}
-			{isValidPriceRefinement && (
-				<div
-					className="pt-2 cursor-pointer hover:underline"
-					onClick={() => deletePriceRefinement()}
-				>
-					x ${priceRefinement[0]} - ${priceRefinement[1]}
+			{makeSelectedFilterListElementByKey('brand')}
+			{makeSelectedFilterListElementByKey('size')}
+			{makeSelectedFilterListElementByKey('color')}
+			{isValidPriceRange(priceFilter) && (
+				<div className="pt-2 cursor-pointer hover:underline" onClick={() => removePriceFilter()}>
+					x ${priceFilter[0]} - ${priceFilter[1]}
 				</div>
 			)}
 		</div>

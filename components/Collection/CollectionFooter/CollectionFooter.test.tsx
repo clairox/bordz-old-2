@@ -41,8 +41,6 @@ const Wrapper: React.FunctionComponent<{
 
 describe('CollectionFooter', () => {
 	it('renders and shows renderedProductCount and totalProductCount correctly', () => {
-		const renderedProductCount = 10
-
 		const { getByText, unmount } = render(
 			<Wrapper renderedProductCount={10} totalProductCount={50} hasNextPage={true} />
 		)

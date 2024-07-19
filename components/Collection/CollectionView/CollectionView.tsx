@@ -89,7 +89,7 @@ const CollectionView: React.FunctionComponent = () => {
 			<div className="grid grid-cols-5">
 				<aside className="border-l border-black">
 					<CollectionSidebar
-						productFilters={availableFilters}
+						availableFilters={availableFilters}
 						maxPrice={maxPrice}
 						openRefinements={openRefinements}
 						setOpenRefinements={setOpenRefinements}
