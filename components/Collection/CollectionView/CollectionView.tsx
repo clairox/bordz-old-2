@@ -93,6 +93,9 @@ const CollectionView: React.FunctionComponent = () => {
 						maxPrice={maxPrice}
 						openRefinements={openRefinements}
 						setOpenRefinements={setOpenRefinements}
+						basePath={pathname}
+						router={router}
+						searchParams={searchParams}
 					/>
 				</aside>
 				<main className="col-span-4 border-l border-black">

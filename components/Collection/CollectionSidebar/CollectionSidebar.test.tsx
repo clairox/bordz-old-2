@@ -2,21 +2,7 @@ import { ProductFilterMap } from '@/types'
 import { render } from '@testing-library/react'
 import CollectionSidebar from './CollectionSidebar'
 import userEvent from '@testing-library/user-event'
-
-const mocks = vi.hoisted(() => {
-	return {
-		replace: vi.fn(),
-		useRouterMock: vi.fn(),
-		usePathnameMock: vi.fn(),
-		useSearchParamsMock: vi.fn(),
-	}
-})
-
-vi.mock('next/navigation', () => ({
-	useRouter: mocks.useRouterMock.mockReturnValue({ replace: mocks.replace }),
-	usePathname: mocks.usePathnameMock.mockReturnValue('/test-collection'),
-	useSearchParams: mocks.useSearchParamsMock.mockReturnValue(new URLSearchParams()),
-}))
+import { ReadonlyURLSearchParams } from 'next/navigation'
 
 const ResizeObserverMock = vi.fn(() => ({
 	observe: vi.fn(),
@@ -34,6 +20,16 @@ const availableFilters: ProductFilterMap = new Map([
 const maxPrice = 83.95
 const openRefinements = ['Sort', 'Brand', 'Size', 'Color', 'Price']
 const setOpenRefinements = vi.fn()
+const basePath = '/test-collection'
+const router = {
+	replace: vi.fn(),
+	back: vi.fn(),
+	forward: vi.fn(),
+	refresh: vi.fn(),
+	push: vi.fn(),
+	prefetch: vi.fn(),
+}
+const searchParams = new URLSearchParams() as ReadonlyURLSearchParams
 
 describe('CollectionSidebar', () => {
 	it('renders and shows header content', async () => {
@@ -43,6 +39,9 @@ describe('CollectionSidebar', () => {
 				maxPrice={maxPrice}
 				openRefinements={openRefinements}
 				setOpenRefinements={setOpenRefinements}
+				basePath={basePath}
+				router={router}
+				searchParams={searchParams}
 			/>
 		)
 
@@ -57,6 +56,9 @@ describe('CollectionSidebar', () => {
 				maxPrice={maxPrice}
 				openRefinements={openRefinements}
 				setOpenRefinements={setOpenRefinements}
+				basePath={basePath}
+				router={router}
+				searchParams={searchParams}
 			/>
 		)
 
@@ -75,6 +77,9 @@ describe('CollectionSidebar', () => {
 				maxPrice={maxPrice}
 				openRefinements={openRefinements}
 				setOpenRefinements={setOpenRefinements}
+				basePath={basePath}
+				router={router}
+				searchParams={searchParams}
 			/>
 		)
 
@@ -96,6 +101,9 @@ describe('CollectionSidebar', () => {
 				maxPrice={maxPrice}
 				openRefinements={['Sort', 'Size', 'Color', 'Price']}
 				setOpenRefinements={setOpenRefinements}
+				basePath={basePath}
+				router={router}
+				searchParams={searchParams}
 			/>
 		)
 
@@ -113,6 +121,9 @@ describe('CollectionSidebar', () => {
 					maxPrice={maxPrice}
 					openRefinements={['Sort']}
 					setOpenRefinements={setOpenRefinements}
+					basePath={basePath}
+					router={router}
+					searchParams={searchParams}
 				/>
 			)
 
@@ -122,9 +133,9 @@ describe('CollectionSidebar', () => {
 		})
 
 		it('has correct value when url params contains related search query', () => {
-			mocks.useSearchParamsMock.mockReturnValueOnce(
-				new URLSearchParams([['sortBy', 'priceLowToHigh']])
-			)
+			const testSearchParams = new URLSearchParams([
+				['sortBy', 'priceLowToHigh'],
+			]) as ReadonlyURLSearchParams
 
 			const { getByRole, getByText, unmount } = render(
 				<CollectionSidebar
@@ -132,6 +143,9 @@ describe('CollectionSidebar', () => {
 					maxPrice={maxPrice}
 					openRefinements={['Sort']}
 					setOpenRefinements={setOpenRefinements}
+					basePath={basePath}
+					router={router}
+					searchParams={testSearchParams}
 				/>
 			)
 
@@ -151,6 +165,9 @@ describe('CollectionSidebar', () => {
 					maxPrice={maxPrice}
 					openRefinements={['Brand']}
 					setOpenRefinements={setOpenRefinements}
+					basePath={basePath}
+					router={router}
+					searchParams={searchParams}
 				/>
 			)
 
@@ -159,7 +176,9 @@ describe('CollectionSidebar', () => {
 		})
 
 		it('is checked when url params contains related search query', () => {
-			mocks.useSearchParamsMock.mockReturnValueOnce(new URLSearchParams([['brand', 'Brand 1']]))
+			const testSearchParams = new URLSearchParams([
+				['brand', 'Brand 1'],
+			]) as ReadonlyURLSearchParams
 
 			const { getByRole, unmount } = render(
 				<CollectionSidebar
@@ -167,6 +186,9 @@ describe('CollectionSidebar', () => {
 					maxPrice={maxPrice}
 					openRefinements={['Brand']}
 					setOpenRefinements={setOpenRefinements}
+					basePath={basePath}
+					router={router}
+					searchParams={testSearchParams}
 				/>
 			)
 
@@ -183,6 +205,9 @@ describe('CollectionSidebar', () => {
 					maxPrice={maxPrice}
 					openRefinements={['Price']}
 					setOpenRefinements={setOpenRefinements}
+					basePath={basePath}
+					router={router}
+					searchParams={searchParams}
 				/>
 			)
 
@@ -192,12 +217,10 @@ describe('CollectionSidebar', () => {
 		})
 
 		it('has correct values when url params contains related search query', () => {
-			mocks.useSearchParamsMock.mockReturnValueOnce(
-				new URLSearchParams([
-					['priceMin', '20'],
-					['priceMax', '75'],
-				])
-			)
+			const testSearchParams = new URLSearchParams([
+				['priceMin', '20'],
+				['priceMax', '75'],
+			]) as ReadonlyURLSearchParams
 
 			const { queryByText, getByText, unmount } = render(
 				<CollectionSidebar
@@ -205,6 +228,9 @@ describe('CollectionSidebar', () => {
 					maxPrice={maxPrice}
 					openRefinements={['Price']}
 					setOpenRefinements={setOpenRefinements}
+					basePath={basePath}
+					router={router}
+					searchParams={testSearchParams}
 				/>
 			)
 
@@ -218,7 +244,9 @@ describe('CollectionSidebar', () => {
 
 	describe('checked product filter', () => {
 		it('calls useRouter().replace with correct values on click', async () => {
-			mocks.useSearchParamsMock.mockReturnValueOnce(new URLSearchParams([['brand', 'Brand 1']]))
+			const testSearchParams = new URLSearchParams([
+				['brand', 'Brand 1'],
+			]) as ReadonlyURLSearchParams
 
 			const { getByRole, unmount } = render(
 				<CollectionSidebar
@@ -226,21 +254,22 @@ describe('CollectionSidebar', () => {
 					maxPrice={maxPrice}
 					openRefinements={['Brand']}
 					setOpenRefinements={setOpenRefinements}
+					basePath={basePath}
+					router={router}
+					searchParams={testSearchParams}
 				/>
 			)
 
 			await userEvent.click(getByRole('checkbox', { name: 'Brand 1' }))
-			expect(mocks.replace).toHaveBeenCalledWith('/test-collection', { scroll: false })
+			expect(router.replace).toHaveBeenCalledWith('/test-collection', { scroll: false })
 			unmount()
 		})
 
 		it('calls useRouter().replace with correct values on click when url params contains search query', async () => {
-			mocks.useSearchParamsMock.mockReturnValueOnce(
-				new URLSearchParams([
-					['brand', 'Brand 1|Brand 2'],
-					['color', 'Color 1'],
-				])
-			)
+			const testSearchParams = new URLSearchParams([
+				['brand', 'Brand 1|Brand 2'],
+				['color', 'Color 1'],
+			]) as ReadonlyURLSearchParams
 
 			const { getByRole, unmount } = render(
 				<CollectionSidebar
@@ -248,11 +277,14 @@ describe('CollectionSidebar', () => {
 					maxPrice={maxPrice}
 					openRefinements={['Brand']}
 					setOpenRefinements={setOpenRefinements}
+					basePath={basePath}
+					router={router}
+					searchParams={testSearchParams}
 				/>
 			)
 
 			await userEvent.click(getByRole('checkbox', { name: 'Brand 1' }))
-			expect(mocks.replace).toHaveBeenCalledWith('/test-collection?brand=Brand+2&color=Color+1', {
+			expect(router.replace).toHaveBeenCalledWith('/test-collection?brand=Brand+2&color=Color+1', {
 				scroll: false,
 			})
 			unmount()
@@ -267,23 +299,24 @@ describe('CollectionSidebar', () => {
 					maxPrice={maxPrice}
 					openRefinements={['Brand']}
 					setOpenRefinements={setOpenRefinements}
+					basePath={basePath}
+					router={router}
+					searchParams={searchParams}
 				/>
 			)
 
 			await userEvent.click(getByRole('checkbox', { name: 'Brand 1' }))
-			expect(mocks.replace).toHaveBeenCalledWith('/test-collection?brand=Brand+1', {
+			expect(router.replace).toHaveBeenCalledWith('/test-collection?brand=Brand+1', {
 				scroll: false,
 			})
 			unmount()
 		})
 
 		it('calls useRouter().replace with correct values on click when url params contains search query', async () => {
-			mocks.useSearchParamsMock.mockReturnValueOnce(
-				new URLSearchParams([
-					['brand', 'Brand 2'],
-					['color', 'Color 1'],
-				])
-			)
+			const testSearchParams = new URLSearchParams([
+				['brand', 'Brand 2'],
+				['color', 'Color 1'],
+			]) as ReadonlyURLSearchParams
 
 			const { getByRole, unmount } = render(
 				<CollectionSidebar
@@ -291,11 +324,14 @@ describe('CollectionSidebar', () => {
 					maxPrice={maxPrice}
 					openRefinements={['Brand']}
 					setOpenRefinements={setOpenRefinements}
+					basePath={basePath}
+					router={router}
+					searchParams={testSearchParams}
 				/>
 			)
 
 			await userEvent.click(getByRole('checkbox', { name: 'Brand 1' }))
-			expect(mocks.replace).toHaveBeenCalledWith(
+			expect(router.replace).toHaveBeenCalledWith(
 				'/test-collection?brand=Brand+2%7CBrand+1&color=Color+1',
 				{
 					scroll: false,

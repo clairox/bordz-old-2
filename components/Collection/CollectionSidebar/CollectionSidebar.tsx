@@ -1,6 +1,5 @@
 'use client'
 import React, { useState } from 'react'
-import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { ProductFilterMap } from '@/types'
 import _ from 'lodash'
 import { CollectionSidebarMenu, CollectionSidebarMenuItem } from '../CollectionSidebarMenu'
@@ -13,17 +12,26 @@ import {
 	mergeProductFilterMaps,
 	processPriceParams,
 } from '@/lib/collectionUtils'
+import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime'
+import { ReadonlyURLSearchParams } from 'next/navigation'
 
 const CollectionSidebar: React.FunctionComponent<{
 	availableFilters: ProductFilterMap
 	maxPrice: number
 	openRefinements: string[]
 	setOpenRefinements: (refinements: string[]) => void
-}> = ({ availableFilters, maxPrice, openRefinements, setOpenRefinements }) => {
-	const router = useRouter()
-	const basePath = usePathname()
-	const searchParams = useSearchParams()
-
+	basePath: string
+	router: AppRouterInstance
+	searchParams: ReadonlyURLSearchParams
+}> = ({
+	availableFilters,
+	maxPrice,
+	openRefinements,
+	setOpenRefinements,
+	basePath,
+	router,
+	searchParams,
+}) => {
 	const sortByParam = searchParams.get('sortBy')
 
 	const MIN_PRICE = 0
@@ -309,5 +317,4 @@ const CollectionSidebar: React.FunctionComponent<{
 
 export default CollectionSidebar
 
-// TODO: !! addRefinement() and removeRefinement() functions
 // TODO: Figure out how to pass hook values from parent component without it causing issues
