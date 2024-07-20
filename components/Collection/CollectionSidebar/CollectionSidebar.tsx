@@ -316,5 +316,3 @@ const CollectionSidebar: React.FunctionComponent<{
 }
 
 export default CollectionSidebar
-
-// TODO: Figure out how to pass hook values from parent component without it causing issues

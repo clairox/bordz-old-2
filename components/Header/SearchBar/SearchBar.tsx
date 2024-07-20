@@ -10,7 +10,7 @@ const SearchBar = () => {
 		setActive(true)
 	}
 	return (
-		<form className="flex w-full h-full border-l border-black" role="search">
+		<form className="flex w-full h-full border-l border-b border-black" role="search">
 			<input
 				className="pl-4 w-full h-full pr-0 mr-0"
 				type="text"

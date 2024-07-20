@@ -8,9 +8,9 @@ import WishlistButton from './Actions/WishlistButton'
 
 const Header: React.FunctionComponent = () => {
 	return (
-		<header className="flex justify-center h-16 border-b border-black">
+		<header className="z-100 flex justify-center h-16">
 			<div className="flex justify-between w-full max-w-[1440px]">
-				<div className="header-left flex h-full">
+				<div className="header-left flex h-full border-b border-black">
 					<Link href={'/'} className="flex justify-center items-center w-40 h-full">
 						<Image src="/bordz-brand-black.svg" alt="bordz logo" width="122" height="42" />
 					</Link>
