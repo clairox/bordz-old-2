@@ -1,16 +1,18 @@
 'use client'
 import React from 'react'
-import { FieldValues, useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm } from 'react-hook-form'
 import { z } from 'zod'
-import MiniLoginFormSchema from './schema'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/Form'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
+import { useAuth } from '@/context/AuthContext/AuthContext'
+import MiniLoginFormSchema from './schema'
 
 type FormData = z.infer<typeof MiniLoginFormSchema>
 
 const MiniLoginForm = () => {
+	const { login } = useAuth()
 	const form = useForm<FormData>({
 		resolver: zodResolver(MiniLoginFormSchema),
 		defaultValues: {
@@ -19,8 +21,12 @@ const MiniLoginForm = () => {
 		},
 	})
 
-	const onSubmit = (data: FormData) => {
-		console.log(data)
+	const onSubmit = async (data: FormData) => {
+		const { email, password } = data
+		const loginSuccessful = await login(email, password)
+		if (loginSuccessful) {
+			window.location.reload()
+		}
 	}
 
 	return (

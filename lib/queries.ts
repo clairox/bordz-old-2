@@ -64,4 +64,18 @@ const GET_COLLECTION_MAX_PRICE = gql(`
 	}
 `)
 
-export { GET_COLLECTION, GET_COLLECTION_MAX_PRICE }
+const GET_CUSTOMER = gql(`
+	query GetCustomer(
+		$customerAccessToken: String!
+	) {
+		customer(customerAccessToken: $customerAccessToken) {
+			id
+			email
+			firstName
+			lastName
+			displayName
+		}
+	}
+`)
+
+export { GET_COLLECTION, GET_COLLECTION_MAX_PRICE, GET_CUSTOMER }

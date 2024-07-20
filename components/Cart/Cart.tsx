@@ -1,5 +1,5 @@
 'use client'
-import { useCartContext } from '@/context/cartContext'
+import { useCartContext } from '@/context/CartContext/CartContext'
 import type { CartItem } from '@/types'
 import { X } from '@phosphor-icons/react'
 import Image from 'next/image'

@@ -1,5 +1,5 @@
 'use client'
-import { useCartContext } from '@/context/cartContext'
+import { useCartContext } from '@/context/CartContext/CartContext'
 import React from 'react'
 
 const Button: React.FunctionComponent<{ id: number; quantity?: number }> = ({

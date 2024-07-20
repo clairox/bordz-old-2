@@ -1,10 +1,10 @@
 import type { Metadata } from 'next'
 import { Inter as FontSans } from 'next/font/google'
-import '@/styles/globals.css'
+import { AuthProvider } from '@/context/AuthContext/AuthContext'
 import Header from '@/components/Header/Header'
 import { cn } from '@/lib/shadcnUtils'
-import { CartProvider } from '@/context/cartContext'
 import { ApolloWrapper } from '@/lib/apollo/apolloWrapper'
+import '@/styles/globals.css'
 
 const fontSans = FontSans({ subsets: ['latin'], variable: '--font-sans' })
 
@@ -18,8 +18,10 @@ export default function RootLayout({ children }: Readonly<React.PropsWithChildre
 		<html lang="en">
 			<body className={cn('', fontSans.className)}>
 				<ApolloWrapper>
-					<Header />
-					<main className="flex justify-center mx-auto max-w-[1366px]">{children}</main>
+					<AuthProvider>
+						<Header />
+						<main className="flex justify-center mx-auto max-w-[1366px]">{children}</main>
+					</AuthProvider>
 				</ApolloWrapper>
 			</body>
 		</html>

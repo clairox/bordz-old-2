@@ -1,5 +1,5 @@
 import { act, renderHook } from '@testing-library/react'
-import { useProvideCart } from '@/context/cartContext'
+import { useProvideCart } from '@/context/CartContext'
 import { makeCartItem, makeFullCartItem } from '@/lib/cartUtils'
 import type { CartItem } from '@/types'
 
