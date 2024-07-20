@@ -1,5 +1,5 @@
 import { render } from '@testing-library/react'
-import Navbar from './Header'
+import Navbar from '.'
 
 describe('navbar component', () => {
 	it('should render', () => {

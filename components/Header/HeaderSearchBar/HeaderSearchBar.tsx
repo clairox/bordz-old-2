@@ -1,9 +1,9 @@
 'use client'
-import { MagnifyingGlass, X } from '@phosphor-icons/react'
 import React, { useState } from 'react'
+import { MagnifyingGlass, X } from '@phosphor-icons/react'
 
 // TODO: Search bar should cover nav menu when active
-const SearchBar = () => {
+const HeaderSearchBar = () => {
 	const [active, setActive] = useState(false)
 
 	const handleInputClick = () => {
@@ -26,4 +26,4 @@ const SearchBar = () => {
 	)
 }
 
-export default SearchBar
+export default HeaderSearchBar

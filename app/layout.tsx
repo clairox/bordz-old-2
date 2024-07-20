@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { Inter as FontSans } from 'next/font/google'
 import '@/styles/globals.css'
-import Header from '@/components/Header'
+import Header from '@/components/Header/Header'
 import { cn } from '@/lib/shadcnUtils'
 import { CartProvider } from '@/context/cartContext'
 import { ApolloWrapper } from '@/lib/apollo/apolloWrapper'

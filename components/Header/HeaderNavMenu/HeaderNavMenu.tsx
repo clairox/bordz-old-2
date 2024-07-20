@@ -1,10 +1,10 @@
 'use client'
-import { NavigationMenu, NavigationMenuList } from '@/components/ui/NavigationMenu'
 import React, { useEffect, useState } from 'react'
-import NavMenuItem, { Subcategories } from './NavMenuItem'
+import { NavigationMenu, NavigationMenuList } from '@/components/ui/NavigationMenu'
+import NavMenuItem, { Subcategories } from '@/components/Header/HeaderNavMenuItem'
 import navMenuData from './navMenuData.json'
 
-const NavMenu = () => {
+const HeaderNavMenu = () => {
 	const [annoyingDiv, setAnnoyingDiv] = useState<Element | null>(null)
 
 	// Shadcn/UI's NavigationMenuList is wrapped in a component which is not easy to access
@@ -36,4 +36,4 @@ const NavMenu = () => {
 	)
 }
 
-export default NavMenu
+export default HeaderNavMenu

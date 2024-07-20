@@ -1,4 +1,6 @@
 'use client'
+import Link from 'next/link'
+import React from 'react'
 import {
 	NavigationMenuContent,
 	NavigationMenuItem,
@@ -6,8 +8,6 @@ import {
 	NavigationMenuTrigger,
 	navigationMenuTriggerStyle,
 } from '@/components/ui/NavigationMenu'
-import Link from 'next/link'
-import React from 'react'
 
 type NavMenuLink = {
 	title: string
@@ -23,7 +23,7 @@ type Subcategories = {
 	[key: string]: Subcategory
 }
 
-const NavMenuItem: React.FunctionComponent<{
+const HeaderNavMenuItem: React.FunctionComponent<{
 	title: string
 	subcategories: Subcategories
 }> = ({ title, subcategories }) => {
@@ -61,5 +61,5 @@ const NavMenuLink: React.FunctionComponent<{ title: string; href: string }> = ({
 	)
 }
 
-export default NavMenuItem
+export default HeaderNavMenuItem
 export type { Subcategories }
