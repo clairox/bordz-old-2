@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getClient } from '@/lib/apollo/apolloClient'
 import { LOGIN } from '@/lib/mutations'
 import { serialize } from 'cookie'
-import { GET_CUSTOMER } from '@/lib/queries'
 
 export const POST = async (request: NextRequest) => {
 	const { email, password } = await request.json()
@@ -12,23 +11,23 @@ export const POST = async (request: NextRequest) => {
 		variables: { email, password },
 	})
 
+	if (loginResponseErrors) {
+		const { message } = loginResponseErrors[0]
+		return NextResponse.json({ error: message }, { status: 400 })
+	}
+
+	const customerUserErrors = loginResponseData?.customerAccessTokenCreate?.customerUserErrors
+	if (customerUserErrors && customerUserErrors.length > 0) {
+		const { message } = customerUserErrors[0]
+		return NextResponse.json({ error: message }, { status: 401 })
+	}
+
 	const customerAccessToken = loginResponseData?.customerAccessTokenCreate?.customerAccessToken
-	if (loginResponseErrors || !customerAccessToken) {
-		const customerUserErrors = loginResponseData?.customerAccessTokenCreate?.customerUserErrors
-		return NextResponse.json(loginResponseErrors || customerUserErrors)
+	if (!customerAccessToken) {
+		return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
 	}
 
 	const { accessToken, expiresAt } = customerAccessToken
-	const { data: getCustomerResponseData, errors: getCustomersResponseErrors } =
-		await getClient().query({
-			query: GET_CUSTOMER,
-			variables: { customerAccessToken: accessToken },
-		})
-
-	const customer = getCustomerResponseData?.customer
-	if (getCustomersResponseErrors || !customer) {
-		return NextResponse.json(getCustomersResponseErrors)
-	}
 
 	const expiryTime = new Date(expiresAt).getTime()
 	const now = new Date().getTime()
@@ -40,8 +39,7 @@ export const POST = async (request: NextRequest) => {
 		path: '/',
 	})
 
-	const { id, firstName } = customer
-	const res = NextResponse.json({ id, firstName })
+	const res = NextResponse.json({ success: true })
 	res.headers.append('Set-Cookie', cookie)
 	return res
 }

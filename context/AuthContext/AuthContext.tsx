@@ -14,7 +14,7 @@ type AuthContextValue = {
 	isLoggedIn: boolean
 	login: (email: string, password: string) => Promise<boolean>
 	signup: (email: string, password: string, firstName: string, lastName: string) => Promise<boolean>
-	logout: () => void
+	logout: () => Promise<boolean>
 }
 
 const AuthContext = createContext<AuthContextValue>({
@@ -22,7 +22,7 @@ const AuthContext = createContext<AuthContextValue>({
 	isLoggedIn: false,
 	login: async () => false,
 	signup: async () => false,
-	logout: () => null,
+	logout: async () => false,
 })
 
 const AuthProvider: React.FunctionComponent<React.PropsWithChildren> = ({ children }) => {
@@ -38,10 +38,26 @@ const useProvideAuth = () => {
 	const [authState, setAuthState] = useState(initialAuthState)
 
 	useEffect(() => {
-		if (authState.isLoggedIn) {
-			console.log(authState.user)
+		const getUser = async () => {
+			console.log('Getting customer info...')
+			const response = await fetch(`http://localhost:3000/api/customer`, {
+				method: 'GET',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+			})
+
+			if (response.ok) {
+				const user = await response.json()
+				setAuthState({ isLoggedIn: true, user })
+				console.log('You are logged in!')
+			} else {
+				console.log('You are not logged in.')
+			}
 		}
-	}, [authState])
+
+		getUser()
+	}, [])
 
 	const login = async (email: string, password: string): Promise<boolean> => {
 		const response = await fetch(`http://localhost:3000/api/login`, {
@@ -53,10 +69,9 @@ const useProvideAuth = () => {
 			cache: 'no-cache',
 		})
 
-		const user = await response.json()
-
-		if (user) {
-			setAuthState(prev => ({ isLoggedIn: true, user }))
+		if (response.ok) {
+			const user = await response.json()
+			setAuthState({ isLoggedIn: true, user })
 			return true
 		}
 
@@ -71,7 +86,22 @@ const useProvideAuth = () => {
 	): Promise<boolean> => {
 		return false
 	}
-	const logout = () => {}
+	const logout = async (): Promise<boolean> => {
+		const response = await fetch(`http://localhost:3000/api/logout`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			cache: 'no-cache',
+		})
+
+		if (response.ok) {
+			setAuthState(initialAuthState)
+			return true
+		}
+
+		return false
+	}
 
 	return {
 		user: authState.user,
