@@ -7,20 +7,18 @@ import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
 import { useAuth } from '@/context/AuthContext/AuthContext'
-import MiniLoginFormSchema from './schema'
+import LoginFormSchema from './schema'
 import Link from 'next/link'
 import PasswordInput from '@/components/PasswordInput'
 import { WarningCircle } from '@phosphor-icons/react'
 
-type FormData = z.infer<typeof MiniLoginFormSchema>
+type FormData = z.infer<typeof LoginFormSchema>
 
-const MiniLoginForm: React.FunctionComponent<{
-	closePopover: () => void
-}> = ({ closePopover }) => {
+const LoginForm = () => {
 	const { login } = useAuth()
 
 	const form = useForm<FormData>({
-		resolver: zodResolver(MiniLoginFormSchema),
+		resolver: zodResolver(LoginFormSchema),
 		defaultValues: {
 			email: '',
 			password: '',
@@ -49,7 +47,11 @@ const MiniLoginForm: React.FunctionComponent<{
 
 	return (
 		<Form {...form}>
-			<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4" noValidate>
+			<form
+				onSubmit={form.handleSubmit(onSubmit)}
+				className="w-full max-w-[300px] space-y-4"
+				noValidate
+			>
 				<h1 className="mb-2 text-xl font-semibold">Login</h1>
 				<div className="space-y-3">
 					{formErrorResponse && (
@@ -106,7 +108,6 @@ const MiniLoginForm: React.FunctionComponent<{
 					<Link
 						href={{ pathname: '/login', query: { register: true } }}
 						className="hover:underline"
-						onClick={closePopover}
 					>
 						Create an account
 					</Link>
@@ -116,4 +117,4 @@ const MiniLoginForm: React.FunctionComponent<{
 	)
 }
 
-export default MiniLoginForm
+export default LoginForm
