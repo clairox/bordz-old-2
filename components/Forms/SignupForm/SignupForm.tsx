@@ -146,6 +146,7 @@ const SignupForm = () => {
 										>
 											<FormControl>
 												<SelectTrigger
+													data-testid="monthSelect"
 													ref={monthSelectTrigger}
 													className={`border-r-0 ${
 														// @ts-ignore
@@ -182,6 +183,7 @@ const SignupForm = () => {
 										>
 											<FormControl>
 												<SelectTrigger
+													data-testid="daySelect"
 													className={`border-r-0 ${
 														// @ts-ignore
 														errors.birthDate && 'border-red-500 text-red-500'
@@ -217,6 +219,7 @@ const SignupForm = () => {
 										>
 											<FormControl>
 												<SelectTrigger
+													data-testid="yearSelect"
 													className={`${
 														// @ts-ignore
 														errors.birthDate && 'border-red-500 text-red-500'

@@ -3,12 +3,12 @@ import { DayEnum, MonthEnum, YearEnum } from './enums'
 
 const firstNameSchema = z
 	.string()
-	.min(1, 'First name is required')
+	.min(1, 'Please enter your first name')
 	.max(50, 'First name must not exceed 50 characters')
 	.regex(/^[a-zA-Z]+$/, 'First name can only contain letters')
 const lastNameSchema = z
 	.string()
-	.min(1, 'Last name is required')
+	.min(1, 'Please enter your last name')
 	.max(50, 'Last name must not exceed 50 characters')
 	.regex(/^[a-zA-Z]+$/, 'Last name can only contain letters')
 const emailSchema = z
@@ -17,7 +17,7 @@ const emailSchema = z
 	.email('Invalid email address')
 const passwordSchema = z
 	.string()
-	.min(1, 'Password is required')
+	.min(1, 'Please enter a password')
 	.min(8, 'Password must be at least 8 characters long')
 
 const SignupFormSchema = z
