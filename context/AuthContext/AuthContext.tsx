@@ -149,5 +149,6 @@ const useProvideAuth = () => {
 }
 
 export { AuthProvider, useAuth }
+export type { User }
 
 // TODO: Make wrapper for fetch or use something else

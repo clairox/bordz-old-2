@@ -3,10 +3,9 @@ import React, { useEffect, useState, useCallback } from 'react'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/Popover'
 import MiniLoginForm from '@/components/Forms/MiniLoginForm'
 import HeaderButton from '@/components/Header/HeaderAction'
-import { User } from '@phosphor-icons/react/dist/ssr'
+import { User } from '@phosphor-icons/react'
 import { useAuth } from '@/context/AuthContext/AuthContext'
-import Link from 'next/link'
-import { Package, SignOut } from '@phosphor-icons/react'
+import AccountActionMenu from '@/components/Menu/AccountActionMenu'
 
 const AccountAction = () => {
 	const { loadState, user, logout } = useAuth()
@@ -23,47 +22,16 @@ const AccountAction = () => {
 	const close = () => setOpen(false)
 
 	useEffect(() => {
-		switch (loadState) {
-			case 'idle':
-				setPopoverContent(<>Loading...</>)
-				break
-			case 'loading':
-				setPopoverContent(<>Loading...</>)
-				break
-			case 'succeeded':
-				setPopoverContent(
-					<div>
-						<h1 className="px-5 pb-4 pt-2 font-semibold text-xl">Hey, {user?.firstName}!</h1>
-						<Link
-							href="/account/settings"
-							className="flex items-center gap-3 px-5 h-16 border-t border-black cursor-pointer hover:bg-gray-100"
-						>
-							<User size={27} weight={'light'} />
-							My Account
-						</Link>
-						<Link
-							href="/account/orders"
-							className="flex items-center gap-3 px-5 h-16 border-t border-black cursor-pointer hover:bg-gray-100"
-						>
-							<Package size={27} weight={'light'} />
-							Orders
-						</Link>
-						<button
-							className="flex items-center gap-3 px-5 w-full h-16 border-t border-black cursor-pointer hover:bg-gray-100"
-							onClick={handleLogout}
-						>
-							<SignOut size={27} weight={'light'} />
-							Logout
-						</button>
-					</div>
-				)
-				break
-			case 'failed':
-				setPopoverContent(<MiniLoginForm closePopover={close} />)
-				break
-			default:
-				setPopoverContent(<MiniLoginForm closePopover={close} />)
-				break
+		if (loadState === 'idle' || loadState === 'loading') {
+			setPopoverContent(<>Loading...</>)
+		}
+
+		if (loadState === 'failed') {
+			setPopoverContent(<MiniLoginForm closePopover={close} />)
+		}
+
+		if (loadState === 'succeeded' && user) {
+			setPopoverContent(<AccountActionMenu user={user} handleLogout={handleLogout} />)
 		}
 	}, [loadState, user, handleLogout])
 

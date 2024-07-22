@@ -21,17 +21,19 @@ const PasswordInput = React.forwardRef<
 			<Input
 				ref={ref}
 				{...props}
-				className="pr-14"
+				className={props.className + ' pr-14'}
 				type={isPasswordVisible ? 'text' : 'password'}
+				data-testid="passwordInput"
 			/>
 			<span
 				className="absolute right-[18px]  text-gray-700 cursor-pointer"
 				onClick={togglePasswordVisibility}
+				data-testid="showHideButton"
 			>
 				{isPasswordVisible ? (
-					<Eye size={23} weight="light" />
+					<Eye size={23} weight="light" data-testid="eyeIcon" />
 				) : (
-					<EyeSlash size={23} weight="light" />
+					<EyeSlash size={23} weight="light" data-testid="eyeSlashIcon" />
 				)}
 			</span>
 		</div>
