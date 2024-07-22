@@ -49,7 +49,7 @@ const MiniLoginForm: React.FunctionComponent<{
 
 	return (
 		<Form {...form}>
-			<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4" noValidate>
+			<form onSubmit={form.handleSubmit(onSubmit)} className="p-6 space-y-4" noValidate>
 				<h1 className="mb-2 text-xl font-semibold">Login</h1>
 				<div className="space-y-3">
 					{formErrorResponse && (

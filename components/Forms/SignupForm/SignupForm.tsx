@@ -58,6 +58,7 @@ const SignupForm = () => {
 		updateMonthSelectWidth()
 	}, [updateMonthSelectWidth])
 
+	// TODO: ?? Store extra account details (birth date, etc.) in postgres db
 	const onSubmit = async (data: FormData) => {
 		const { firstName, lastName, email, password } = data
 		const response = await signup(firstName, lastName, email, password)

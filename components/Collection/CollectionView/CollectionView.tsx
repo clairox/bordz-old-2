@@ -79,6 +79,7 @@ const CollectionView: React.FunctionComponent = () => {
 
 	const subcollectionNamesOrUndefined = subcollectionParam ? undefined : subcollectionNames
 
+	// TODO: Add breadcrumb
 	return (
 		<div key={`${pathname}/${searchParams.toString()}`}>
 			<CollectionHeader
