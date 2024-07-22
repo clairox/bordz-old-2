@@ -14,6 +14,11 @@ vi.mock('@/context/AuthContext/AuthContext', () => ({
 }))
 
 describe('MiniLoginForm', () => {
+	it('renders and shows header', () => {
+		const { getByRole } = render(<MiniLoginForm closePopover={vi.fn()} />)
+		expect(getByRole('heading', { level: 1, name: 'Login' })).toBeVisible()
+	})
+
 	it('renders and shows email field input', () => {
 		const { getByRole } = render(<MiniLoginForm closePopover={vi.fn()} />)
 		expect(getByRole('textbox', { name: 'Email' })).toBeVisible()

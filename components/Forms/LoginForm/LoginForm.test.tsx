@@ -14,6 +14,11 @@ vi.mock('@/context/AuthContext/AuthContext', () => ({
 }))
 
 describe('LoginForm', () => {
+	it('renders and shows header', () => {
+		const { getByRole } = render(<LoginForm />)
+		expect(getByRole('heading', { level: 1, name: 'Login' })).toBeVisible()
+	})
+
 	it('renders and shows email field input', () => {
 		const { getByRole } = render(<LoginForm />)
 		expect(getByRole('textbox', { name: 'Email' })).toBeVisible()
