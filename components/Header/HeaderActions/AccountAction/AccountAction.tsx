@@ -33,23 +33,23 @@ const AccountAction = () => {
 			case 'succeeded':
 				setPopoverContent(
 					<div>
-						<h1 className="px-4 pb-4 pt-2 font-semibold text-xl">Hello, {user?.firstName}!</h1>
+						<h1 className="px-5 pb-4 pt-2 font-semibold text-xl">Hey, {user?.firstName}!</h1>
 						<Link
 							href="/account/settings"
-							className="flex items-center gap-3 px-4 h-16 border-t border-black cursor-pointer hover:bg-gray-100"
+							className="flex items-center gap-3 px-5 h-16 border-t border-black cursor-pointer hover:bg-gray-100"
 						>
 							<User size={27} weight={'light'} />
 							My Account
 						</Link>
 						<Link
 							href="/account/orders"
-							className="flex items-center gap-3 px-4 h-16 border-t border-black cursor-pointer hover:bg-gray-100"
+							className="flex items-center gap-3 px-5 h-16 border-t border-black cursor-pointer hover:bg-gray-100"
 						>
 							<Package size={27} weight={'light'} />
 							Orders
 						</Link>
 						<button
-							className="flex items-center gap-3 px-4 w-full h-16 border-t border-black cursor-pointer hover:bg-gray-100"
+							className="flex items-center gap-3 px-5 w-full h-16 border-t border-black cursor-pointer hover:bg-gray-100"
 							onClick={handleLogout}
 						>
 							<SignOut size={27} weight={'light'} />
