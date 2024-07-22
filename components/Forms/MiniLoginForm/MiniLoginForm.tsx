@@ -10,7 +10,7 @@ import { useAuth } from '@/context/AuthContext/AuthContext'
 import MiniLoginFormSchema from './schema'
 import Link from 'next/link'
 import PasswordInput from '@/components/PasswordInput'
-import { WarningCircle } from '@phosphor-icons/react'
+import FormErrorBox from '@/components/FormErrorBox'
 
 type FormData = z.infer<typeof MiniLoginFormSchema>
 
@@ -52,12 +52,7 @@ const MiniLoginForm: React.FunctionComponent<{
 			<form onSubmit={form.handleSubmit(onSubmit)} className="p-6 space-y-4" noValidate>
 				<h1 className="mb-2 text-xl font-semibold">Login</h1>
 				<div className="space-y-3">
-					{formErrorResponse && (
-						<div className="flex flex-row gap-4 justify-center items-center px-4 w-full h-[75px] bg-red-200 text-sm">
-							<WarningCircle size={50} weight="regular" />
-							<p>{formErrorResponse}</p>
-						</div>
-					)}
+					{formErrorResponse && <FormErrorBox>{formErrorResponse}</FormErrorBox>}
 					<FormField
 						control={form.control}
 						name="email"

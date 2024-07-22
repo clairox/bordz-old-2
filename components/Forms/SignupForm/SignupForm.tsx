@@ -18,7 +18,7 @@ import {
 import PasswordInput from '@/components/PasswordInput'
 import SignupFormSchema from './schema'
 import { months, days, years } from './schema/values'
-import { WarningCircle } from '@phosphor-icons/react'
+import FormErrorBox from '@/components/FormErrorBox'
 
 type FormData = z.infer<typeof SignupFormSchema>
 
@@ -88,12 +88,7 @@ const SignupForm = () => {
 			>
 				<h1 className="mb-2 text-xl font-semibold">Sign Up</h1>
 				<div className="w-full space-y-3">
-					{formErrorResponse && (
-						<div className="flex flex-row gap-4 justify-center items-center px-4 w-full h-[75px] bg-red-200 text-sm">
-							<WarningCircle size={50} weight="regular" />
-							<p>{formErrorResponse}</p>
-						</div>
-					)}
+					{formErrorResponse && <FormErrorBox>{formErrorResponse}</FormErrorBox>}
 					<FormField
 						control={form.control}
 						name="firstName"

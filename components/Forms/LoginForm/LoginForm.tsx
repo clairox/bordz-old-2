@@ -10,7 +10,7 @@ import { useAuth } from '@/context/AuthContext/AuthContext'
 import LoginFormSchema from './schema'
 import Link from 'next/link'
 import PasswordInput from '@/components/PasswordInput'
-import { WarningCircle } from '@phosphor-icons/react'
+import FormErrorBox from '@/components/FormErrorBox'
 
 type FormData = z.infer<typeof LoginFormSchema>
 
@@ -54,12 +54,7 @@ const LoginForm = () => {
 			>
 				<h1 className="mb-2 text-xl font-semibold">Login</h1>
 				<div className="space-y-3">
-					{formErrorResponse && (
-						<div className="flex flex-row gap-4 justify-center items-center px-4 w-full h-[75px] bg-red-200 text-sm">
-							<WarningCircle size={50} weight="regular" />
-							<p>{formErrorResponse}</p>
-						</div>
-					)}
+					{formErrorResponse && <FormErrorBox>{formErrorResponse}</FormErrorBox>}
 					<FormField
 						control={form.control}
 						name="email"

@@ -9,21 +9,10 @@ const Page = () => {
 	const searchParams = useSearchParams()
 	const { loadState } = useAuth()
 
-	switch (loadState) {
-		case 'idle':
-			return <>Loading...</>
-		case 'loading':
-			return <>Loading...</>
-		case 'succeeded':
-			permanentRedirect('/')
-		case 'failed':
-			if (searchParams.get('register')) {
-				return <SignupForm />
-			} else {
-				return <LoginForm />
-			}
-		default:
-			return <></>
+	if (searchParams.get('register')) {
+		return <SignupForm />
+	} else {
+		return <LoginForm />
 	}
 }
 

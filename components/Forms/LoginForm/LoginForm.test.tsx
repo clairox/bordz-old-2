@@ -2,6 +2,17 @@ import { render } from '@testing-library/react'
 import LoginForm from './LoginForm'
 import userEvent from '@testing-library/user-event'
 
+const mocks = vi.hoisted(() => {
+	return {
+		login: vi.fn(),
+		reload: vi.fn(),
+	}
+})
+
+vi.mock('@/context/AuthContext/AuthContext', () => ({
+	useAuth: vi.fn().mockReturnValue({ login: mocks.login }),
+}))
+
 describe('LoginForm', () => {
 	it('renders and shows email field input', () => {
 		const { getByRole } = render(<LoginForm />)
@@ -26,6 +37,35 @@ describe('LoginForm', () => {
 	it('renders and shows create account link', () => {
 		const { getByRole } = render(<LoginForm />)
 		expect(getByRole('link', { name: 'Create an account' })).toBeVisible()
+	})
+
+	it('calls window.location.reload if all inputs are valid', async () => {
+		Object.defineProperty(window, 'location', {
+			value: {
+				reload: mocks.reload,
+			},
+			writable: true,
+		})
+
+		mocks.login.mockReturnValue({ success: true })
+		const { getByRole, getByLabelText } = render(<LoginForm />)
+
+		await userEvent.type(getByRole('textbox', { name: 'Email' }), 'correct@ema.il')
+		await userEvent.type(getByLabelText('Password'), 'correctPassword')
+		await userEvent.click(getByRole('button', { name: 'Submit' }))
+
+		expect(mocks.reload).toHaveBeenCalled()
+	})
+
+	it('renders and shows form error message if user not found', async () => {
+		mocks.login.mockReturnValue({ error: { field: undefined, message: 'Error' } })
+		const { getByRole, getByLabelText, getByTestId } = render(<LoginForm />)
+
+		await userEvent.type(getByRole('textbox', { name: 'Email' }), 'incorrect@ema.il')
+		await userEvent.type(getByLabelText('Password'), 'incorrectPassword')
+		await userEvent.click(getByRole('button', { name: 'Submit' }))
+
+		expect(getByTestId('formErrorBox')).toBeVisible()
 	})
 
 	describe('email field input', () => {
