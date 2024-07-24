@@ -1,6 +1,7 @@
 import React from 'react'
 import AccountRoot from '@/components/Account/AccountRoot'
 import { Lock } from '@phosphor-icons/react/dist/ssr'
+import ChangePasswordForm from '@/components/Forms/ChangePasswordForm'
 
 const Page = () => {
 	return (
@@ -11,7 +12,9 @@ const Page = () => {
 					Change Password
 				</h1>
 			</div>
-			<div className="w-[500px]">Hello</div>
+			<div className="w-[500px]">
+				<ChangePasswordForm />
+			</div>
 		</AccountRoot>
 	)
 }
