@@ -1,5 +1,4 @@
-'use client'
-import { Check } from '@phosphor-icons/react'
+import { Check } from '@phosphor-icons/react/dist/ssr'
 import React, { PropsWithChildren } from 'react'
 
 const FormSuccessBox: React.FunctionComponent<PropsWithChildren> = ({ children }) => {
@@ -15,5 +14,3 @@ const FormSuccessBox: React.FunctionComponent<PropsWithChildren> = ({ children }
 }
 
 export default FormSuccessBox
-
-// TODO: Use server

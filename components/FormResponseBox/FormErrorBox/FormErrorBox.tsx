@@ -1,4 +1,3 @@
-'use client'
 import { WarningCircle } from '@phosphor-icons/react'
 import React, { PropsWithChildren } from 'react'
 
