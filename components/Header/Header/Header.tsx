@@ -2,9 +2,10 @@ import Link from 'next/link'
 import Image from 'next/image'
 import NavMenu from '@/components/Header/HeaderNavMenu'
 import SearchBar from '@/components/Header/HeaderSearchBar'
-import AccountButton from '@/components/Header/HeaderActions/AccountAction'
-import CartButton from '@/components/Header/HeaderActions/CartAction'
-import WishlistButton from '@/components/Header/HeaderActions/WishlistAction'
+import AccountAction from '@/components/Header/HeaderActions/AccountAction'
+import CartAction from '@/components/Header/HeaderActions/CartAction'
+import WishlistAction from '@/components/Header/HeaderActions/WishlistAction'
+import { isAuthenticated } from '@/lib/utils/ssr'
 
 const Header: React.FunctionComponent = () => {
 	return (
@@ -21,9 +22,9 @@ const Header: React.FunctionComponent = () => {
 				</div>
 				<div className="header-right">
 					<div className="header-actions flex h-full">
-						<AccountButton />
-						<WishlistButton />
-						<CartButton />
+						<AccountAction isAuthenticated={isAuthenticated()} />
+						<WishlistAction />
+						<CartAction />
 					</div>
 				</div>
 			</div>
