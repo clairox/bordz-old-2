@@ -51,4 +51,35 @@ const SIGNUP = gql(`
 	}
 `)
 
-export { LOGIN, SIGNUP }
+const UPDATE_CUSTOMER = gql(`
+	mutation UpdateCustomer(
+		$customerAccessToken: String!
+		$firstName: String
+		$lastName: String
+		$email: String
+		$password: String
+	) {
+		customerUpdate(
+			customerAccessToken: $customerAccessToken, customer: { firstName: $firstName, lastName: $lastName, email: $email, password: $password }
+		) {
+			customer {
+				id
+				email
+				firstName
+				lastName
+				displayName
+			}
+			customerUserErrors {
+				code
+				field
+				message
+			}
+			userErrors {
+				field
+				message
+			}
+		}
+	}			
+`)
+
+export { LOGIN, SIGNUP, UPDATE_CUSTOMER }

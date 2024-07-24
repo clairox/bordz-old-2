@@ -95,5 +95,16 @@ describe('ChangePasswordForm', () => {
 			await userEvent.click(getByRole('button', { name: 'Submit' }))
 			expect(getByText('Passwords do not match')).toBeVisible()
 		})
+
+		it('renders and shows form success message if password changed successfully', async () => {
+			global.fetch = vi.fn().mockReturnValue({ ok: true })
+			const { getByRole, getByLabelText, getByTestId } = render(<ChangePasswordForm />)
+
+			await userEvent.type(getByLabelText('Password'), 'newPassword')
+			await userEvent.type(getByLabelText('Confirm Password'), 'newPassword')
+			await userEvent.click(getByRole('button', { name: 'Submit' }))
+
+			expect(getByTestId('formSuccessBox')).toBeVisible()
+		})
 	})
 })

@@ -1,12 +1,14 @@
 'use client'
 import { zodResolver } from '@hookform/resolvers/zod'
-import React from 'react'
+import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import ChangePasswordFormSchema from './schema'
 import { z } from 'zod'
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/Form'
 import PasswordInput from '@/components/PasswordInput'
 import { Button } from '@/components/ui/Button'
+import FormSuccessBox from '@/components/FormResponseBox/FormSuccessBox'
+import FormErrorBox from '@/components/FormResponseBox/FormErrorBox'
 
 type FormData = z.infer<typeof ChangePasswordFormSchema>
 
@@ -20,7 +22,26 @@ const ChangePasswordForm = () => {
 	})
 	const errors = form.formState.errors
 
-	const onSubmit = async (data: FormData) => {}
+	const [formSuccessMessage, setFormSuccessMessage] = useState('')
+	const [formErrorMessage, setFormErrorMessage] = useState('')
+
+	const onSubmit = async (data: FormData) => {
+		const response = await fetch(`http://localhost:3000/api/customer`, {
+			method: 'PATCH',
+			body: JSON.stringify({ password: data.password }),
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			cache: 'no-cache',
+		})
+
+		if (response.ok) {
+			setFormSuccessMessage('Password changed successfully!')
+		} else {
+			const res = await response.json()
+			setFormErrorMessage(res.error?.message)
+		}
+	}
 
 	return (
 		<Form {...form}>
@@ -31,6 +52,8 @@ const ChangePasswordForm = () => {
 			>
 				<h1 className="mb-2 text-xl font-semibold">Change Password</h1>
 				<div className="w-full space-y-3">
+					{formSuccessMessage && <FormSuccessBox>{formSuccessMessage}</FormSuccessBox>}
+					{formErrorMessage && <FormErrorBox>{formErrorMessage}</FormErrorBox>}
 					<FormField
 						control={form.control}
 						name="password"
@@ -79,3 +102,5 @@ const ChangePasswordForm = () => {
 }
 
 export default ChangePasswordForm
+
+// TODO: !! Move !anti-autocomplete-shadow to base input component
