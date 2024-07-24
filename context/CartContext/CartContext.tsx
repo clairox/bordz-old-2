@@ -2,7 +2,7 @@
 import React, { useCallback, useContext, useEffect, useReducer, useState } from 'react'
 import { createContext } from 'react'
 import type { CartItem, Product } from '@/types'
-import { makeCartItem } from '@/lib/cartUtils'
+import { makeCartItem } from '@/lib/utils/cart'
 import { preload } from 'swr'
 import { LocalCart } from '@/lib/localCart/localCart'
 

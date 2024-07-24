@@ -1,6 +1,6 @@
 import { act, renderHook } from '@testing-library/react'
 import { useProvideCart } from '@/context/CartContext'
-import { makeCartItem, makeFullCartItem } from '@/lib/cartUtils'
+import { makeCartItem, makeFullCartItem } from '@/lib/utils/cart'
 import type { CartItem } from '@/types'
 
 beforeAll(async () => {

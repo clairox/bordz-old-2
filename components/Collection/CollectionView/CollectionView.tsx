@@ -13,7 +13,7 @@ import {
 	isValidPriceRange,
 	MAX_PRODUCTS_PER_LOAD,
 	processPriceParams,
-} from '@/lib/collectionUtils'
+} from '@/lib/utils/collection'
 import _ from 'lodash'
 
 const CollectionView: React.FunctionComponent = () => {

@@ -1,6 +1,6 @@
 import { ProductCollectionSortKeys, ProductFilter } from '@/__generated__/graphql'
 import { ReadonlyURLSearchParams } from 'next/navigation'
-import { isNumeric, toStrictIntegerOrNaN } from './utils'
+import { isNumeric, toStrictIntegerOrNaN } from '../utils'
 import { ProductFilterMap } from '@/types'
 
 export const MAX_PRODUCTS_PER_LOAD = 40

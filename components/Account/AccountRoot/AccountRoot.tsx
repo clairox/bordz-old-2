@@ -1,7 +1,7 @@
 import React, { PropsWithChildren } from 'react'
 import AccountSidebar from '../AccountSidebar'
 import { redirect } from 'next/navigation'
-import { isAuthenticated } from '@/lib/ssrUtils'
+import { isAuthenticated } from '@/lib/utils/ssr'
 
 const AccountRoot: React.FunctionComponent<PropsWithChildren> = ({ children }) => {
 	if (!isAuthenticated()) {

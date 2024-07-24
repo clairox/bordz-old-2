@@ -2,7 +2,7 @@ import React from 'react'
 import CollectionView from '@/components/Collection/CollectionView'
 import { PreloadQuery } from '@/lib/apollo/apolloClient'
 import { GET_COLLECTION } from '@/lib/queries'
-import { getFiltersServer, getSortKey, MAX_PRODUCTS_PER_LOAD } from '@/lib/collectionUtils'
+import { getFiltersServer, getSortKey, MAX_PRODUCTS_PER_LOAD } from '@/lib/utils/collection'
 import _ from 'lodash'
 
 const CollectionPage: React.FunctionComponent<{

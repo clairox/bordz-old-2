@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { Inter as FontSans } from 'next/font/google'
 import { AuthProvider } from '@/context/AuthContext/AuthContext'
 import Header from '@/components/Header/Header'
-import { cn } from '@/lib/shadcnUtils'
+import { cn } from '@/lib/utils/cn'
 import { ApolloWrapper } from '@/lib/apollo/apolloWrapper'
 import '@/styles/globals.css'
 

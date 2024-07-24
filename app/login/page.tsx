@@ -2,7 +2,7 @@ import React from 'react'
 import LoginForm from '@/components/Forms/LoginForm'
 import SignupForm from '@/components/Forms/SignupForm'
 import { redirect } from 'next/navigation'
-import { isAuthenticated } from '@/lib/ssrUtils'
+import { isAuthenticated } from '@/lib/utils/ssr'
 
 const Page: React.FunctionComponent<{
 	searchParams: { [key: string]: string }

@@ -1,4 +1,4 @@
-import { isValidPriceRange } from '@/lib/collectionUtils'
+import { isValidPriceRange } from '@/lib/utils/collection'
 import { ProductFilterMap } from '@/types'
 import React from 'react'
 
