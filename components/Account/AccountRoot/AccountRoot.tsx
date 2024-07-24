@@ -1,9 +1,15 @@
 import React, { PropsWithChildren } from 'react'
 import AccountSidebar from '../AccountSidebar'
+import { redirect } from 'next/navigation'
+import { isAuthenticated } from '@/lib/ssrUtils'
 
 const AccountRoot: React.FunctionComponent<PropsWithChildren> = ({ children }) => {
+	if (!isAuthenticated()) {
+		redirect('/login')
+	}
+
 	return (
-		<div className="grid grid-cols-12">
+		<div className="grid grid-cols-12 w-[950px]">
 			<aside className="col-span-3">
 				<AccountSidebar />
 			</aside>
