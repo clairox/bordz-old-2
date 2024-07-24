@@ -62,9 +62,7 @@ const ChangePasswordForm = () => {
 								<FormLabel className="text-black">Password</FormLabel>
 								<FormControl>
 									<PasswordInput
-										className={`${
-											errors.password && 'border-red-500 text-red-500'
-										} !anti-autocomplete-shadow`}
+										className={`${errors.password && 'border-red-500 text-red-500'}''`}
 										{...field}
 									/>
 								</FormControl>
@@ -82,9 +80,7 @@ const ChangePasswordForm = () => {
 								<FormLabel className="text-black">Confirm Password</FormLabel>
 								<FormControl>
 									<PasswordInput
-										className={`${
-											errors.confirmPassword && 'border-red-500 text-red-500'
-										} !anti-autocomplete-shadow`}
+										className={`${errors.confirmPassword && 'border-red-500 text-red-500'}''`}
 										{...field}
 									/>
 								</FormControl>
@@ -102,5 +98,3 @@ const ChangePasswordForm = () => {
 }
 
 export default ChangePasswordForm
-
-// TODO: !! Move !anti-autocomplete-shadow to base input component

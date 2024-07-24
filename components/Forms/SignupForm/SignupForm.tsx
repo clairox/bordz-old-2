@@ -97,9 +97,7 @@ const SignupForm = () => {
 								<FormLabel className="text-black">First Name</FormLabel>
 								<FormControl>
 									<Input
-										className={`${
-											errors.firstName && 'border-red-500 text-red-500'
-										} !anti-autocomplete-shadow`}
+										className={`${errors.firstName && 'border-red-500 text-red-500'}''`}
 										{...field}
 										type="firstName"
 									/>
@@ -118,9 +116,7 @@ const SignupForm = () => {
 								<FormLabel className="text-black">Last Name</FormLabel>
 								<FormControl>
 									<Input
-										className={`${
-											errors.lastName && 'border-red-500 text-red-500'
-										} !anti-autocomplete-shadow`}
+										className={`${errors.lastName && 'border-red-500 text-red-500'}''`}
 										{...field}
 										type="lastName"
 									/>
@@ -288,9 +284,7 @@ const SignupForm = () => {
 								<FormLabel className="text-black">Password</FormLabel>
 								<FormControl>
 									<PasswordInput
-										className={`${
-											errors.password && 'border-red-500 text-red-500'
-										} !anti-autocomplete-shadow`}
+										className={`${errors.password && 'border-red-500 text-red-500'}''`}
 										{...field}
 									/>
 								</FormControl>

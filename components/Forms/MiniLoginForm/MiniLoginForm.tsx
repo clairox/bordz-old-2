@@ -61,9 +61,7 @@ const MiniLoginForm: React.FunctionComponent<{
 								<FormLabel className="text-black">Email</FormLabel>
 								<FormControl>
 									<Input
-										className={`${
-											errors.email && 'border-red-500 text-red-500'
-										} !anti-autocomplete-shadow`}
+										className={`${errors.email && 'border-red-500 text-red-500'}`}
 										{...field}
 										type="email"
 									/>
@@ -80,9 +78,7 @@ const MiniLoginForm: React.FunctionComponent<{
 								<FormLabel className="text-black">Password</FormLabel>
 								<FormControl>
 									<PasswordInput
-										className={`${
-											errors.password && 'border-red-500 text-red-500'
-										} !anti-autocomplete-shadow`}
+										className={`${errors.password && 'border-red-500 text-red-500'}`}
 										{...field}
 										type="password"
 									/>
