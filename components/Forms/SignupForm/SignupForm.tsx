@@ -41,7 +41,7 @@ const SignupForm = () => {
 
 	const [submitAttempted, setSubmitAttempted] = useState(false)
 	const [monthSelectWidth, setMonthSelectWidth] = useState('var(--radix-select-trigger-width)')
-	const [formErrorResponse, setFormErrorResponse] = useState('')
+	const [formErrorMessage, setFormErrorResponse] = useState('')
 	const [emailErrorResponse, setEmailErrorResponse] = useState('')
 
 	const monthSelectTrigger = useRef<HTMLButtonElement | null>(null)
@@ -88,7 +88,7 @@ const SignupForm = () => {
 			>
 				<h1 className="mb-2 text-xl font-semibold">Sign Up</h1>
 				<div className="w-full space-y-3">
-					{formErrorResponse && <FormErrorBox>{formErrorResponse}</FormErrorBox>}
+					{formErrorMessage && <FormErrorBox>{formErrorMessage}</FormErrorBox>}
 					<FormField
 						control={form.control}
 						name="firstName"

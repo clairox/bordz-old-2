@@ -26,7 +26,7 @@ const LoginForm = () => {
 	})
 	const errors = form.formState.errors
 
-	const [formErrorResponse, setFormErrorResponse] = useState('')
+	const [formErrorMessage, setFormErrorResponse] = useState('')
 
 	const onSubmit = async (data: FormData) => {
 		setFormErrorResponse('')
@@ -54,7 +54,7 @@ const LoginForm = () => {
 			>
 				<h1 className="mb-2 text-xl font-semibold">Login</h1>
 				<div className="space-y-3">
-					{formErrorResponse && <FormErrorBox>{formErrorResponse}</FormErrorBox>}
+					{formErrorMessage && <FormErrorBox>{formErrorMessage}</FormErrorBox>}
 					<FormField
 						control={form.control}
 						name="email"

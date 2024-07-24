@@ -28,7 +28,7 @@ const MiniLoginForm: React.FunctionComponent<{
 	})
 	const errors = form.formState.errors
 
-	const [formErrorResponse, setFormErrorResponse] = useState('')
+	const [formErrorMessage, setFormErrorResponse] = useState('')
 
 	const onSubmit = async (data: FormData) => {
 		setFormErrorResponse('')
@@ -52,7 +52,7 @@ const MiniLoginForm: React.FunctionComponent<{
 			<form onSubmit={form.handleSubmit(onSubmit)} className="p-6 space-y-4" noValidate>
 				<h1 className="mb-2 text-xl font-semibold">Login</h1>
 				<div className="space-y-3">
-					{formErrorResponse && <FormErrorBox>{formErrorResponse}</FormErrorBox>}
+					{formErrorMessage && <FormErrorBox>{formErrorMessage}</FormErrorBox>}
 					<FormField
 						control={form.control}
 						name="email"
