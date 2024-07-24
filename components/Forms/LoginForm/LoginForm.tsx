@@ -10,7 +10,7 @@ import { useAuth } from '@/context/AuthContext/AuthContext'
 import LoginFormSchema from './schema'
 import Link from 'next/link'
 import PasswordInput from '@/components/PasswordInput'
-import FormErrorBox from '@/components/FormErrorBox'
+import FormErrorBox from '@/components/FormResponseBox/FormErrorBox'
 
 type FormData = z.infer<typeof LoginFormSchema>
 

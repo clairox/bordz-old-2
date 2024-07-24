@@ -18,7 +18,7 @@ import {
 import PasswordInput from '@/components/PasswordInput'
 import SignupFormSchema from './schema'
 import { months, days, years } from './schema/values'
-import FormErrorBox from '@/components/FormErrorBox'
+import FormErrorBox from '@/components/FormResponseBox/FormErrorBox'
 
 type FormData = z.infer<typeof SignupFormSchema>
 
