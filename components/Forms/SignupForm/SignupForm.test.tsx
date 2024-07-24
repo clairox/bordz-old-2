@@ -225,18 +225,21 @@ describe('SignupForm', () => {
 			expect(getByText('Please enter a password')).toBeVisible()
 		})
 
-		it.skip('has correct error classes if input length is less than 8 on submit', async () => {
+		it('has correct error classes if input length is less than 8 on submit', async () => {
 			const { getByRole, getByLabelText } = render(<SignupForm />)
 
+			const passwordInput = getByLabelText('Password')
+			await userEvent.type(passwordInput, 'test')
 			await userEvent.click(getByRole('button', { name: 'Submit' }))
-			expect(getByLabelText('Password')).toHaveClass('border-red-500 text-red-500')
+			expect(passwordInput).toHaveClass('border-red-500 text-red-500')
 		})
 
-		it.skip('renders and shows error message if input length is less than 8 on submit', async () => {
-			const { getByRole, getByText } = render(<SignupForm />)
+		it('renders and shows error message if input length is less than 8 on submit', async () => {
+			const { getByRole, getByLabelText, getByText } = render(<SignupForm />)
 
+			await userEvent.type(getByLabelText('Password'), 'test')
 			await userEvent.click(getByRole('button', { name: 'Submit' }))
-			expect(getByText('Please enter a password')).toBeVisible()
+			expect(getByText('Password must be at least 8 characters long')).toBeVisible()
 		})
 	})
 
