@@ -63,7 +63,9 @@ const LoginForm = () => {
 								<FormLabel className="text-black">Email</FormLabel>
 								<FormControl>
 									<Input
-										className={errors.email && 'border-red-500 text-red-500'}
+										className={`${
+											errors.email && 'border-red-500 text-red-500'
+										} !anti-autocomplete-shadow`}
 										{...field}
 										type="email"
 									/>
@@ -80,7 +82,9 @@ const LoginForm = () => {
 								<FormLabel className="text-black">Password</FormLabel>
 								<FormControl>
 									<PasswordInput
-										className={errors.password && 'border-red-500 text-red-500'}
+										className={`${
+											errors.password && 'border-red-500 text-red-500'
+										} !anti-autocomplete-shadow`}
 										{...field}
 										type="password"
 									/>
