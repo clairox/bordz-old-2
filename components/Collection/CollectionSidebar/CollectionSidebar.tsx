@@ -5,7 +5,7 @@ import _ from 'lodash'
 import { CollectionSidebarMenu, CollectionSidebarMenuItem } from '../CollectionSidebarMenu'
 import PriceRangeSlider from '@/components/PriceRangeSlider'
 import CollectionSidebarHeader from '../CollectionSidebarHeader/CollectionSidebarHeader'
-import { roundUp } from '@/lib/utils'
+import { roundUp } from '@/lib/utils/number'
 import {
 	getFiltersFromSearchParams,
 	isValidPriceRange,
