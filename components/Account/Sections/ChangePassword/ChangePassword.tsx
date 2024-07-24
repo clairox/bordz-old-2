@@ -1,11 +1,11 @@
-import React from 'react'
-import AccountRoot from '@/components/Account/AccountRoot'
-import { Lock } from '@phosphor-icons/react/dist/ssr'
+'use client'
 import ChangePasswordForm from '@/components/Forms/ChangePasswordForm'
+import { Lock } from '@phosphor-icons/react'
+import React from 'react'
 
-const Page = () => {
+const ChangePassword = () => {
 	return (
-		<AccountRoot>
+		<div>
 			<div className="w-full">
 				<h1 className="flex items-end gap-4 pl-5 pb-6 h-32 border-r border-b border-black text-4xl font-bold">
 					<Lock size={40} weight="bold" />
@@ -15,8 +15,8 @@ const Page = () => {
 			<div className="w-[500px]">
 				<ChangePasswordForm />
 			</div>
-		</AccountRoot>
+		</div>
 	)
 }
 
-export default Page
+export default ChangePassword

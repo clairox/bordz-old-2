@@ -1,10 +1,10 @@
+'use client'
+import { Package } from '@phosphor-icons/react'
 import React from 'react'
-import AccountRoot from '@/components/Account/AccountRoot'
-import { Package } from '@phosphor-icons/react/dist/ssr'
 
-const Page = () => {
+const Orders = () => {
 	return (
-		<AccountRoot>
+		<div>
 			<div className="w-full">
 				<h1 className="flex items-end gap-4 pl-5 pb-6 h-32 border-r border-b border-black text-4xl font-bold">
 					<Package size={40} weight="bold" />
@@ -12,8 +12,8 @@ const Page = () => {
 				</h1>
 			</div>
 			<div className="w-[500px]">Hello</div>
-		</AccountRoot>
+		</div>
 	)
 }
 
-export default Page
+export default Orders
