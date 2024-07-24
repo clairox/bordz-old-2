@@ -69,6 +69,10 @@ const UPDATE_CUSTOMER = gql(`
 				lastName
 				displayName
 			}
+			customerAccessToken {
+				accessToken
+				expiresAt
+			}
 			customerUserErrors {
 				code
 				field

@@ -1,6 +1,7 @@
 import { getClient } from '@/lib/apollo/apolloClient'
 import { UPDATE_CUSTOMER } from '@/lib/mutations'
 import { GET_CUSTOMER } from '@/lib/queries'
+import { serialize } from 'cookie'
 import { NextRequest, NextResponse } from 'next/server'
 
 export const GET = async (request: NextRequest) => {
@@ -85,7 +86,26 @@ export const PATCH = async (request: NextRequest) => {
 		)
 	}
 
-	return NextResponse.json({ success: true, data: customer })
+	const response = NextResponse.json({ success: true, data: customer })
+
+	const newAccessToken = data?.customerUpdate?.customerAccessToken
+	if (newAccessToken) {
+		const { accessToken, expiresAt } = newAccessToken
+
+		const expiryTime = new Date(expiresAt).getTime()
+		const now = new Date().getTime()
+		const cookie = serialize('customerAccessToken', accessToken, {
+			httpOnly: true,
+			secure: process.env.NODE_ENV !== 'development',
+			maxAge: expiryTime - now,
+			sameSite: 'strict',
+			path: '/',
+		})
+
+		response.headers.append('Set-Cookie', cookie)
+	}
+
+	return response
 }
 
 // TODO: !! Make middleware for customerAccessToken cookie
