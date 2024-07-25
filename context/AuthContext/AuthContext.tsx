@@ -1,19 +1,9 @@
 'use client'
 import { createContext, useContext, useState } from 'react'
 
-type User = {
-	id: string
-	email: string
-	firstName: string
-	lastName: string
-	displayName: string
-}
-
 type LoadState = 'idle' | 'loading' | 'succeeded' | 'failed'
 
 type AuthContextValue = {
-	user: User | undefined
-	isLoggedIn: boolean
 	loadState: LoadState
 	login: (email: string, password: string) => Promise<Record<string, any>>
 	signup: (
@@ -26,8 +16,6 @@ type AuthContextValue = {
 }
 
 const AuthContext = createContext<AuthContextValue>({
-	user: undefined,
-	isLoggedIn: false,
 	loadState: 'idle',
 	login: async () => ({}),
 	signup: async () => ({}),
@@ -41,17 +29,13 @@ const AuthProvider: React.FunctionComponent<React.PropsWithChildren> = ({ childr
 
 const useAuth = () => useContext(AuthContext)
 
-const initialAuthState = { user: undefined, isLoggedIn: false, loadState: 'idle' as LoadState }
+const initialLoadState = 'idle'
 
 const useProvideAuth = () => {
-	const [authState, setAuthState] = useState<{
-		user: User | undefined
-		isLoggedIn: boolean
-		loadState: LoadState
-	}>(initialAuthState)
+	const [loadState, setLoadState] = useState<LoadState>(initialLoadState)
 
 	const login = async (email: string, password: string): Promise<Record<string, any>> => {
-		setAuthState(prev => ({ ...prev, loadState: 'loading' }))
+		setLoadState('loading')
 
 		const response = await fetch(`http://localhost:3000/api/login`, {
 			method: 'POST',
@@ -64,11 +48,11 @@ const useProvideAuth = () => {
 
 		if (response.ok) {
 			const user = await response.json()
-			setAuthState({ isLoggedIn: true, user, loadState: 'succeeded' })
+			setLoadState('succeeded')
 			return user
 		}
 
-		setAuthState({ ...initialAuthState, loadState: 'failed' })
+		setLoadState('failed')
 		return await response.json()
 	}
 
@@ -78,7 +62,7 @@ const useProvideAuth = () => {
 		email: string,
 		password: string
 	): Promise<Record<string, any>> => {
-		setAuthState(prev => ({ ...prev, loading: 'loading' }))
+		setLoadState('loading')
 
 		const response = await fetch(`http://localhost:3000/api/signup`, {
 			method: 'POST',
@@ -94,11 +78,11 @@ const useProvideAuth = () => {
 			return await login(newUser.email, password)
 		}
 
-		setAuthState(initialAuthState)
+		setLoadState(initialLoadState)
 		return await response.json()
 	}
 	const logout = async (): Promise<Record<string, any>> => {
-		setAuthState(prev => ({ ...prev, loadState: 'loading' }))
+		setLoadState('loading')
 
 		const response = await fetch(`http://localhost:3000/api/logout`, {
 			method: 'POST',
@@ -109,18 +93,16 @@ const useProvideAuth = () => {
 		})
 
 		if (response.ok) {
-			setAuthState(initialAuthState)
+			setLoadState(initialLoadState)
 			return await response.json()
 		}
 
-		setAuthState({ ...initialAuthState, loadState: 'failed' })
+		setLoadState('failed')
 		return await response.json()
 	}
 
 	return {
-		user: authState.user,
-		isLoggedIn: authState.isLoggedIn,
-		loadState: authState.loadState,
+		loadState: loadState,
 		login,
 		signup,
 		logout,
@@ -128,6 +110,5 @@ const useProvideAuth = () => {
 }
 
 export { AuthProvider, useAuth }
-export type { User }
 
 // TODO: Make wrapper for fetch or use something else
