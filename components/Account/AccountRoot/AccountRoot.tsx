@@ -6,6 +6,7 @@ import Orders from '../Sections/Orders'
 import Addresses from '../Sections/Addresses'
 import ChangePassword from '../Sections/ChangePassword'
 import { GetCustomerQuery } from '@/__generated__/graphql'
+import PersonalInfo from '../Sections/PersonalInfo'
 
 const AccountRoot: React.FunctionComponent<{
 	section: string
@@ -19,10 +20,26 @@ const AccountRoot: React.FunctionComponent<{
 	let content: React.ReactNode
 	switch (section) {
 		case 'settings':
-			content = <Settings />
+			content = (
+				<Settings
+					firstName={customer.firstName}
+					lastName={customer.lastName}
+					email={customer.email}
+					defaultAddress={customer.defaultAddress}
+				/>
+			)
 			break
 		case 'orders':
 			content = <Orders />
+			break
+		case 'personal-info':
+			content = (
+				<PersonalInfo
+					firstName={customer.firstName}
+					lastName={customer.lastName}
+					email={customer.email}
+				/>
+			)
 			break
 		case 'addresses':
 			content = <Addresses />
