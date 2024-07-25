@@ -97,9 +97,9 @@ const SignupForm = () => {
 								<FormLabel className="text-black">First Name</FormLabel>
 								<FormControl>
 									<Input
-										className={`${errors.firstName && 'border-red-500 text-red-500'}''`}
+										className={`${errors.firstName && 'border-red-500 text-red-500'}`}
 										{...field}
-										type="firstName"
+										type="text"
 									/>
 								</FormControl>
 								{errors.firstName && (
@@ -116,9 +116,9 @@ const SignupForm = () => {
 								<FormLabel className="text-black">Last Name</FormLabel>
 								<FormControl>
 									<Input
-										className={`${errors.lastName && 'border-red-500 text-red-500'}''`}
+										className={`${errors.lastName && 'border-red-500 text-red-500'}`}
 										{...field}
-										type="lastName"
+										type="text"
 									/>
 								</FormControl>
 								{errors.lastName && (
@@ -255,7 +255,7 @@ const SignupForm = () => {
 									<Input
 										className={`
 											${errors.email || emailErrorResponse ? 'border-red-500 text-red-500' : ''}
-										!anti-autocomplete-shadow`}
+`}
 										{...field}
 										onChange={e => {
 											setEmailErrorResponse('')
@@ -284,7 +284,7 @@ const SignupForm = () => {
 								<FormLabel className="text-black">Password</FormLabel>
 								<FormControl>
 									<PasswordInput
-										className={`${errors.password && 'border-red-500 text-red-500'}''`}
+										className={`${errors.password && 'border-red-500 text-red-500'}`}
 										{...field}
 									/>
 								</FormControl>

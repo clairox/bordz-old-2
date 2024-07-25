@@ -80,7 +80,6 @@ const MiniLoginForm: React.FunctionComponent<{
 									<PasswordInput
 										className={`${errors.password && 'border-red-500 text-red-500'}`}
 										{...field}
-										type="password"
 									/>
 								</FormControl>
 								{errors.password && (
