@@ -41,8 +41,7 @@ const SignupForm = () => {
 
 	const [submitAttempted, setSubmitAttempted] = useState(false)
 	const [monthSelectWidth, setMonthSelectWidth] = useState('var(--radix-select-trigger-width)')
-	const [formErrorMessage, setFormErrorResponse] = useState('')
-	const [emailErrorResponse, setEmailErrorResponse] = useState('')
+	const [formErrorMessage, setFormErrorMessage] = useState('')
 
 	const monthSelectTrigger = useRef<HTMLButtonElement | null>(null)
 
@@ -60,17 +59,13 @@ const SignupForm = () => {
 
 	// TODO: ?? Store extra account details (birth date, etc.) in postgres db
 	const onSubmit = async (data: FormData) => {
-		const { firstName, lastName, email, password } = data
-		const response = await signup(firstName, lastName, email, password)
+		setFormErrorMessage('')
 
-		if (response.error) {
-			const { field, message } = response.error
-			switch (field) {
-				case 'email':
-					return setEmailErrorResponse(message)
-				default:
-					return setFormErrorResponse(message)
-			}
+		const { firstName, lastName, email, password } = data
+		const { error } = await signup(firstName, lastName, email, password)
+
+		if (error) {
+			return setFormErrorMessage(error.message)
 		}
 
 		return (window.location.href = '/')
@@ -254,25 +249,13 @@ const SignupForm = () => {
 								<FormControl>
 									<Input
 										className={`
-											${errors.email || emailErrorResponse ? 'border-red-500 text-red-500' : ''}
-`}
+											${errors.email && 'border-red-500 text-red-500'}`}
 										{...field}
-										onChange={e => {
-											setEmailErrorResponse('')
-											field.onChange(e)
-										}}
+										onChange={field.onChange}
 										type="email"
 									/>
 								</FormControl>
-								{emailErrorResponse || errors.email ? (
-									emailErrorResponse ? (
-										<p className="text-red-500 text-sm">{emailErrorResponse}</p>
-									) : (
-										<p className="text-red-500 text-sm">{errors.email?.message}</p>
-									)
-								) : (
-									<></>
-								)}
+								{errors.email && <p className="text-red-500 text-sm">{errors.email?.message}</p>}
 							</FormItem>
 						)}
 					/>

@@ -26,6 +26,9 @@ const ChangePasswordForm = () => {
 	const [formErrorMessage, setFormErrorMessage] = useState('')
 
 	const onSubmit = async (data: FormData) => {
+		setFormSuccessMessage('')
+		setFormErrorMessage('')
+
 		const response = await fetch(`http://localhost:3000/api/customer`, {
 			method: 'PATCH',
 			body: JSON.stringify({ password: data.password }),
