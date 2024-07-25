@@ -83,4 +83,93 @@ export const PATCH = async (request: NextRequest) => {
 	return response
 }
 
+type CustomerDeleteResponse = {
+	customerDelete: {
+		deletedCustomerId: string
+		userErrors: [
+			{
+				field: string[]
+				message: string
+			}
+		]
+	}
+}
+
+const gql = String.raw
+
+const getCustomerQuery = async (customerAccessToken: string) => {
+	const response = await fetch(process.env.NEXT_PUBLIC_SHOPIFY_BASE_URL!, {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+			'X-Shopify-Storefront-Access-Token': process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN!,
+		},
+		body: JSON.stringify({
+			query: gql`
+				query Customer($customerAccessToken: String!) {
+					customer(customerAccessToken: $customerAccessToken) {
+						id
+					}
+				}
+			`,
+			variables: { customerAccessToken },
+		}),
+	})
+
+	if (!response.ok) {
+		const text = await response.text()
+
+		throw new Error(`
+			Failed to fetch data
+			Status: ${response.status}
+			Response: ${text}
+		`)
+	}
+
+	return await response.json()
+}
+
+export const DELETE = async (request: NextRequest) => {
+	const customerAccessToken = request.cookies.get('customerAccessToken')
+	if (!customerAccessToken) {
+		return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+	}
+
+	const { data } = await getCustomerQuery(customerAccessToken.value)
+
+	const response = await fetch(process.env.SHOPIFY_ADMIN_BASE_URL!, {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+			'X-Shopify-Access-Token': process.env.SHOPIFY_ADMIN_API_ACCESS_TOKEN!,
+		},
+		body: JSON.stringify({
+			query: gql`
+				mutation CustomerDelete($id: ID!) {
+					customerDelete(input: { id: $id }) {
+						deletedCustomerId
+						userErrors {
+							field
+							message
+						}
+					}
+				}
+			`,
+			variables: { id: data.customer.id },
+		}),
+	})
+
+	if (!response.ok) {
+		const text = await response.text()
+
+		throw new Error(`
+			Failed to fetch data
+			Status: ${response.status}
+			Response: ${text}
+		`)
+	}
+
+	return NextResponse.json(await response.json())
+}
+
 // TODO: !! Make middleware for customerAccessToken cookie

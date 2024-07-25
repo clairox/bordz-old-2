@@ -48,7 +48,7 @@ const AccountRoot: React.FunctionComponent<{
 			content = <ChangePassword />
 			break
 		case 'delete-account':
-			content = <DeleteAccount />
+			content = <DeleteAccount customerEmail={customer.email} />
 			break
 		default:
 			// TODO: 404

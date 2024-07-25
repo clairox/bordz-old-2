@@ -1,5 +1,4 @@
 import React, { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -8,11 +7,15 @@ import PasswordInput from '@/components/PasswordInput'
 import { Button } from '@/components/ui/Button'
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/Form'
 import DeleteAccountFormSchema from './schema'
+import { useAuth } from '@/context/AuthContext/AuthContext'
 
 type FormData = z.infer<typeof DeleteAccountFormSchema>
 
-const DeleteAccountForm = () => {
-	const router = useRouter()
+const DeleteAccountForm: React.FunctionComponent<{ customerEmail: string }> = ({
+	customerEmail,
+}) => {
+	const { logout } = useAuth()
+
 	const form = useForm<FormData>({
 		resolver: zodResolver(DeleteAccountFormSchema),
 		defaultValues: {
@@ -23,8 +26,32 @@ const DeleteAccountForm = () => {
 
 	const [formErrorMessage, setFormErrorMessage] = useState('')
 
-	// TODO: !! Use Shopify Admin API to delete
+	// TODO: !! Use login() instead
+	const isPasswordCorrect = async (password: string): Promise<boolean> => {
+		const response = await fetch(`http://localhost:3000/api/login`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({ email: customerEmail, password }),
+			cache: 'no-cache',
+		})
+
+		if (!response.ok) {
+			return false
+		}
+
+		return true
+	}
+
 	const onSubmit = async (data: FormData) => {
+		setFormErrorMessage('')
+
+		const isCorrectPassword = await isPasswordCorrect(data.confirmPassword)
+		if (!isCorrectPassword) {
+			return setFormErrorMessage('Password is incorrect.')
+		}
+
 		const response = await fetch(`http://localhost:3000/api/customer`, {
 			method: 'DELETE',
 			headers: {
@@ -33,8 +60,13 @@ const DeleteAccountForm = () => {
 			cache: 'no-cache',
 		})
 
+		console.log(await response.json())
+
 		if (response.ok) {
-			router.replace('/')
+			const response = await logout()
+			if (!response.error) {
+				window.location.href = '/'
+			}
 		} else {
 			const res = await response.json()
 			setFormErrorMessage(res.error?.message)

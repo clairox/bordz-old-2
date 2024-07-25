@@ -2,7 +2,7 @@ import React from 'react'
 import { Trash } from '@phosphor-icons/react'
 import DeleteAccountForm from '@/components/Forms/DeleteAccountForm'
 
-const DeleteAccount = () => {
+const DeleteAccount: React.FunctionComponent<{ customerEmail: string }> = ({ customerEmail }) => {
 	return (
 		<div>
 			<div className="w-full">
@@ -12,7 +12,7 @@ const DeleteAccount = () => {
 				</h1>
 			</div>
 			<div className="w-[500px]">
-				<DeleteAccountForm />
+				<DeleteAccountForm customerEmail={customerEmail} />
 			</div>
 		</div>
 	)
