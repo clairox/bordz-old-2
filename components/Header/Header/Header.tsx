@@ -1,13 +1,14 @@
-import Link from 'next/link'
 import Image from 'next/image'
-import NavMenu from '@/components/Header/HeaderNavMenu'
-import SearchBar from '@/components/Header/HeaderSearchBar'
+import Link from 'next/link'
 import AccountAction from '@/components/Header/HeaderActions/AccountAction'
 import CartAction from '@/components/Header/HeaderActions/CartAction'
 import WishlistAction from '@/components/Header/HeaderActions/WishlistAction'
+import NavMenu from '@/components/Header/HeaderNavMenu'
+import SearchBar from '@/components/Header/HeaderSearchBar'
 import { isAuthenticated } from '@/lib/utils/ssr'
 
 const Header: React.FunctionComponent = () => {
+	const isLoggedIn = isAuthenticated()
 	return (
 		<header className="z-100 flex justify-center h-16">
 			<div className="flex justify-between w-full max-w-[1440px]">
@@ -22,7 +23,7 @@ const Header: React.FunctionComponent = () => {
 				</div>
 				<div className="header-right">
 					<div className="header-actions flex h-full">
-						<AccountAction isAuthenticated={isAuthenticated()} />
+						<AccountAction isAuthenticated={isLoggedIn} />
 						<WishlistAction />
 						<CartAction />
 					</div>
