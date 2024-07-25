@@ -1,6 +1,5 @@
-'use client'
 import ChangePasswordForm from '@/components/Forms/ChangePasswordForm'
-import { Lock } from '@phosphor-icons/react'
+import { Lock } from '@phosphor-icons/react/dist/ssr'
 import React from 'react'
 
 const ChangePassword = () => {

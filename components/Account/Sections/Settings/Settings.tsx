@@ -1,5 +1,4 @@
-'use client'
-import { User } from '@phosphor-icons/react'
+import { User } from '@phosphor-icons/react/dist/ssr'
 import React from 'react'
 
 const Settings = () => {
