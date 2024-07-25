@@ -1,52 +1,58 @@
 import { render } from '@testing-library/react'
 import AccountSidebar from './AccountSidebar'
 
-const mocks = vi.hoisted(() => ({
-	logout: vi.fn().mockReturnValue({ success: true, data: {}, error: {} }),
-}))
-
-vi.mock('@/context/AuthContext/AuthContext', () => ({
-	useAuth: vi.fn().mockReturnValue({ user: { firstName: 'Name' }, logout: mocks.logout }),
+vi.mock('next/navigation', () => ({
+	useRouter: vi.fn().mockReturnValue({ replace: vi.fn() }),
 }))
 
 describe('AccountSidebar', () => {
 	it('renders and shows greeting', () => {
-		const { getByRole } = render(<AccountSidebar />)
+		const { getByRole } = render(<AccountSidebar customerFirstName={'Name'} />)
 		expect(getByRole('heading', { level: 1, name: 'Hey, Name!' })).toBeVisible()
 	})
 
 	it('renders and shows all menu items', () => {
-		const { getByRole } = render(<AccountSidebar />)
+		const { getByRole } = render(<AccountSidebar customerFirstName={'Name'} />)
 
-		expect(getByRole('link', { name: 'My Account' })).toBeVisible()
+		expect(getByRole('link', { name: 'Settings' })).toBeVisible()
 		expect(getByRole('link', { name: 'Orders' })).toBeVisible()
+		expect(getByRole('link', { name: 'Personal Info' })).toBeVisible()
 		expect(getByRole('link', { name: 'Wishlist' })).toBeVisible()
 		expect(getByRole('link', { name: 'Shipping Addresses' })).toBeVisible()
 		expect(getByRole('link', { name: 'Change Password' })).toBeVisible()
 		expect(getByRole('button', { name: 'Logout' })).toBeVisible()
 	})
 
-	describe('My Account menu item', () => {
+	describe('Settings menu item', () => {
 		it('links to settings page', () => {
-			const { getByRole } = render(<AccountSidebar />)
-			expect(getByRole('link', { name: 'My Account' })).toHaveAttribute('href', '/account/settings')
+			const { getByRole } = render(<AccountSidebar customerFirstName={'Name'} />)
+			expect(getByRole('link', { name: 'Settings' })).toHaveAttribute('href', '/account/settings')
 		})
 	})
 	describe('Orders menu item', () => {
-		it('links to settings page', () => {
-			const { getByRole } = render(<AccountSidebar />)
+		it('links to orders page', () => {
+			const { getByRole } = render(<AccountSidebar customerFirstName={'Name'} />)
 			expect(getByRole('link', { name: 'Orders' })).toHaveAttribute('href', '/account/orders')
 		})
 	})
+	describe('Personal Info menu item', () => {
+		it('links to personal info page', () => {
+			const { getByRole } = render(<AccountSidebar customerFirstName={'Name'} />)
+			expect(getByRole('link', { name: 'Personal Info' })).toHaveAttribute(
+				'href',
+				'/account/personal-info'
+			)
+		})
+	})
 	describe('Wishlist menu item', () => {
-		it('links to settings page', () => {
-			const { getByRole } = render(<AccountSidebar />)
+		it('links to wishlist page', () => {
+			const { getByRole } = render(<AccountSidebar customerFirstName={'Name'} />)
 			expect(getByRole('link', { name: 'Wishlist' })).toHaveAttribute('href', '/wishlist')
 		})
 	})
 	describe('Shipping Addresses menu item', () => {
-		it('links to settings page', () => {
-			const { getByRole } = render(<AccountSidebar />)
+		it('links to addresses page', () => {
+			const { getByRole } = render(<AccountSidebar customerFirstName={'Name'} />)
 			expect(getByRole('link', { name: 'Shipping Addresses' })).toHaveAttribute(
 				'href',
 				'/account/addresses'
@@ -54,8 +60,8 @@ describe('AccountSidebar', () => {
 		})
 	})
 	describe('Change Password menu item', () => {
-		it('links to settings page', () => {
-			const { getByRole } = render(<AccountSidebar />)
+		it('links to change password page', () => {
+			const { getByRole } = render(<AccountSidebar customerFirstName={'Name'} />)
 			expect(getByRole('link', { name: 'Change Password' })).toHaveAttribute(
 				'href',
 				'/account/change-password'

@@ -5,12 +5,12 @@ import Settings from '../Sections/Settings'
 import Orders from '../Sections/Orders'
 import Addresses from '../Sections/Addresses'
 import ChangePassword from '../Sections/ChangePassword'
-import { GetCustomerQuery } from '@/__generated__/graphql'
 import PersonalInfo from '../Sections/PersonalInfo'
+import DeleteAccount from '../Sections/DeleteAccount'
 
 const AccountRoot: React.FunctionComponent<{
 	section: string
-	customer: GetCustomerQuery['customer']
+	customer: any
 }> = ({ section, customer }) => {
 	if (!customer) {
 		// TODO: error stuff
@@ -46,6 +46,9 @@ const AccountRoot: React.FunctionComponent<{
 			break
 		case 'change-password':
 			content = <ChangePassword />
+			break
+		case 'delete-account':
+			content = <DeleteAccount />
 			break
 		default:
 			// TODO: 404

@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/Button'
 import { Gear } from '@phosphor-icons/react/dist/ssr'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import React from 'react'
 
 const Settings: React.FunctionComponent<{
@@ -9,6 +10,12 @@ const Settings: React.FunctionComponent<{
 	email: string | null | undefined
 	defaultAddress: any
 }> = ({ firstName, lastName, email, defaultAddress }) => {
+	const router = useRouter()
+
+	const onDeleteAccountButtonClick = () => {
+		router.push('/account/delete-account')
+	}
+
 	return (
 		<div>
 			<div className="w-full">
@@ -45,7 +52,7 @@ const Settings: React.FunctionComponent<{
 				</div>
 				<div className="px-8 py-5 w-full border-r border-b border-black">
 					<h2 className="mb-6 font-semibold text-lg">Delete Account</h2>
-					<Button>Delete Account</Button>
+					<Button onClick={onDeleteAccountButtonClick}>Delete Account</Button>
 				</div>
 			</div>
 		</div>
