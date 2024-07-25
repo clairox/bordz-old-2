@@ -105,7 +105,9 @@ const DeleteAccountForm: React.FunctionComponent<{ customerEmail: string }> = ({
 						)}
 					/>
 				</div>
-				<Button type="submit">Delete Account</Button>
+				<Button variant={'destructive'} type="submit">
+					Delete Account
+				</Button>
 			</form>
 		</Form>
 	)
