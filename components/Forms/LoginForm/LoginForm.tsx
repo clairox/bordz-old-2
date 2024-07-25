@@ -11,10 +11,22 @@ import LoginFormSchema from './schema'
 import Link from 'next/link'
 import PasswordInput from '@/components/PasswordInput'
 import FormErrorBox from '@/components/FormResponseBox/FormErrorBox'
+import { useRouter, useSearchParams } from 'next/navigation'
 
 type FormData = z.infer<typeof LoginFormSchema>
 
+type RedirectMessage = { [key: string]: string }
+
+const redirectMessages: RedirectMessage = {
+	session_expired: 'Your session has expired, please log in again.',
+}
+
 const LoginForm = () => {
+	const router = useRouter()
+	const searchParams = useSearchParams()
+	const reason = searchParams.get('reason')
+	const redirect = searchParams.get('redirect')
+
 	const { login } = useAuth()
 
 	const form = useForm<FormData>({
@@ -26,23 +38,28 @@ const LoginForm = () => {
 	})
 	const errors = form.formState.errors
 
-	const [formErrorMessage, setFormErrorResponse] = useState('')
+	let initialFormErrorMessage = ''
+	if (reason && Object.keys(redirectMessages).includes(reason)) {
+		initialFormErrorMessage = redirectMessages[reason]
+	}
+	const [formErrorMessage, setFormErrorResponse] = useState(initialFormErrorMessage)
 
 	const onSubmit = async (data: FormData) => {
 		setFormErrorResponse('')
 
 		const { email, password } = data
-		const response = await login(email, password)
+		const { error } = await login(email, password)
 
-		if (response.error) {
-			const { field, message } = response.error
-			switch (field) {
-				default:
-					return setFormErrorResponse(message)
-			}
+		if (error) {
+			const { message } = error
+			return setFormErrorResponse(message)
 		}
 
-		return window.location.reload()
+		if (redirect) {
+			return router.push(redirect)
+		} else {
+			return window.location.reload()
+		}
 	}
 
 	return (

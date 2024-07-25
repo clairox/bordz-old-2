@@ -6,8 +6,15 @@ const mocks = vi.hoisted(() => {
 	return {
 		login: vi.fn(),
 		reload: vi.fn(),
+		push: vi.fn(),
+		useSearchParamsMock: vi.fn(),
 	}
 })
+
+vi.mock('next/navigation', () => ({
+	useRouter: vi.fn().mockReturnValue({ push: mocks.push }),
+	useSearchParams: mocks.useSearchParamsMock.mockReturnValue(new URLSearchParams()),
+}))
 
 vi.mock('@/context/AuthContext/AuthContext', () => ({
 	useAuth: vi.fn().mockReturnValue({ login: mocks.login }),
@@ -52,7 +59,7 @@ describe('LoginForm', () => {
 			writable: true,
 		})
 
-		mocks.login.mockReturnValue({ success: true })
+		mocks.login.mockReturnValueOnce({ success: true })
 		const { getByRole, getByLabelText } = render(<LoginForm />)
 
 		await userEvent.type(getByRole('textbox', { name: 'Email' }), 'correct@ema.il')
@@ -62,8 +69,32 @@ describe('LoginForm', () => {
 		expect(mocks.reload).toHaveBeenCalled()
 	})
 
+	it('calls router.push with correct value if "redirect" is in searchParams', async () => {
+		mocks.useSearchParamsMock.mockReturnValue(
+			new URLSearchParams({ redirect: '%2Faccount%2Fsettings' })
+		)
+		mocks.login.mockReturnValueOnce({ success: true })
+		const { getByRole, getByLabelText } = render(<LoginForm />)
+
+		await userEvent.type(getByRole('textbox', { name: 'Email' }), 'correct@ema.il')
+		await userEvent.type(getByLabelText('Password'), 'correctPassword')
+		await userEvent.click(getByRole('button', { name: 'Submit' }))
+
+		expect(mocks.push).toHaveBeenCalledWith('%2Faccount%2Fsettings')
+		mocks.useSearchParamsMock.mockClear()
+	})
+
+	it('renders and shows form error message correctly if "reason" is in searchParams', () => {
+		mocks.useSearchParamsMock.mockReturnValue(new URLSearchParams({ reason: 'session_expired' }))
+		const { getByText, getByTestId } = render(<LoginForm />)
+
+		expect(getByTestId('formErrorBox')).toBeVisible()
+		expect(getByText('Your session has expired, please log in again.')).toBeVisible()
+		mocks.useSearchParamsMock.mockClear()
+	})
+
 	it('renders and shows form error message if user not found', async () => {
-		mocks.login.mockReturnValue({ error: { field: undefined, message: 'Error' } })
+		mocks.login.mockReturnValueOnce({ error: { field: undefined, message: 'Error' } })
 		const { getByRole, getByLabelText, getByTestId } = render(<LoginForm />)
 
 		await userEvent.type(getByRole('textbox', { name: 'Email' }), 'incorrect@ema.il')

@@ -9,10 +9,15 @@ import { Button } from '@/components/ui/Button'
 import FormSuccessBox from '@/components/FormResponseBox/FormSuccessBox'
 import FormErrorBox from '@/components/FormResponseBox/FormErrorBox'
 import ChangePasswordFormSchema from './schema'
+import { useRouter } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 
 type FormData = z.infer<typeof ChangePasswordFormSchema>
 
 const ChangePasswordForm = () => {
+	const router = useRouter()
+	const pathname = usePathname()
+
 	const form = useForm<FormData>({
 		resolver: zodResolver(ChangePasswordFormSchema),
 		defaultValues: {
@@ -37,6 +42,11 @@ const ChangePasswordForm = () => {
 			},
 			cache: 'no-cache',
 		})
+
+		if (response.status === 401) {
+			const url = '/login?redirect=' + encodeURIComponent(pathname) + '&reason=session_expired'
+			return router.push(url)
+		}
 
 		if (response.ok) {
 			setFormSuccessMessage('Password changed successfully!')

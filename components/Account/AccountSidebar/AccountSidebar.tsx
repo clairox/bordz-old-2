@@ -7,7 +7,6 @@ import React from 'react'
 const AccountSidebar: React.FunctionComponent<{ customerFirstName: string | null | undefined }> = ({
 	customerFirstName,
 }) => {
-	console.log(customerFirstName)
 	const { logout } = useAuth()
 
 	const handleLogout = async () => {

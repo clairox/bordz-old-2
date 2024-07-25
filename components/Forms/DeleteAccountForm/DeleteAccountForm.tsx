@@ -8,12 +8,16 @@ import { Button } from '@/components/ui/Button'
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/Form'
 import DeleteAccountFormSchema from './schema'
 import { useAuth } from '@/context/AuthContext/AuthContext'
+import { usePathname, useRouter } from 'next/navigation'
 
 type FormData = z.infer<typeof DeleteAccountFormSchema>
 
 const DeleteAccountForm: React.FunctionComponent<{ customerEmail: string }> = ({
 	customerEmail,
 }) => {
+	const router = useRouter()
+	const pathname = usePathname()
+
 	const { logout } = useAuth()
 
 	const form = useForm<FormData>({
@@ -60,7 +64,10 @@ const DeleteAccountForm: React.FunctionComponent<{ customerEmail: string }> = ({
 			cache: 'no-cache',
 		})
 
-		console.log(await response.json())
+		if (response.status === 401) {
+			const url = '/login?redirect=' + encodeURIComponent(pathname) + '&reason=session_expired'
+			return router.push(url)
+		}
 
 		if (response.ok) {
 			const response = await logout()

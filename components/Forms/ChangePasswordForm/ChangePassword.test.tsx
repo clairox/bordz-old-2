@@ -2,12 +2,36 @@ import { render } from '@testing-library/react'
 import ChangePasswordForm from './ChangePasswordForm'
 import userEvent from '@testing-library/user-event'
 
+const mocks = vi.hoisted(() => {
+	return {
+		push: vi.fn(),
+	}
+})
+
+vi.mock('next/navigation', () => ({
+	useRouter: vi.fn().mockReturnValue({ push: mocks.push }),
+	usePathname: vi.fn().mockReturnValue('/account/change-password'),
+}))
+
 describe('ChangePasswordForm', () => {
 	it('renders and shows all fields', () => {
 		const { getByLabelText } = render(<ChangePasswordForm />)
 
 		expect(getByLabelText('Password')).toBeVisible()
 		expect(getByLabelText('Confirm Password')).toBeVisible()
+	})
+
+	it('calls router.push with correct value when fetch returns with 401 status', async () => {
+		global.fetch = vi.fn().mockReturnValue({ status: 401 })
+		const { getByRole, getByLabelText } = render(<ChangePasswordForm />)
+
+		await userEvent.type(getByLabelText('Password'), 'testpassword')
+		await userEvent.type(getByLabelText('Confirm Password'), 'testpassword')
+		await userEvent.click(getByRole('button', { name: 'Submit' }))
+
+		expect(mocks.push).toHaveBeenCalledWith(
+			'/login?redirect=%2Faccount%2Fchange-password&reason=session_expired'
+		)
 	})
 
 	describe('password field input', () => {
