@@ -37,6 +37,9 @@ const ChangePasswordForm = () => {
 
 		if (response.ok) {
 			setFormSuccessMessage('Password changed successfully!')
+
+			const activeElement = document.activeElement as HTMLElement
+			activeElement.blur()
 			form.reset()
 		} else {
 			const res = await response.json()
