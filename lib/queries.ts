@@ -64,16 +64,93 @@ const GET_COLLECTION_MAX_PRICE = gql(`
 	}
 `)
 
+const ADDRESS_FIELDS = gql(`
+	fragment AddressFields on MailingAddress {
+		address1
+		address2
+		city
+		formatted(withName: true)
+		formattedArea
+		id
+		lastName
+		name
+		phone
+		provinceCode
+		zip
+		firstName
+		country
+	}
+`)
+
 const GET_CUSTOMER = gql(`
 	query GetCustomer(
 		$customerAccessToken: String!
 	) {
 		customer(customerAccessToken: $customerAccessToken) {
-			id
+			acceptsMarketing
+			createdAt
+			displayName
 			email
 			firstName
+			id
 			lastName
-			displayName
+			numberOfOrders
+			phone
+			tags
+			updatedAt
+			addresses(first: 10) {
+				nodes {
+					...AddressFields
+				}
+			}
+			defaultAddress {
+				...AddressFields
+			}
+			orders(first: 10, sortKey: PROCESSED_AT) {
+				totalCount
+				nodes {
+					cancelReason
+					canceledAt
+					currencyCode
+					customerLocale
+					customerUrl
+					edited
+					email
+					financialStatus
+					fulfillmentStatus
+					id
+					name
+					orderNumber
+					phone
+					processedAt
+					statusUrl
+					billingAddress {
+						...AddressFields
+					}
+					lineItems {
+						nodes {
+							currentQuantity
+							quantity
+							title
+						}
+					}
+					originalTotalPrice {
+						amount
+						currencyCode
+					}
+					shippingAddress {
+						...AddressFields
+					}
+					totalPriceV2 {
+						amount
+						currencyCode
+					}
+					totalShippingPriceV2 {
+						amount
+						currencyCode
+					}
+				}
+			}
 		}
 	}
 `)

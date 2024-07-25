@@ -1,17 +1,29 @@
 import AccountRoot from '@/components/Account/AccountRoot'
-import { isAuthenticated } from '@/lib/utils/ssr'
+import { getClient } from '@/lib/apollo/apolloClient'
+import { GET_CUSTOMER } from '@/lib/queries'
+import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import React from 'react'
 
-const Page: React.FunctionComponent<{ params: { section: string[] } }> = ({ params }) => {
-	if (!isAuthenticated()) {
+const Page: React.FunctionComponent<{ params: { section: string[] } }> = async ({ params }) => {
+	const customerAccessToken = cookies().get('customerAccessToken')
+	if (!customerAccessToken) {
 		redirect('/login')
 	}
 
-	const [sectionParam] = params.section
-	console.log(params)
+	const { data, errors } = await getClient().query({
+		query: GET_CUSTOMER,
+		variables: { customerAccessToken: customerAccessToken.value },
+	})
 
-	return <AccountRoot section={sectionParam} />
+	if (errors) {
+		console.error(errors)
+		return <>Error</>
+	}
+
+	const [sectionParam] = params.section
+
+	return <AccountRoot section={sectionParam} customer={data.customer} />
 }
 
 export default Page

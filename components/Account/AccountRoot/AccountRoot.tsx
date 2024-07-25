@@ -5,11 +5,18 @@ import Settings from '../Sections/Settings'
 import Orders from '../Sections/Orders'
 import Addresses from '../Sections/Addresses'
 import ChangePassword from '../Sections/ChangePassword'
+import { GetCustomerQuery } from '@/__generated__/graphql'
 
-const AccountRoot: React.FunctionComponent<{ section: string }> = ({ section }) => {
-	console.log(section)
+const AccountRoot: React.FunctionComponent<{
+	section: string
+	customer: GetCustomerQuery['customer']
+}> = ({ section, customer }) => {
+	if (!customer) {
+		// TODO: error stuff
+		return <>Error</>
+	}
 
-	let content = <></>
+	let content: React.ReactNode
 	switch (section) {
 		case 'settings':
 			content = <Settings />
@@ -31,7 +38,7 @@ const AccountRoot: React.FunctionComponent<{ section: string }> = ({ section }) 
 	return (
 		<div className="grid grid-cols-12 w-[950px]">
 			<aside className="col-span-3">
-				<AccountSidebar />
+				<AccountSidebar customerFirstName={customer?.firstName} />
 			</aside>
 			<main className="col-span-9 w-full">{content}</main>
 		</div>
