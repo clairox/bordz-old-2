@@ -1,5 +1,5 @@
 'use client'
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useContext, useState } from 'react'
 
 type User = {
 	id: string
@@ -49,27 +49,6 @@ const useProvideAuth = () => {
 		isLoggedIn: boolean
 		loadState: LoadState
 	}>(initialAuthState)
-
-	useEffect(() => {
-		setAuthState(prev => ({ ...prev, loadState: 'loading' }))
-		const getUser = async () => {
-			const response = await fetch(`http://localhost:3000/api/customer`, {
-				method: 'GET',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-			})
-
-			if (response.ok) {
-				const user = await response.json()
-				setAuthState({ isLoggedIn: true, user, loadState: 'succeeded' })
-			} else {
-				setAuthState({ ...initialAuthState, loadState: 'failed' })
-			}
-		}
-
-		getUser()
-	}, [])
 
 	const login = async (email: string, password: string): Promise<Record<string, any>> => {
 		setAuthState(prev => ({ ...prev, loadState: 'loading' }))
