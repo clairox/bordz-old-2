@@ -54,7 +54,6 @@ const ChangePasswordForm = () => {
 				className="w-full max-w-[350px] space-y-4"
 				noValidate
 			>
-				<h1 className="mb-2 text-xl font-semibold">Change Password</h1>
 				<div className="w-full space-y-3">
 					{formSuccessMessage && <FormSuccessBox>{formSuccessMessage}</FormSuccessBox>}
 					{formErrorMessage && <FormErrorBox>{formErrorMessage}</FormErrorBox>}

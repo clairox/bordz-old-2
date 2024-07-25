@@ -1,6 +1,6 @@
 import { render } from '@testing-library/react'
-import PersonalInfoForm from './PersonalInfoForm'
 import userEvent from '@testing-library/user-event'
+import PersonalInfoForm from './PersonalInfoForm'
 
 const mocks = vi.hoisted(() => {
 	return {
@@ -17,13 +17,6 @@ const lastName = 'Subject'
 const email = 'tess@test.com'
 
 describe('PersonalInfoForm', () => {
-	it('renders and shows header', () => {
-		const { getByRole } = render(
-			<PersonalInfoForm firstName={firstName} lastName={lastName} email={email} />
-		)
-		expect(getByRole('heading', { level: 1, name: 'Personal Info' })).toBeVisible()
-	})
-
 	it('renders and shows all fields', () => {
 		const { getByRole } = render(
 			<PersonalInfoForm firstName={firstName} lastName={lastName} email={email} />
