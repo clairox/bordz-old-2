@@ -1,7 +1,6 @@
 import { WarningCircle } from '@phosphor-icons/react'
 import React, { PropsWithChildren } from 'react'
 
-// TODO: !! Justify start
 const FormErrorBox: React.FunctionComponent<PropsWithChildren> = ({ children }) => {
 	return (
 		<div
