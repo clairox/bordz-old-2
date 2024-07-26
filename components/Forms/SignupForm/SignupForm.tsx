@@ -43,26 +43,23 @@ const SignupForm = () => {
 	const [monthSelectWidth, setMonthSelectWidth] = useState('var(--radix-select-trigger-width)')
 	const [formErrorMessage, setFormErrorMessage] = useState('')
 
-	const monthSelectTrigger = useRef<HTMLButtonElement | null>(null)
+	// const monthSelectTrigger = useRef<HTMLButtonElement | null>(null)
 
-	// Fixes the month SelectContent element not being wide enough on first render
-	// const updateMonthSelectWidth = useCallback(() => {
+	// // Fixes the month SelectContent element not being wide enough on first render
+	// useEffect(() => {
 	// 	if (monthSelectTrigger.current) {
 	// 		const width = String(monthSelectTrigger.current.clientWidth + 2) + 'px'
 	// 		setMonthSelectWidth(width)
 	// 	}
 	// }, [monthSelectTrigger])
 
-	// useEffect(() => {
-	// 	updateMonthSelectWidth()
-	// }, [updateMonthSelectWidth])
-
 	useEffect(() => {
-		if (monthSelectTrigger.current) {
-			const width = String(monthSelectTrigger.current.clientWidth + 2) + 'px'
+		const monthSelectTrigger = document.querySelector('[data-testid="monthSelect"]')
+		if (monthSelectTrigger) {
+			const width = String(monthSelectTrigger.clientWidth + 2) + 'px'
 			setMonthSelectWidth(width)
 		}
-	}, [monthSelectTrigger])
+	}, [])
 
 	// TODO: ?? Store extra account details (birth date, etc.) in postgres db
 	const onSubmit = async (data: FormData) => {
@@ -149,7 +146,6 @@ const SignupForm = () => {
 											<FormControl>
 												<SelectTrigger
 													data-testid="monthSelect"
-													ref={monthSelectTrigger}
 													className={`border-r-0 ${
 														// @ts-ignore
 														errors.birthDate && 'border-red-500 text-red-500'
