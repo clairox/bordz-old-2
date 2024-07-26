@@ -10,7 +10,7 @@ export const POST = async () => {
 		path: '/',
 	})
 
-	const res = NextResponse.json({ success: true })
-	res.headers.append('Set-Cookie', cookie)
-	return res
+	const response = NextResponse.json({ success: true })
+	response.headers.append('Set-Cookie', cookie)
+	return response
 }

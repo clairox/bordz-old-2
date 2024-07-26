@@ -83,18 +83,6 @@ export const PATCH = async (request: NextRequest) => {
 	return response
 }
 
-type CustomerDeleteResponse = {
-	customerDelete: {
-		deletedCustomerId: string
-		userErrors: [
-			{
-				field: string[]
-				message: string
-			}
-		]
-	}
-}
-
 const gql = String.raw
 
 const getCustomerQuery = async (customerAccessToken: string) => {
@@ -171,5 +159,3 @@ export const DELETE = async (request: NextRequest) => {
 
 	return NextResponse.json(await response.json())
 }
-
-// TODO: !! Make middleware for customerAccessToken cookie

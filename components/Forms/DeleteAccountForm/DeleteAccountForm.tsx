@@ -18,7 +18,7 @@ const DeleteAccountForm: React.FunctionComponent<{ customerEmail: string }> = ({
 	const router = useRouter()
 	const pathname = usePathname()
 
-	const { logout } = useAuth()
+	const { login, logout } = useAuth()
 
 	const form = useForm<FormData>({
 		resolver: zodResolver(DeleteAccountFormSchema),
@@ -30,21 +30,12 @@ const DeleteAccountForm: React.FunctionComponent<{ customerEmail: string }> = ({
 
 	const [formErrorMessage, setFormErrorMessage] = useState('')
 
-	// TODO: !! Use login() instead
 	const isPasswordCorrect = async (password: string): Promise<boolean> => {
-		const response = await fetch(`http://localhost:3000/api/login`, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-			},
-			body: JSON.stringify({ email: customerEmail, password }),
-			cache: 'no-cache',
-		})
+		const { success } = await login(customerEmail, password)
 
-		if (!response.ok) {
+		if (!success) {
 			return false
 		}
-
 		return true
 	}
 

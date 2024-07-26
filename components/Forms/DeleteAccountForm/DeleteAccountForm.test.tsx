@@ -5,12 +5,17 @@ import DeleteAccountForm from './DeleteAccountForm'
 const mocks = vi.hoisted(() => {
 	return {
 		push: vi.fn(),
+		login: vi.fn(),
 	}
 })
 
 vi.mock('next/navigation', () => ({
 	useRouter: vi.fn().mockReturnValue({ push: mocks.push }),
 	usePathname: vi.fn().mockReturnValue('/account/delete-account'),
+}))
+
+vi.mock('@/context/AuthContext/AuthContext', () => ({
+	useAuth: vi.fn().mockReturnValue({ login: mocks.login }),
 }))
 
 const email = 'test@ema.il'
@@ -23,7 +28,8 @@ describe('DeleteAccountForm', () => {
 	})
 
 	it('calls router.push with correct value when fetch returns with 401 status', async () => {
-		global.fetch = vi.fn().mockReturnValueOnce({ ok: true }).mockReturnValueOnce({ status: 401 })
+		mocks.login.mockReturnValueOnce({ success: true })
+		global.fetch = vi.fn().mockReturnValueOnce({ status: 401 })
 		const { getByRole, getByLabelText } = render(<DeleteAccountForm customerEmail={email} />)
 
 		await userEvent.type(getByLabelText('Confirm Password'), 'testpassword')
@@ -32,6 +38,17 @@ describe('DeleteAccountForm', () => {
 		expect(mocks.push).toHaveBeenCalledWith(
 			'/login?redirect=%2Faccount%2Fdelete-account&reason=session_expired'
 		)
+	})
+
+	it('renders and shows formErrorBox if password check fails', async () => {
+		mocks.login.mockReturnValueOnce({ success: false })
+		const { getByRole, getByLabelText, getByTestId } = render(
+			<DeleteAccountForm customerEmail={email} />
+		)
+
+		await userEvent.type(getByLabelText('Confirm Password'), 'testpassword')
+		await userEvent.click(getByRole('button', { name: 'Delete Account' }))
+		expect(getByTestId('formErrorBox')).toBeVisible()
 	})
 
 	describe('confirm password field input', () => {

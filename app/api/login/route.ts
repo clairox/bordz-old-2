@@ -12,8 +12,8 @@ export const POST = async (request: NextRequest) => {
 	})
 
 	if (errors) {
-		const { message } = errors[0]
-		return NextResponse.json({ error: { code: 'GRAPHQL_ERROR', message } }, { status: 400 })
+		const { message, extensions } = errors[0]
+		return NextResponse.json({ error: { code: extensions.code, message } }, { status: 400 })
 	}
 
 	const customerUserErrors = data?.customerAccessTokenCreate?.customerUserErrors
@@ -59,9 +59,9 @@ export const POST = async (request: NextRequest) => {
 		path: '/',
 	})
 
-	const res = NextResponse.json({ success: true })
-	res.headers.append('Set-Cookie', cookie)
-	return res
+	const response = NextResponse.json({ success: true })
+	response.headers.append('Set-Cookie', cookie)
+	return response
 }
 
-// TODO: ?? Renew access token if expired I guess
+// TODO: !! All api routes should respond with { success: boolean, data: Record<string, any>, error: { code: string, message: string, field?: string  } }

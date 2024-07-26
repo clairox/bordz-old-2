@@ -7,14 +7,23 @@ import Addresses from '../Sections/Addresses'
 import ChangePassword from '../Sections/ChangePassword'
 import PersonalInfo from '../Sections/PersonalInfo'
 import DeleteAccount from '../Sections/DeleteAccount'
+import { useRouter } from 'next/navigation'
+import { useAuth } from '@/context/AuthContext/AuthContext'
 
 const AccountRoot: React.FunctionComponent<{
 	section: string
 	customer: any
 }> = ({ section, customer }) => {
+	const router = useRouter()
+	const { logout } = useAuth()
+
 	if (!customer) {
-		// TODO: error stuff
-		return <>Error</>
+		logout().then(response => {
+			if (!response.error) {
+				router.push('/login')
+			}
+		})
+		return <></>
 	}
 
 	let content: React.ReactNode

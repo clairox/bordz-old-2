@@ -22,7 +22,7 @@ describe('ChangePasswordForm', () => {
 	})
 
 	it('calls router.push with correct value when fetch returns with 401 status', async () => {
-		global.fetch = vi.fn().mockReturnValue({ status: 401 })
+		global.fetch = vi.fn().mockReturnValueOnce({ status: 401 })
 		const { getByRole, getByLabelText } = render(<ChangePasswordForm />)
 
 		await userEvent.type(getByLabelText('Password'), 'testpassword')
@@ -32,6 +32,17 @@ describe('ChangePasswordForm', () => {
 		expect(mocks.push).toHaveBeenCalledWith(
 			'/login?redirect=%2Faccount%2Fchange-password&reason=session_expired'
 		)
+	})
+
+	it('renders and shows formSuccessBox if password is updated successfully', async () => {
+		global.fetch = vi.fn().mockReturnValueOnce({ ok: true })
+		const { getByRole, getByLabelText, getByTestId } = render(<ChangePasswordForm />)
+
+		await userEvent.type(getByLabelText('Password'), 'testpassword')
+		await userEvent.type(getByLabelText('Confirm Password'), 'testpassword')
+		await userEvent.click(getByRole('button', { name: 'Submit' }))
+
+		expect(getByTestId('formSuccessBox')).toBeVisible()
 	})
 
 	describe('password field input', () => {

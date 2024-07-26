@@ -11,8 +11,8 @@ export const POST = async (request: NextRequest) => {
 	})
 
 	if (errors) {
-		const { message } = errors[0]
-		return NextResponse.json({ error: { code: 'GRAPHQL_ERROR', message } }, { status: 400 })
+		const { message, extensions } = errors[0]
+		return NextResponse.json({ error: { code: extensions.code, message } }, { status: 400 })
 	}
 
 	const customerUserErrors = data?.customerCreate?.customerUserErrors
