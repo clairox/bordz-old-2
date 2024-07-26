@@ -46,16 +46,23 @@ const SignupForm = () => {
 	const monthSelectTrigger = useRef<HTMLButtonElement | null>(null)
 
 	// Fixes the month SelectContent element not being wide enough on first render
-	const updateMonthSelectWidth = useCallback(() => {
+	// const updateMonthSelectWidth = useCallback(() => {
+	// 	if (monthSelectTrigger.current) {
+	// 		const width = String(monthSelectTrigger.current.clientWidth + 2) + 'px'
+	// 		setMonthSelectWidth(width)
+	// 	}
+	// }, [monthSelectTrigger])
+
+	// useEffect(() => {
+	// 	updateMonthSelectWidth()
+	// }, [updateMonthSelectWidth])
+
+	useEffect(() => {
 		if (monthSelectTrigger.current) {
 			const width = String(monthSelectTrigger.current.clientWidth + 2) + 'px'
 			setMonthSelectWidth(width)
 		}
 	}, [monthSelectTrigger])
-
-	useEffect(() => {
-		updateMonthSelectWidth()
-	}, [updateMonthSelectWidth])
 
 	// TODO: ?? Store extra account details (birth date, etc.) in postgres db
 	const onSubmit = async (data: FormData) => {
