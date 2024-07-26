@@ -44,10 +44,10 @@ const SignupForm = () => {
 	const [formErrorMessage, setFormErrorMessage] = useState('')
 
 	// Fixes the month SelectContent element not being wide enough on first render
+	const monthSelectTriggerRef = useRef<HTMLButtonElement | null>(null)
 	useEffect(() => {
-		const monthSelectTrigger = document.querySelector('[data-testid="monthSelect"]')
-		if (monthSelectTrigger) {
-			const width = String(monthSelectTrigger.clientWidth + 2) + 'px'
+		if (monthSelectTriggerRef.current) {
+			const width = String(monthSelectTriggerRef.current.clientWidth + 2) + 'px'
 			setMonthSelectWidth(width)
 		}
 	}, [])
@@ -136,6 +136,7 @@ const SignupForm = () => {
 										>
 											<FormControl>
 												<SelectTrigger
+													ref={monthSelectTriggerRef}
 													data-testid="monthSelect"
 													className={`border-r-0 ${
 														// @ts-ignore
