@@ -58,7 +58,7 @@ const SignupForm = () => {
 		const { success, error } = await signup(email, password, firstName, lastName)
 
 		if (success === false) {
-			return setFormErrorMessage(error.message)
+			return setFormErrorMessage(error?.message || 'Something went wrong, please try again.')
 		}
 
 		return (window.location.href = '/')

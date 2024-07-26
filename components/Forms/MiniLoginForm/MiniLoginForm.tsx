@@ -35,8 +35,7 @@ const MiniLoginForm: React.FunctionComponent<{
 		const { success, error } = await login(email, password)
 
 		if (success === false) {
-			const { message } = error
-			return setFormErrorMessage(message)
+			return setFormErrorMessage(error?.message || 'Something went wrong, please try again.')
 		}
 
 		return window.location.reload()

@@ -49,8 +49,7 @@ const LoginForm = () => {
 		const { success, error } = await login(email, password)
 
 		if (success === false) {
-			const { message } = error
-			return setFormErrorResponse(message)
+			return setFormErrorResponse(error?.message || 'Something went wrong, please try again.')
 		}
 
 		if (redirect) {
