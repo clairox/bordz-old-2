@@ -1,6 +1,6 @@
 import { ProductCollectionSortKeys, ProductFilter } from '@/__generated__/graphql'
 import { ReadonlyURLSearchParams } from 'next/navigation'
-import { isNumeric, toStrictIntegerOrNaN } from './number'
+import { isNumeric } from './number'
 import { ProductFilterMap } from '@/types'
 
 export const MAX_PRODUCTS_PER_LOAD = 40
@@ -91,6 +91,20 @@ export const getFiltersServer = (
 	]
 }
 
+export const getFiltersFromSearchParams = (params: URLSearchParams): ProductFilterMap => {
+	const entries = Array.from(params.entries())
+	const productFilterEntries = entries.filter(entry => {
+		const key = entry[0]
+		return key !== 'start' && key !== 'sortBy' && key !== 'priceMin' && key !== 'priceMax'
+	})
+	return new Map(
+		productFilterEntries.map(entry => {
+			const [key, value] = entry
+			return [key, value.split('|')]
+		})
+	)
+}
+
 export const processPriceParams = (priceMin: string | null, priceMax: string | null): number[] => {
 	if (priceMin === null || priceMax === null || !isNumeric(priceMin) || !isNumeric(priceMax)) {
 		return []
@@ -104,20 +118,6 @@ export const processPriceParams = (priceMin: string | null, priceMax: string | n
 	}
 
 	return [min, max]
-}
-
-export const getFiltersFromSearchParams = (params: URLSearchParams): ProductFilterMap => {
-	const entries = Array.from(params.entries())
-	const productFilterEntries = entries.filter(entry => {
-		const key = entry[0]
-		return key !== 'start' && key !== 'sortBy' && key !== 'priceMin' && key !== 'priceMax'
-	})
-	return new Map(
-		productFilterEntries.map(entry => {
-			const [key, value] = entry
-			return [key, value.split('|')]
-		})
-	)
 }
 
 export const mergeProductFilterMaps = (
@@ -162,4 +162,3 @@ export const mergeProductFilterMaps = (
 
 export const isValidPriceRange = (priceRange: number[]): boolean =>
 	priceRange[0] < priceRange[1] && priceRange.length === 2
-export const getSearchParamValues = (param: string | null): string[] => param?.split('|') || []

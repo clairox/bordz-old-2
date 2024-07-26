@@ -8,21 +8,4 @@ export const isNumeric = (value: string): boolean => {
 	return value.length > 0
 }
 
-export const toIntegerOrNaN = (value: any): number => {
-	if (typeof value === 'string' && value.includes('.')) {
-		return NaN
-	}
-
-	const num = Number(value)
-	return Number.isInteger(num) ? num : NaN
-}
-
-export const toStrictIntegerOrNaN = (value: any): number => {
-	if (value === null) {
-		return NaN
-	}
-
-	return toIntegerOrNaN(value)
-}
-
 export const roundUp = (value: number, to: number = 10) => Math.ceil(value / to) * to

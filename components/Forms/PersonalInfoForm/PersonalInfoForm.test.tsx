@@ -17,14 +17,17 @@ const lastName = 'Subject'
 const email = 'tess@test.com'
 
 describe('PersonalInfoForm', () => {
-	it('renders and shows all fields', () => {
+	it('renders and shows all fields correctly', () => {
 		const { getByRole } = render(
 			<PersonalInfoForm firstName={firstName} lastName={lastName} email={email} />
 		)
 
 		expect(getByRole('textbox', { name: 'Email' })).toBeVisible()
+		expect(getByRole('textbox', { name: 'Email' })).toHaveValue(email)
 		expect(getByRole('textbox', { name: 'First Name' })).toBeVisible()
+		expect(getByRole('textbox', { name: 'First Name' })).toHaveValue(firstName)
 		expect(getByRole('textbox', { name: 'Last Name' })).toBeVisible()
+		expect(getByRole('textbox', { name: 'Last Name' })).toHaveValue(lastName)
 	})
 
 	it('renders and shows submit button', () => {

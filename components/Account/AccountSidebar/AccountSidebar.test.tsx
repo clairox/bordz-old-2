@@ -68,4 +68,6 @@ describe('AccountSidebar', () => {
 			)
 		})
 	})
+
+	describe.skip('Logout menu item')
 })

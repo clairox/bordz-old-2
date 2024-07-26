@@ -16,7 +16,7 @@ const AccountAction: React.FunctionComponent<{
 	if (isAuthenticated) {
 		return (
 			<Link href="/account/settings">
-				<HeaderAction triggered={open}>
+				<HeaderAction triggered={open} data-testid={'accountActionButton'}>
 					<User size={28} weight={open ? 'fill' : 'light'} />
 				</HeaderAction>
 			</Link>
@@ -26,7 +26,7 @@ const AccountAction: React.FunctionComponent<{
 	return (
 		<Popover open={open} onOpenChange={setOpen}>
 			<PopoverTrigger asChild>
-				<HeaderAction triggered={open}>
+				<HeaderAction triggered={open} data-testid={'accountActionButton'}>
 					<User size={28} weight={open ? 'fill' : 'light'} />
 				</HeaderAction>
 			</PopoverTrigger>

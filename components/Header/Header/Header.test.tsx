@@ -1,7 +1,12 @@
 import { render } from '@testing-library/react'
 import Navbar from '.'
+import { RequestCookies } from 'next/dist/compiled/@edge-runtime/cookies'
 
-describe.skip('navbar component', () => {
+vi.mock('@/lib/utils/ssr', () => ({
+	isAuthenticated: vi.fn().mockReturnValue(true),
+}))
+
+describe('navbar component', () => {
 	it('should render', () => {
 		const { getByRole, unmount } = render(<Navbar />)
 		expect(getByRole('banner')).toBeVisible()
