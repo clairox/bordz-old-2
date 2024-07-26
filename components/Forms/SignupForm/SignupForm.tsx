@@ -43,6 +43,7 @@ const SignupForm = () => {
 	const [monthSelectWidth, setMonthSelectWidth] = useState('var(--radix-select-trigger-width)')
 	const [formErrorMessage, setFormErrorMessage] = useState('')
 
+	// Fixes the month SelectContent element not being wide enough on first render
 	useEffect(() => {
 		const monthSelectTrigger = document.querySelector('[data-testid="monthSelect"]')
 		if (monthSelectTrigger) {
