@@ -13,7 +13,10 @@ export const POST = async (request: NextRequest) => {
 
 	if (errors) {
 		const { message, extensions } = errors[0]
-		return NextResponse.json({ error: { code: extensions.code, message } }, { status: 400 })
+		return NextResponse.json(
+			{ success: false, error: { code: extensions.code, message } },
+			{ status: 400 }
+		)
 	}
 
 	const customerUserErrors = data?.customerAccessTokenCreate?.customerUserErrors
@@ -23,6 +26,7 @@ export const POST = async (request: NextRequest) => {
 			case 'UNIDENTIFIED_CUSTOMER':
 				return NextResponse.json(
 					{
+						success: false,
 						error: {
 							code,
 							message: 'Login failed. Please verify your email and password.',
@@ -33,7 +37,10 @@ export const POST = async (request: NextRequest) => {
 				)
 			default:
 				return NextResponse.json(
-					{ error: { code: 'INTERNAL_SERVER_ERROR', message: 'Internal Server Error' } },
+					{
+						success: false,
+						error: { code: 'INTERNAL_SERVER_ERROR', message: 'Internal Server Error' },
+					},
 					{ status: 500 }
 				)
 		}
@@ -42,7 +49,10 @@ export const POST = async (request: NextRequest) => {
 	const customerAccessToken = data?.customerAccessTokenCreate?.customerAccessToken
 	if (!customerAccessToken) {
 		return NextResponse.json(
-			{ error: { code: 'INTERNAL_SERVER_ERROR', message: 'Internal Server Error' } },
+			{
+				success: false,
+				error: { code: 'INTERNAL_SERVER_ERROR', message: 'Internal Server Error' },
+			},
 			{ status: 500 }
 		)
 	}

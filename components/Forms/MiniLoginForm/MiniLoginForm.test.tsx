@@ -9,8 +9,8 @@ const mocks = vi.hoisted(() => {
 	}
 })
 
-vi.mock('@/context/AuthContext/AuthContext', () => ({
-	useAuth: vi.fn().mockReturnValue({ login: mocks.login }),
+vi.mock('@/lib/auth', () => ({
+	login: mocks.login.mockReturnValue({ success: true }),
 }))
 
 describe('MiniLoginForm', () => {
@@ -52,7 +52,6 @@ describe('MiniLoginForm', () => {
 			writable: true,
 		})
 
-		mocks.login.mockReturnValue({ success: true })
 		const { getByRole, getByLabelText } = render(<MiniLoginForm closePopover={vi.fn()} />)
 
 		await userEvent.type(getByRole('textbox', { name: 'Email' }), 'correct@ema.il')
@@ -63,7 +62,7 @@ describe('MiniLoginForm', () => {
 	})
 
 	it('renders and shows form error message if user not found', async () => {
-		mocks.login.mockReturnValue({ error: { field: undefined, message: 'Error' } })
+		mocks.login.mockReturnValue({ success: false, error: { message: 'Error' } })
 		const { getByRole, getByLabelText, getByTestId } = render(
 			<MiniLoginForm closePopover={vi.fn()} />
 		)

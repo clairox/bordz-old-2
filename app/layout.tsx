@@ -1,6 +1,5 @@
 import type { Metadata } from 'next'
 import { Inter as FontSans } from 'next/font/google'
-import { AuthProvider } from '@/context/AuthContext/AuthContext'
 import Header from '@/components/Header/Header'
 import { cn } from '@/lib/utils/cn'
 import { ApolloWrapper } from '@/lib/apollo/apolloWrapper'
@@ -18,10 +17,8 @@ export default function RootLayout({ children }: Readonly<React.PropsWithChildre
 		<html lang="en">
 			<body className={cn('', fontSans.className)}>
 				<ApolloWrapper>
-					<AuthProvider>
-						<Header />
-						<main className="flex justify-center mx-auto max-w-[1366px]">{children}</main>
-					</AuthProvider>
+					<Header />
+					<main className="flex justify-center mx-auto max-w-[1366px]">{children}</main>
 				</ApolloWrapper>
 			</body>
 		</html>

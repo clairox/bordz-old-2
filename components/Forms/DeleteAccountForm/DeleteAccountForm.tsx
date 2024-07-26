@@ -7,8 +7,8 @@ import PasswordInput from '@/components/PasswordInput'
 import { Button } from '@/components/ui/Button'
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/Form'
 import DeleteAccountFormSchema from './schema'
-import { useAuth } from '@/context/AuthContext/AuthContext'
 import { usePathname, useRouter } from 'next/navigation'
+import { login, logout } from '@/lib/auth'
 
 type FormData = z.infer<typeof DeleteAccountFormSchema>
 
@@ -17,8 +17,6 @@ const DeleteAccountForm: React.FunctionComponent<{ customerEmail: string }> = ({
 }) => {
 	const router = useRouter()
 	const pathname = usePathname()
-
-	const { login, logout } = useAuth()
 
 	const form = useForm<FormData>({
 		resolver: zodResolver(DeleteAccountFormSchema),
@@ -32,11 +30,7 @@ const DeleteAccountForm: React.FunctionComponent<{ customerEmail: string }> = ({
 
 	const isPasswordCorrect = async (password: string): Promise<boolean> => {
 		const { success } = await login(customerEmail, password)
-
-		if (!success) {
-			return false
-		}
-		return true
+		return success
 	}
 
 	const onSubmit = async (data: FormData) => {
@@ -61,8 +55,8 @@ const DeleteAccountForm: React.FunctionComponent<{ customerEmail: string }> = ({
 		}
 
 		if (response.ok) {
-			const response = await logout()
-			if (!response.error) {
+			const { success } = await logout()
+			if (success) {
 				window.location.href = '/'
 			}
 		} else {

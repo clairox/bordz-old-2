@@ -6,12 +6,12 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/Form'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
-import { useAuth } from '@/context/AuthContext/AuthContext'
 import LoginFormSchema from './schema'
 import Link from 'next/link'
 import PasswordInput from '@/components/PasswordInput'
 import FormErrorBox from '@/components/FormResponseBox/FormErrorBox'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { login } from '@/lib/auth'
 
 type FormData = z.infer<typeof LoginFormSchema>
 
@@ -26,8 +26,6 @@ const LoginForm = () => {
 	const searchParams = useSearchParams()
 	const reason = searchParams.get('reason')
 	const redirect = searchParams.get('redirect')
-
-	const { login } = useAuth()
 
 	const form = useForm<FormData>({
 		resolver: zodResolver(LoginFormSchema),
@@ -48,9 +46,9 @@ const LoginForm = () => {
 		setFormErrorResponse('')
 
 		const { email, password } = data
-		const { error } = await login(email, password)
+		const { success, error } = await login(email, password)
 
-		if (error) {
+		if (success === false) {
 			const { message } = error
 			return setFormErrorResponse(message)
 		}

@@ -8,8 +8,8 @@ const mocks = vi.hoisted(() => {
 	}
 })
 
-vi.mock('@/context/AuthContext/AuthContext', () => ({
-	useAuth: vi.fn().mockReturnValue({ signup: mocks.signup }),
+vi.mock('@/lib/auth', () => ({
+	signup: mocks.signup.mockReturnValue({ success: true }),
 }))
 
 describe('SignupForm', () => {
@@ -41,7 +41,7 @@ describe('SignupForm', () => {
 	})
 
 	it.skip('renders and shows form error message if..............', async () => {
-		mocks.signup.mockReturnValue({ error: { field: undefined, message: 'Error' } })
+		mocks.signup.mockReturnValue({ success: false, error: { message: 'Error' } })
 		const { getByRole, getByLabelText, getByTestId } = render(<SignupForm />)
 
 		await userEvent.type(getByRole('textbox', { name: 'Email' }), 'incorrect@ema.il')

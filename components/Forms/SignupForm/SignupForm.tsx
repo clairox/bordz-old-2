@@ -1,10 +1,9 @@
 'use client'
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useAuth } from '@/context/AuthContext/AuthContext'
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/Form'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
@@ -19,12 +18,11 @@ import PasswordInput from '@/components/PasswordInput'
 import SignupFormSchema from './schema'
 import { months, days, years } from './schema/values'
 import FormErrorBox from '@/components/FormResponseBox/FormErrorBox'
+import { signup } from '@/lib/auth'
 
 type FormData = z.infer<typeof SignupFormSchema>
 
 const SignupForm = () => {
-	const { signup } = useAuth()
-
 	const form = useForm<FormData>({
 		resolver: zodResolver(SignupFormSchema),
 		defaultValues: {
@@ -57,9 +55,9 @@ const SignupForm = () => {
 		setFormErrorMessage('')
 
 		const { firstName, lastName, email, password } = data
-		const { error } = await signup(firstName, lastName, email, password)
+		const { success, error } = await signup(email, password, firstName, lastName)
 
-		if (error) {
+		if (success === false) {
 			return setFormErrorMessage(error.message)
 		}
 

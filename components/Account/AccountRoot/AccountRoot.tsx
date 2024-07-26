@@ -8,21 +8,23 @@ import ChangePassword from '../Sections/ChangePassword'
 import PersonalInfo from '../Sections/PersonalInfo'
 import DeleteAccount from '../Sections/DeleteAccount'
 import { useRouter } from 'next/navigation'
-import { useAuth } from '@/context/AuthContext/AuthContext'
+import { logout } from '@/lib/auth'
 
 const AccountRoot: React.FunctionComponent<{
 	section: string
 	customer: any
 }> = ({ section, customer }) => {
 	const router = useRouter()
-	const { logout } = useAuth()
+
+	const forceLogout = async () => {
+		const { success } = await logout()
+		if (success) {
+			router.push('/login')
+		}
+	}
 
 	if (!customer) {
-		logout().then(response => {
-			if (!response.error) {
-				router.push('/login')
-			}
-		})
+		forceLogout()
 		return <></>
 	}
 

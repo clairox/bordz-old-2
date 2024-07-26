@@ -16,8 +16,8 @@ vi.mock('next/navigation', () => ({
 	useSearchParams: mocks.useSearchParamsMock.mockReturnValue(new URLSearchParams()),
 }))
 
-vi.mock('@/context/AuthContext/AuthContext', () => ({
-	useAuth: vi.fn().mockReturnValue({ login: mocks.login }),
+vi.mock('@/lib/auth', () => ({
+	login: mocks.login.mockReturnValue({ success: true }),
 }))
 
 describe('LoginForm', () => {
@@ -59,7 +59,6 @@ describe('LoginForm', () => {
 			writable: true,
 		})
 
-		mocks.login.mockReturnValueOnce({ success: true })
 		const { getByRole, getByLabelText } = render(<LoginForm />)
 
 		await userEvent.type(getByRole('textbox', { name: 'Email' }), 'correct@ema.il')
@@ -73,7 +72,6 @@ describe('LoginForm', () => {
 		mocks.useSearchParamsMock.mockReturnValue(
 			new URLSearchParams({ redirect: '%2Faccount%2Fsettings' })
 		)
-		mocks.login.mockReturnValueOnce({ success: true })
 		const { getByRole, getByLabelText } = render(<LoginForm />)
 
 		await userEvent.type(getByRole('textbox', { name: 'Email' }), 'correct@ema.il')
@@ -94,7 +92,7 @@ describe('LoginForm', () => {
 	})
 
 	it('renders and shows form error message if user not found', async () => {
-		mocks.login.mockReturnValueOnce({ error: { field: undefined, message: 'Error' } })
+		mocks.login.mockReturnValueOnce({ success: false, error: { message: 'Error' } })
 		const { getByRole, getByLabelText, getByTestId } = render(<LoginForm />)
 
 		await userEvent.type(getByRole('textbox', { name: 'Email' }), 'incorrect@ema.il')

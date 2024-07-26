@@ -6,19 +6,17 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/Form'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
-import { useAuth } from '@/context/AuthContext/AuthContext'
 import MiniLoginFormSchema from './schema'
 import Link from 'next/link'
 import PasswordInput from '@/components/PasswordInput'
 import FormErrorBox from '@/components/FormResponseBox/FormErrorBox'
+import { login } from '@/lib/auth'
 
 type FormData = z.infer<typeof MiniLoginFormSchema>
 
 const MiniLoginForm: React.FunctionComponent<{
 	closePopover: () => void
 }> = ({ closePopover }) => {
-	const { login } = useAuth()
-
 	const form = useForm<FormData>({
 		resolver: zodResolver(MiniLoginFormSchema),
 		defaultValues: {
@@ -28,20 +26,17 @@ const MiniLoginForm: React.FunctionComponent<{
 	})
 	const errors = form.formState.errors
 
-	const [formErrorMessage, setFormErrorResponse] = useState('')
+	const [formErrorMessage, setFormErrorMessage] = useState('')
 
 	const onSubmit = async (data: FormData) => {
-		setFormErrorResponse('')
+		setFormErrorMessage('')
 
 		const { email, password } = data
-		const response = await login(email, password)
+		const { success, error } = await login(email, password)
 
-		if (response.error) {
-			const { field, message } = response.error
-			switch (field) {
-				default:
-					return setFormErrorResponse(message)
-			}
+		if (success === false) {
+			const { message } = error
+			return setFormErrorMessage(message)
 		}
 
 		return window.location.reload()

@@ -6,6 +6,8 @@ const mocks = vi.hoisted(() => {
 	return {
 		push: vi.fn(),
 		login: vi.fn(),
+		logout: vi.fn(),
+		fetch: vi.fn(),
 	}
 })
 
@@ -14,9 +16,12 @@ vi.mock('next/navigation', () => ({
 	usePathname: vi.fn().mockReturnValue('/account/delete-account'),
 }))
 
-vi.mock('@/context/AuthContext/AuthContext', () => ({
-	useAuth: vi.fn().mockReturnValue({ login: mocks.login }),
+vi.mock('@/lib/auth', () => ({
+	login: mocks.login.mockReturnValue({ success: true }),
+	logout: mocks.logout.mockReturnValue({ success: true }),
 }))
+
+global.fetch = mocks.fetch.mockReturnValue({ status: 200, ok: true })
 
 const email = 'test@ema.il'
 
@@ -28,8 +33,7 @@ describe('DeleteAccountForm', () => {
 	})
 
 	it('calls router.push with correct value when fetch returns with 401 status', async () => {
-		mocks.login.mockReturnValueOnce({ success: true })
-		global.fetch = vi.fn().mockReturnValueOnce({ status: 401 })
+		mocks.fetch.mockReturnValueOnce({ status: 401 })
 		const { getByRole, getByLabelText } = render(<DeleteAccountForm customerEmail={email} />)
 
 		await userEvent.type(getByLabelText('Confirm Password'), 'testpassword')

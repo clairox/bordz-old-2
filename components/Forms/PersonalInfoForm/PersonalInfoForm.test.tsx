@@ -2,16 +2,6 @@ import { render } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import PersonalInfoForm from './PersonalInfoForm'
 
-const mocks = vi.hoisted(() => {
-	return {
-		signup: vi.fn(),
-	}
-})
-
-vi.mock('@/context/AuthContext/AuthContext', () => ({
-	useAuth: vi.fn().mockReturnValue({ signup: mocks.signup }),
-}))
-
 const firstName = 'Tess'
 const lastName = 'Subject'
 const email = 'tess@test.com'
@@ -35,19 +25,6 @@ describe('PersonalInfoForm', () => {
 			<PersonalInfoForm firstName={firstName} lastName={lastName} email={email} />
 		)
 		expect(getByRole('button', { name: 'Submit' })).toBeVisible()
-	})
-
-	it.skip('renders and shows form error message if..............', async () => {
-		mocks.signup.mockReturnValue({ error: { field: undefined, message: 'Error' } })
-		const { getByRole, getByLabelText, getByTestId } = render(
-			<PersonalInfoForm firstName={firstName} lastName={lastName} email={email} />
-		)
-
-		await userEvent.type(getByRole('textbox', { name: 'Email' }), 'incorrect@ema.il')
-		await userEvent.type(getByLabelText('Password'), 'incorrectPassword')
-		await userEvent.click(getByRole('button', { name: 'Submit' }))
-
-		expect(getByTestId('formErrorBox')).toBeVisible()
 	})
 
 	describe('first name input', () => {

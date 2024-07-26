@@ -12,7 +12,10 @@ export const POST = async (request: NextRequest) => {
 
 	if (errors) {
 		const { message, extensions } = errors[0]
-		return NextResponse.json({ error: { code: extensions.code, message } }, { status: 400 })
+		return NextResponse.json(
+			{ success: false, error: { code: extensions.code, message } },
+			{ status: 400 }
+		)
 	}
 
 	const customerUserErrors = data?.customerCreate?.customerUserErrors
@@ -21,12 +24,18 @@ export const POST = async (request: NextRequest) => {
 		switch (code) {
 			case 'TAKEN':
 				return NextResponse.json(
-					{ error: { code, message: 'Email is already taken', field: field?.at(1) } },
+					{
+						success: false,
+						error: { code, message: 'Email is already taken', field: field?.at(1) },
+					},
 					{ status: 409 }
 				)
 			default:
 				return NextResponse.json(
-					{ error: { code: 'INTERNAL_SERVER_ERROR', message: 'Internal Server Error' } },
+					{
+						success: false,
+						error: { code: 'INTERNAL_SERVER_ERROR', message: 'Internal Server Error' },
+					},
 					{ status: 500 }
 				)
 		}
@@ -35,10 +44,13 @@ export const POST = async (request: NextRequest) => {
 	const customer = data?.customerCreate?.customer
 	if (!customer) {
 		return NextResponse.json(
-			{ error: { code: 'INTERNAL_SERVER_ERROR', message: 'Internal Server Error' } },
+			{
+				success: false,
+				error: { code: 'INTERNAL_SERVER_ERROR', message: 'Internal Server Error' },
+			},
 			{ status: 500 }
 		)
 	}
 
-	return NextResponse.json({ email: customer.email })
+	return NextResponse.json({ success: true, data: { email: customer.email } })
 }

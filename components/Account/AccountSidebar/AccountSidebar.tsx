@@ -1,5 +1,5 @@
 'use client'
-import { useAuth } from '@/context/AuthContext/AuthContext'
+import { logout } from '@/lib/auth'
 import { HeartStraight, House, Lock, Package, SignOut, Gear, User } from '@phosphor-icons/react'
 import Link from 'next/link'
 import React from 'react'
@@ -7,11 +7,9 @@ import React from 'react'
 const AccountSidebar: React.FunctionComponent<{ customerFirstName: string | null | undefined }> = ({
 	customerFirstName,
 }) => {
-	const { logout } = useAuth()
-
 	const handleLogout = async () => {
-		const response = await logout()
-		if (!response.error) {
+		const { success } = await logout()
+		if (success) {
 			window.location.href = '/'
 		}
 	}
