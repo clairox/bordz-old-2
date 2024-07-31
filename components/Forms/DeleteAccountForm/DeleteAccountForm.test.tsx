@@ -21,20 +21,29 @@ vi.mock('@/lib/auth', () => ({
 	logout: mocks.logout.mockReturnValue({ success: true }),
 }))
 
-global.fetch = mocks.fetch.mockReturnValue({ status: 200, ok: true })
+vi.mock('@/context/AccountContext/AccountContext', () => ({
+	useAccountContext: vi.fn().mockReturnValue({
+		customer: {
+			email: 'test@ema.il',
+			firstName: 'Tess',
+			lastName: 'Name',
+			defaultAddress: undefined,
+		},
+	}),
+}))
 
-const email = 'test@ema.il'
+global.fetch = mocks.fetch.mockReturnValue({ status: 200, ok: true })
 
 describe('DeleteAccountForm', () => {
 	it('renders and shows all fields', () => {
-		const { getByLabelText } = render(<DeleteAccountForm customerEmail={email} />)
+		const { getByLabelText } = render(<DeleteAccountForm />)
 
 		expect(getByLabelText('Confirm Password')).toBeVisible()
 	})
 
 	it('calls router.push with correct value when fetch returns with 401 status', async () => {
 		mocks.fetch.mockReturnValueOnce({ status: 401 })
-		const { getByRole, getByLabelText } = render(<DeleteAccountForm customerEmail={email} />)
+		const { getByRole, getByLabelText } = render(<DeleteAccountForm />)
 
 		await userEvent.type(getByLabelText('Confirm Password'), 'testpassword')
 		await userEvent.click(getByRole('button', { name: 'Delete Account' }))
@@ -46,9 +55,7 @@ describe('DeleteAccountForm', () => {
 
 	it('renders and shows formErrorBox if password check fails', async () => {
 		mocks.login.mockReturnValueOnce({ success: false })
-		const { getByRole, getByLabelText, getByTestId } = render(
-			<DeleteAccountForm customerEmail={email} />
-		)
+		const { getByRole, getByLabelText, getByTestId } = render(<DeleteAccountForm />)
 
 		await userEvent.type(getByLabelText('Confirm Password'), 'testpassword')
 		await userEvent.click(getByRole('button', { name: 'Delete Account' }))
@@ -57,7 +64,7 @@ describe('DeleteAccountForm', () => {
 
 	describe('confirm password field input', () => {
 		it('has correct value on input', async () => {
-			const { getByLabelText } = render(<DeleteAccountForm customerEmail={email} />)
+			const { getByLabelText } = render(<DeleteAccountForm />)
 
 			const passwordInput = getByLabelText('Confirm Password')
 			await userEvent.type(passwordInput, 'test text')
@@ -66,14 +73,14 @@ describe('DeleteAccountForm', () => {
 		})
 
 		it('has correct error classes if field is empty on submit', async () => {
-			const { getByRole, getByLabelText } = render(<DeleteAccountForm customerEmail={email} />)
+			const { getByRole, getByLabelText } = render(<DeleteAccountForm />)
 
 			await userEvent.click(getByRole('button', { name: 'Delete Account' }))
 			expect(getByLabelText('Confirm Password')).toHaveClass('border-red-500 text-red-500')
 		})
 
 		it('renders and shows error message if field is empty on submit', async () => {
-			const { getByRole, getByText } = render(<DeleteAccountForm customerEmail={email} />)
+			const { getByRole, getByText } = render(<DeleteAccountForm />)
 
 			await userEvent.click(getByRole('button', { name: 'Delete Account' }))
 			expect(getByText('Please enter your password')).toBeVisible()

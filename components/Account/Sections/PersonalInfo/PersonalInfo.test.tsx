@@ -6,11 +6,20 @@ vi.mock('next/navigation', () => ({
 	usePathname: vi.fn().mockReturnValue('/account/change-password'),
 }))
 
+vi.mock('@/context/AccountContext/AccountContext', () => ({
+	useAccountContext: vi.fn().mockReturnValue({
+		customer: {
+			email: 'test@ema.il',
+			firstName: 'Tess',
+			lastName: 'Name',
+			defaultAddress: undefined,
+		},
+	}),
+}))
+
 describe('PersonalInfo', () => {
 	it('renders content correctly', () => {
-		const { getByRole } = render(
-			<PersonalInfo firstName={'Tess'} lastName={'Name'} email={'test@ema.il'} />
-		)
+		const { getByRole } = render(<PersonalInfo />)
 
 		expect(getByRole('heading', { name: 'Personal Info' })).toBeVisible()
 		expect(getByRole('textbox', { name: 'Email' })).toBeVisible()

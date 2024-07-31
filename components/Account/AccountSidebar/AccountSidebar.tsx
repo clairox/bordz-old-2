@@ -1,12 +1,11 @@
 'use client'
+import { useAccountContext } from '@/context/AccountContext/AccountContext'
 import { logout } from '@/lib/auth'
 import { HeartStraight, House, Lock, Package, SignOut, Gear, User } from '@phosphor-icons/react'
 import Link from 'next/link'
 import React from 'react'
 
-const AccountSidebar: React.FunctionComponent<{ customerFirstName: string | null | undefined }> = ({
-	customerFirstName,
-}) => {
+const AccountSidebar = () => {
 	const handleLogout = async () => {
 		const { success } = await logout()
 		if (success) {
@@ -14,13 +13,15 @@ const AccountSidebar: React.FunctionComponent<{ customerFirstName: string | null
 		}
 	}
 
+	const { customer } = useAccountContext()
+
 	return (
 		<div className="col-span-4 flex flex-col">
 			<div className="flex items-center px-5 h-24 border border-t-0 border-black text-3xl font-bold tracking-wider">
 				<h1>
 					Hey,
 					<br />
-					{customerFirstName}!
+					{customer.firstName}!
 				</h1>
 			</div>
 			<Link

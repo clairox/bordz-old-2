@@ -2,36 +2,37 @@ import { render } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import PersonalInfoForm from './PersonalInfoForm'
 
-const firstName = 'Tess'
-const lastName = 'Subject'
-const email = 'tess@test.com'
+vi.mock('@/context/AccountContext/AccountContext', () => ({
+	useAccountContext: vi.fn().mockReturnValue({
+		customer: {
+			email: 'test@ema.il',
+			firstName: 'Tess',
+			lastName: 'Name',
+			defaultAddress: undefined,
+		},
+	}),
+}))
 
 describe('PersonalInfoForm', () => {
 	it('renders and shows all fields correctly', () => {
-		const { getByRole } = render(
-			<PersonalInfoForm firstName={firstName} lastName={lastName} email={email} />
-		)
+		const { getByRole } = render(<PersonalInfoForm />)
 
 		expect(getByRole('textbox', { name: 'Email' })).toBeVisible()
-		expect(getByRole('textbox', { name: 'Email' })).toHaveValue(email)
+		expect(getByRole('textbox', { name: 'Email' })).toHaveValue('test@ema.il')
 		expect(getByRole('textbox', { name: 'First Name' })).toBeVisible()
-		expect(getByRole('textbox', { name: 'First Name' })).toHaveValue(firstName)
+		expect(getByRole('textbox', { name: 'First Name' })).toHaveValue('Tess')
 		expect(getByRole('textbox', { name: 'Last Name' })).toBeVisible()
-		expect(getByRole('textbox', { name: 'Last Name' })).toHaveValue(lastName)
+		expect(getByRole('textbox', { name: 'Last Name' })).toHaveValue('Name')
 	})
 
 	it('renders and shows submit button', () => {
-		const { getByRole } = render(
-			<PersonalInfoForm firstName={firstName} lastName={lastName} email={email} />
-		)
+		const { getByRole } = render(<PersonalInfoForm />)
 		expect(getByRole('button', { name: 'Submit' })).toBeVisible()
 	})
 
 	describe('first name input', () => {
 		it('has correct value on input', async () => {
-			const { getByRole } = render(
-				<PersonalInfoForm firstName={firstName} lastName={lastName} email={email} />
-			)
+			const { getByRole } = render(<PersonalInfoForm />)
 
 			const firstNameInput = getByRole('textbox', { name: 'First Name' })
 			await userEvent.clear(firstNameInput)
@@ -41,9 +42,7 @@ describe('PersonalInfoForm', () => {
 		})
 
 		it('has correct error classes if field is empty on submit', async () => {
-			const { getByRole } = render(
-				<PersonalInfoForm firstName={firstName} lastName={lastName} email={email} />
-			)
+			const { getByRole } = render(<PersonalInfoForm />)
 
 			const firstNameInput = getByRole('textbox', { name: 'First Name' })
 			await userEvent.clear(firstNameInput)
@@ -52,9 +51,7 @@ describe('PersonalInfoForm', () => {
 		})
 
 		it('renders and shows error message if field is empty on submit', async () => {
-			const { getByRole, getByText } = render(
-				<PersonalInfoForm firstName={firstName} lastName={lastName} email={email} />
-			)
+			const { getByRole, getByText } = render(<PersonalInfoForm />)
 
 			const firstNameInput = getByRole('textbox', { name: 'First Name' })
 			await userEvent.clear(firstNameInput)
@@ -63,9 +60,7 @@ describe('PersonalInfoForm', () => {
 		})
 
 		it('has correct error classes if input length is greater than 50 on submit', async () => {
-			const { getByRole, getByText } = render(
-				<PersonalInfoForm firstName={firstName} lastName={lastName} email={email} />
-			)
+			const { getByRole, getByText } = render(<PersonalInfoForm />)
 
 			const text = 'test string that is longer than the accepted length of 50'
 			const firstNameInput = getByRole('textbox', { name: 'First Name' })
@@ -77,9 +72,7 @@ describe('PersonalInfoForm', () => {
 		})
 
 		it('renders and shows error message if input length is greater than 50 on submit', async () => {
-			const { getByRole, getByText } = render(
-				<PersonalInfoForm firstName={firstName} lastName={lastName} email={email} />
-			)
+			const { getByRole, getByText } = render(<PersonalInfoForm />)
 
 			const text = 'test string that is longer than the accepted length of 50'
 			const firstNameInput = getByRole('textbox', { name: 'First Name' })
@@ -93,9 +86,7 @@ describe('PersonalInfoForm', () => {
 
 	describe('last name input', () => {
 		it('has correct value on input', async () => {
-			const { getByRole } = render(
-				<PersonalInfoForm firstName={firstName} lastName={lastName} email={email} />
-			)
+			const { getByRole } = render(<PersonalInfoForm />)
 
 			const lastNameInput = getByRole('textbox', { name: 'Last Name' })
 			await userEvent.clear(lastNameInput)
@@ -104,9 +95,7 @@ describe('PersonalInfoForm', () => {
 		})
 
 		it('has correct error classes if field is empty on submit', async () => {
-			const { getByRole } = render(
-				<PersonalInfoForm firstName={firstName} lastName={lastName} email={email} />
-			)
+			const { getByRole } = render(<PersonalInfoForm />)
 
 			const lastNameInput = getByRole('textbox', { name: 'Last Name' })
 			await userEvent.clear(lastNameInput)
@@ -115,9 +104,7 @@ describe('PersonalInfoForm', () => {
 		})
 
 		it('renders and shows error message if field is empty on submit', async () => {
-			const { getByRole, getByText } = render(
-				<PersonalInfoForm firstName={firstName} lastName={lastName} email={email} />
-			)
+			const { getByRole, getByText } = render(<PersonalInfoForm />)
 
 			const lastNameInput = getByRole('textbox', { name: 'Last Name' })
 			await userEvent.clear(lastNameInput)
@@ -126,9 +113,7 @@ describe('PersonalInfoForm', () => {
 		})
 
 		it('has correct error classes if input length is greater than 50 on submit', async () => {
-			const { getByRole, getByText } = render(
-				<PersonalInfoForm firstName={firstName} lastName={lastName} email={email} />
-			)
+			const { getByRole, getByText } = render(<PersonalInfoForm />)
 
 			const text = 'test string that is longer than the accepted length of 50'
 			const lastNameInput = getByRole('textbox', { name: 'Last Name' })
@@ -139,9 +124,7 @@ describe('PersonalInfoForm', () => {
 		})
 
 		it('renders and shows error message if input length is greater than 50 on submit', async () => {
-			const { getByRole, getByText } = render(
-				<PersonalInfoForm firstName={firstName} lastName={lastName} email={email} />
-			)
+			const { getByRole, getByText } = render(<PersonalInfoForm />)
 
 			const text = 'test string that is longer than the accepted length of 50'
 			await userEvent.type(getByRole('textbox', { name: 'Last Name' }), text)
@@ -153,9 +136,7 @@ describe('PersonalInfoForm', () => {
 
 	describe('email field input', () => {
 		it('has correct value on input', async () => {
-			const { getByRole } = render(
-				<PersonalInfoForm firstName={firstName} lastName={lastName} email={email} />
-			)
+			const { getByRole } = render(<PersonalInfoForm />)
 
 			const emailInput = getByRole('textbox', { name: 'Email' })
 			await userEvent.clear(emailInput)
@@ -165,9 +146,7 @@ describe('PersonalInfoForm', () => {
 		})
 
 		it('has correct error classes if field is empty on submit', async () => {
-			const { getByRole } = render(
-				<PersonalInfoForm firstName={firstName} lastName={lastName} email={email} />
-			)
+			const { getByRole } = render(<PersonalInfoForm />)
 
 			const emailInput = getByRole('textbox', { name: 'Email' })
 			await userEvent.clear(emailInput)
@@ -176,9 +155,7 @@ describe('PersonalInfoForm', () => {
 		})
 
 		it('renders and shows error message if field is empty on submit', async () => {
-			const { getByRole, getByText } = render(
-				<PersonalInfoForm firstName={firstName} lastName={lastName} email={email} />
-			)
+			const { getByRole, getByText } = render(<PersonalInfoForm />)
 
 			const emailInput = getByRole('textbox', { name: 'Email' })
 			await userEvent.clear(emailInput)
@@ -187,9 +164,7 @@ describe('PersonalInfoForm', () => {
 		})
 
 		it('has correct error classes if input is invalid on submit', async () => {
-			const { getByRole } = render(
-				<PersonalInfoForm firstName={firstName} lastName={lastName} email={email} />
-			)
+			const { getByRole } = render(<PersonalInfoForm />)
 
 			const emailInput = getByRole('textbox', { name: 'Email' })
 			await userEvent.clear(emailInput)
@@ -200,9 +175,7 @@ describe('PersonalInfoForm', () => {
 		})
 
 		it('renders and shows error message if input is invalid on submit', async () => {
-			const { getByRole, getByText } = render(
-				<PersonalInfoForm firstName={firstName} lastName={lastName} email={email} />
-			)
+			const { getByRole, getByText } = render(<PersonalInfoForm />)
 
 			const emailInput = getByRole('textbox', { name: 'Email' })
 			await userEvent.clear(emailInput)

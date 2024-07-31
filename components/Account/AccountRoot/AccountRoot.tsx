@@ -7,50 +7,23 @@ import Addresses from '../Sections/Addresses'
 import ChangePassword from '../Sections/ChangePassword'
 import PersonalInfo from '../Sections/PersonalInfo'
 import DeleteAccount from '../Sections/DeleteAccount'
-import { useRouter } from 'next/navigation'
-import { logout } from '@/lib/auth'
+import { AccountProvider } from '@/context/AccountContext/AccountContext'
+import { GetCustomerQuery } from '@/__generated__/graphql'
 
 const AccountRoot: React.FunctionComponent<{
 	section: string
-	customer: any
+	customer: GetCustomerQuery['customer']
 }> = ({ section, customer }) => {
-	const router = useRouter()
-
-	const forceLogout = async () => {
-		const { success } = await logout()
-		if (success) {
-			router.push('/login')
-		}
-	}
-
-	if (!customer) {
-		forceLogout()
-		return <></>
-	}
-
 	let content: React.ReactNode
 	switch (section) {
 		case 'settings':
-			content = (
-				<Settings
-					firstName={customer.firstName}
-					lastName={customer.lastName}
-					email={customer.email}
-					defaultAddress={customer.defaultAddress}
-				/>
-			)
+			content = <Settings />
 			break
 		case 'orders':
 			content = <Orders />
 			break
 		case 'personal-info':
-			content = (
-				<PersonalInfo
-					firstName={customer.firstName}
-					lastName={customer.lastName}
-					email={customer.email}
-				/>
-			)
+			content = <PersonalInfo />
 			break
 		case 'addresses':
 			content = <Addresses />
@@ -59,7 +32,7 @@ const AccountRoot: React.FunctionComponent<{
 			content = <ChangePassword />
 			break
 		case 'delete-account':
-			content = <DeleteAccount customerEmail={customer.email} />
+			content = <DeleteAccount />
 			break
 		default:
 			// TODO: 404
@@ -67,12 +40,14 @@ const AccountRoot: React.FunctionComponent<{
 	}
 
 	return (
-		<div className="grid grid-cols-12 w-[950px]">
-			<aside className="col-span-3">
-				<AccountSidebar customerFirstName={customer?.firstName} />
-			</aside>
-			<main className="col-span-9 w-full">{content}</main>
-		</div>
+		<AccountProvider customer={customer}>
+			<div className="grid grid-cols-12 w-[950px]">
+				<aside className="col-span-3">
+					<AccountSidebar />
+				</aside>
+				<main className="col-span-9 w-full">{content}</main>
+			</div>
+		</AccountProvider>
 	)
 }
 

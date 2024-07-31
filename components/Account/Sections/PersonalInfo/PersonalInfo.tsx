@@ -2,11 +2,7 @@ import React from 'react'
 import { User } from '@phosphor-icons/react/dist/ssr'
 import PersonalInfoForm from '@/components/Forms/PersonalInfoForm'
 
-const PersonalInfo: React.FunctionComponent<{
-	firstName: string | null | undefined
-	lastName: string | null | undefined
-	email: string | null | undefined
-}> = ({ firstName, lastName, email }) => {
+const PersonalInfo = () => {
 	return (
 		<div>
 			<div className="w-full">
@@ -16,7 +12,7 @@ const PersonalInfo: React.FunctionComponent<{
 				</h1>
 			</div>
 			<div className="w-[500px]">
-				<PersonalInfoForm firstName={firstName} lastName={lastName} email={email} />
+				<PersonalInfoForm />
 			</div>
 		</div>
 	)

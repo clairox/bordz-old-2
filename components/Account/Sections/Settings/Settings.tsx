@@ -1,20 +1,20 @@
+'use client'
 import { Button } from '@/components/ui/Button'
+import { useAccountContext } from '@/context/AccountContext/AccountContext'
 import { Gear } from '@phosphor-icons/react/dist/ssr'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import React from 'react'
 
-const Settings: React.FunctionComponent<{
-	firstName: string | null | undefined
-	lastName: string | null | undefined
-	email: string | null | undefined
-	defaultAddress: any
-}> = ({ firstName, lastName, email, defaultAddress }) => {
-	const router = useRouter()
+const Settings = () => {
+	const { customer } = useAccountContext()
 
+	const router = useRouter()
 	const onDeleteAccountButtonClick = () => {
 		router.push('/account/delete-account')
 	}
+
+	const { email, firstName, lastName, defaultAddress } = customer
 
 	return (
 		<div>
@@ -48,7 +48,7 @@ const Settings: React.FunctionComponent<{
 							Edit
 						</Link>
 					</div>
-					{defaultAddress ? <p>Address</p> : <p>No home address saved.</p>}
+					{defaultAddress !== undefined ? <p>Address</p> : <p>No home address saved.</p>}
 				</div>
 				<div className="px-8 py-5 w-full border-r border-b border-black">
 					<h2 className="mb-6 font-semibold text-lg">Delete Account</h2>

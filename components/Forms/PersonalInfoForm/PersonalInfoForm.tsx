@@ -1,3 +1,4 @@
+'use client'
 import React, { useState } from 'react'
 import { z } from 'zod'
 import PersonalInfoFormSchema from './schema'
@@ -8,20 +9,20 @@ import FormSuccessBox from '@/components/FormResponseBox/FormSuccessBox'
 import FormErrorBox from '@/components/FormResponseBox/FormErrorBox'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
+import { useAccountContext } from '@/context/AccountContext/AccountContext'
 
 type FormData = z.infer<typeof PersonalInfoFormSchema>
 
-const PersonalInfoForm: React.FunctionComponent<{
-	firstName: string | null | undefined
-	lastName: string | null | undefined
-	email: string | null | undefined
-}> = ({ firstName, lastName, email }) => {
+const PersonalInfoForm = () => {
+	const { customer } = useAccountContext()
+	const { email, firstName, lastName } = customer
+
 	const form = useForm<FormData>({
 		resolver: zodResolver(PersonalInfoFormSchema),
 		defaultValues: {
-			email: email || '',
-			firstName: firstName || '',
-			lastName: lastName || '',
+			email,
+			firstName,
+			lastName,
 		},
 	})
 	const errors = form.formState.errors
@@ -45,7 +46,6 @@ const PersonalInfoForm: React.FunctionComponent<{
 
 			const activeElement = document.activeElement as HTMLElement
 			activeElement.blur()
-			form.reset()
 		} else {
 			const res = await response.json()
 			setFormErrorMessage(res.error?.message)

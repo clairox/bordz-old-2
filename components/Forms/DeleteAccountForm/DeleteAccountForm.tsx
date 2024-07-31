@@ -1,3 +1,4 @@
+'use client'
 import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
@@ -9,12 +10,13 @@ import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/
 import DeleteAccountFormSchema from './schema'
 import { usePathname, useRouter } from 'next/navigation'
 import { login, logout } from '@/lib/auth'
+import { useAccountContext } from '@/context/AccountContext/AccountContext'
 
 type FormData = z.infer<typeof DeleteAccountFormSchema>
 
-const DeleteAccountForm: React.FunctionComponent<{ customerEmail: string }> = ({
-	customerEmail,
-}) => {
+const DeleteAccountForm = () => {
+	const { customer } = useAccountContext()
+
 	const router = useRouter()
 	const pathname = usePathname()
 
@@ -29,7 +31,7 @@ const DeleteAccountForm: React.FunctionComponent<{ customerEmail: string }> = ({
 	const [formErrorMessage, setFormErrorMessage] = useState('')
 
 	const isPasswordCorrect = async (password: string): Promise<boolean> => {
-		const { success } = await login(customerEmail, password)
+		const { success } = await login(customer.email, password)
 		return success
 	}
 

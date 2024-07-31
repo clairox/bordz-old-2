@@ -12,11 +12,20 @@ vi.mock('next/navigation', () => ({
 	useRouter: vi.fn().mockReturnValue({ push: mocks.push }),
 }))
 
+vi.mock('@/context/AccountContext/AccountContext', () => ({
+	useAccountContext: vi.fn().mockReturnValue({
+		customer: {
+			email: 'test@ema.il',
+			firstName: 'Tess',
+			lastName: 'Name',
+			defaultAddress: undefined,
+		},
+	}),
+}))
+
 describe('Settings', () => {
 	it('renders content correctly', () => {
-		const { getByRole, getAllByRole, getByText } = render(
-			<Settings firstName={'Tess'} lastName={'Name'} email={'test@ema.il'} defaultAddress={null} />
-		)
+		const { getByRole, getAllByRole, getByText } = render(<Settings />)
 
 		expect(getByRole('heading', { level: 1, name: 'Settings' })).toBeVisible()
 
@@ -39,14 +48,7 @@ describe('Settings', () => {
 
 	describe('edit links', () => {
 		it('links to correct location', () => {
-			const { getAllByRole } = render(
-				<Settings
-					firstName={'Tess'}
-					lastName={'Name'}
-					email={'test@ema.il'}
-					defaultAddress={null}
-				/>
-			)
+			const { getAllByRole } = render(<Settings />)
 
 			expect(getAllByRole('link', { name: 'Edit' })[0]).toHaveAttribute(
 				'href',
@@ -61,14 +63,7 @@ describe('Settings', () => {
 
 	describe('delete account button', () => {
 		it('calls router.push with correct value on click', async () => {
-			const { getByRole } = render(
-				<Settings
-					firstName={'Tess'}
-					lastName={'Name'}
-					email={'test@ema.il'}
-					defaultAddress={null}
-				/>
-			)
+			const { getByRole } = render(<Settings />)
 
 			await userEvent.click(getByRole('button', { name: 'Delete Account' }))
 			expect(mocks.push).toHaveBeenCalledWith('/account/delete-account')

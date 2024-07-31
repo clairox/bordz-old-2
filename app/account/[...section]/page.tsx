@@ -11,18 +11,21 @@ const Page: React.FunctionComponent<{ params: { section: string[] } }> = async (
 		redirect('/login')
 	}
 
-	const { data, errors } = await getClient().query({
+	const { data, error } = await getClient().query({
 		query: GET_CUSTOMER,
 		variables: { customerAccessToken: customerAccessToken.value },
 	})
 
-	if (errors) {
-		console.error(errors)
-		return <>Error</>
+	if (error) {
+		console.error(error.message)
+		return <></>
+	}
+
+	if (data.customer === undefined) {
+		redirect('/login')
 	}
 
 	const [sectionParam] = params.section
-
 	return <AccountRoot section={sectionParam} customer={data.customer} />
 }
 

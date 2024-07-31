@@ -6,9 +6,20 @@ vi.mock('next/navigation', () => ({
 	usePathname: vi.fn().mockReturnValue('/account/change-password'),
 }))
 
+vi.mock('@/context/AccountContext/AccountContext', () => ({
+	useAccountContext: vi.fn().mockReturnValue({
+		customer: {
+			email: 'test@ema.il',
+			firstName: 'Tess',
+			lastName: 'Name',
+			defaultAddress: undefined,
+		},
+	}),
+}))
+
 describe('DeleteAccount', () => {
 	it('renders content correctly', () => {
-		const { getByRole, getByLabelText } = render(<DeleteAccount customerEmail="test@ema.il" />)
+		const { getByRole, getByLabelText } = render(<DeleteAccount />)
 
 		expect(getByRole('heading', { name: 'Delete Account' })).toBeVisible()
 		expect(getByLabelText('Confirm Password')).toBeVisible()
