@@ -1,3 +1,4 @@
+/*
 import type { Product } from '@/types'
 import React from 'react'
 import ProductGallery from '@/components/ProductGallery'
@@ -118,16 +119,9 @@ const ProductInfo: React.FunctionComponent<{
 				<p className="font-bold">Description:</p>
 				<p>{product.description}</p>
 			</div>
-			{/* <div>
-				<p className="font-bold">Product Details:</p>
-				<ul>
-					{details.map((detail, idx) => (
-						<li key={idx}>{detail}</li>
-					))}
-				</ul>
-			</div> */}
 		</section>
 	)
 }
 
 export default Page
+*/
