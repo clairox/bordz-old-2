@@ -33,6 +33,8 @@ RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
 COPY --from=builder /app/public ./public
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package.json ./package.json
 
 # set the correct permission for prerender cache
 RUN mkdir .next
@@ -41,6 +43,12 @@ RUN chown nextjs:nodejs .next
 # Automatically leverage output traces to reduce image size
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+ENV PATH=/app/node_modules/.bin:$PATH
+
+# Debugging: Print node_modules and PATH
+RUN ls -l /app/node_modules
+RUN echo $PATH
 
 USER nextjs
 
