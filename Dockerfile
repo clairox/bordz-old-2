@@ -9,9 +9,6 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
 
-# List node_modules for debugging
-RUN ls -l /app/node_modules/.bin
-
 # Rebuild the source code only when needed
 FROM base AS builder
 WORKDIR /app
@@ -46,15 +43,8 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
 ENV PATH=/app/node_modules/.bin:$PATH
 
-# Debugging: Print node_modules and PATH
-RUN ls -l /app/node_modules
-RUN echo $PATH
-
 USER nextjs
 
 EXPOSE 3000
 
 ENV PORT=3000
-
-# server.js is created by next build from the standalone output
-CMD ["npm", "run", "dev"]
