@@ -8,7 +8,7 @@ const client = createStorefrontApiClient({
 	storeDomain: 'https://quickstart-75684a38.myshopify.com/',
 	apiVersion: '2024-04',
 	publicAccessToken: process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN,
-})
+})*/
 
 type ProductDetails = {
 	id: number
@@ -26,7 +26,7 @@ type ProductDetails = {
 	maxQuantity: number
 }
 
-const getProduct = async (handle: string) => {
+/*const getProduct = async (handle: string) => {
 	const productQuery = `
 	query ProductQuery($handle: String!) {
 		productByHandle(handle: $handle) {
