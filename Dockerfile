@@ -9,6 +9,9 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
 
+# List node_modules for debugging
+RUN ls -l /app/node_modules/.bin
+
 # Rebuild the source code only when needed
 FROM base AS builder
 WORKDIR /app
