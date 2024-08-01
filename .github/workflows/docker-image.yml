@@ -33,6 +33,6 @@ jobs:
         docker buildx build --cache-from=type=local,src=/tmp/.buildx-cache --cache-to=type=local,dest=/tmp/.buildx-cache --tag clairox/bordz:latest --tag clairox/bordz:${{ github.sha }} .
 
     - name: Run tests in Docker container
-      run: docker run clairox/bordz npm test
+      run: docker run clairox/bordz:latest npm test
             
             
