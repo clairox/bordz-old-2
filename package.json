@@ -8,8 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "test": "vitest",
-    "codegen": "DOTENV_CONFIG_PATH=.env.local graphql-codegen --require dotenv/config",
-    "test-ct": "playwright test -c playwright-ct.config.ts"
+    "codegen": "DOTENV_CONFIG_PATH=.env.local graphql-codegen --require dotenv/config"
   },
   "dependencies": {
     "@apollo/client": "^3.10.8",
