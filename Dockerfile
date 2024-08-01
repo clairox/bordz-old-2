@@ -46,6 +46,9 @@ ENV PATH=/app/node_modules/.bin:$PATH
 
 USER nextjs
 
+# Debugging: List files to verify they are present
+RUN ls -l /app
+
 EXPOSE 3000
 
 ENV PORT=3000
