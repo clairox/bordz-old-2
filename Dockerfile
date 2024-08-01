@@ -17,7 +17,7 @@ COPY . .
 
 ENV NEXT_TELEMETRY_DISABLED=1
 
-RUN npm run builder
+RUN npm run build
 
 # Production image, copy all the files and run next
 FROM base AS runner
