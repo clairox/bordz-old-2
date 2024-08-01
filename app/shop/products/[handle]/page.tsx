@@ -121,7 +121,7 @@ const ProductInfo: React.FunctionComponent<{
 				<p>{product.description}</p>
 			</div>
 		</section>
-	)
-}*/
+	)*/
+}
 
 export default Page
