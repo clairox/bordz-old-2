@@ -49,4 +49,4 @@ EXPOSE 3000
 ENV PORT=3000
 
 # server.js is created by next build from the standalone output
-CMD ["npm", "test"]
+CMD ["npm", "run", "codegen"]
