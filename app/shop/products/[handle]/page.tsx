@@ -1,5 +1,4 @@
-/*
-import type { Product } from '@/types'
+/*import type { Product } from '@/types'
 import React from 'react'
 import ProductGallery from '@/components/ProductGallery'
 import AddCartItem from '@/components/AddCartItem'
@@ -81,10 +80,11 @@ const getProduct = async (handle: string) => {
 			.value,
 		maxQuantity: product.variants.nodes[0].quantityAvailable,
 	}
-}
+}*/
 
 const Page: React.FunctionComponent<{ params: { handle: string } }> = async ({ params }) => {
-	const product = (await getProduct(params.handle)) as ProductDetails
+	return <></>
+	/*const product = (await getProduct(params.handle)) as ProductDetails
 
 	if (product) {
 		console.log(product)
@@ -94,13 +94,14 @@ const Page: React.FunctionComponent<{ params: { handle: string } }> = async ({ p
 				<ProductInfo product={product} />
 			</div>
 		)
-	}
+	}*/
 }
 
 const ProductInfo: React.FunctionComponent<{
 	product: ProductDetails
 }> = ({ product }) => {
-	return (
+	return <></>
+	/*return (
 		<section>
 			<div>
 				<h1>{product.title}</h1>
@@ -121,7 +122,6 @@ const ProductInfo: React.FunctionComponent<{
 			</div>
 		</section>
 	)
-}
+}*/
 
 export default Page
-*/
