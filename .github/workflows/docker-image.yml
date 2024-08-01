@@ -36,6 +36,6 @@ jobs:
       run: docker run clairox/bordz:latest ls /app/node_modules/.bin
       
     - name: Run tests in Docker container
-      run: docker run clairox/bordz:latest ./node_modules/.bin/vitest
+      run: docker run clairox/bordz:latest /app/node_modules/.bin/vitest
             
             
