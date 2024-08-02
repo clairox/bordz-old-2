@@ -10,12 +10,14 @@ const ProductGallery: React.FunctionComponent<{
 }> = ({ images }) => {
 	if (images.length > 0) {
 		return (
-			<Image
-				src={images[0].src}
-				alt="product image"
-				width={images[0].width}
-				height={images[0].height}
-			></Image>
+			<div>
+				<Image
+					src={images[0].src}
+					alt="product image"
+					width={images[0].width}
+					height={images[0].height}
+				/>
+			</div>
 		)
 	}
 	return <></>

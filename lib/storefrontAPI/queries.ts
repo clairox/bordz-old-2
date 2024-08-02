@@ -66,7 +66,7 @@ const GET_COLLECTION_MAX_PRICE = gql(`
 
 const GET_PRODUCT = gql(`
 	query GetProduct($handle: String!) {
-		product(handle: $handle) {
+		productByHandle(handle: $handle) {
 			description
 			handle
 			id
@@ -74,7 +74,7 @@ const GET_PRODUCT = gql(`
 			tags
 			title
 			vendor
-			images {
+			images(first: 10) {
 				nodes {
 					altText
 					height
@@ -83,7 +83,7 @@ const GET_PRODUCT = gql(`
 					width
 				}
 			}
-			variants {
+			variants(first: 10) {
 				nodes {
 					availableForSale
 					id
