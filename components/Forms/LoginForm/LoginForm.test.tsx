@@ -23,7 +23,7 @@ vi.mock('@/lib/auth', () => ({
 describe('LoginForm', () => {
 	it('renders and shows header', () => {
 		const { getByRole } = render(<LoginForm />)
-		expect(getByRole('heading', { level: 1, name: 'Loginzzz' })).toBeVisible()
+		expect(getByRole('heading', { level: 1, name: 'Login' })).toBeVisible()
 	})
 
 	it('renders and shows email field input', () => {
