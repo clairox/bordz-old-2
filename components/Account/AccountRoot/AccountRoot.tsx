@@ -35,7 +35,6 @@ const AccountRoot: React.FunctionComponent<{
 			content = <DeleteAccount />
 			break
 		default:
-			// TODO: 404
 			break
 	}
 

@@ -75,5 +75,3 @@ export const POST = async (request: NextRequest) => {
 	response.headers.append('Access-Control-Allow-Methods', 'POST')
 	return response
 }
-
-// TODO: !! All api routes should respond with { success: boolean, data: Record<string, any>, error: { code: string, message: string, field?: string  } }

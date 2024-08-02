@@ -19,8 +19,6 @@ const item2: UnsavedCartItem = {
 	quantity: 1,
 }
 
-// TODO: Test that adding item with same id or pid or whatever doesn't work
-
 describe('local cart storage', () => {
 	let testCart: LocalCart
 

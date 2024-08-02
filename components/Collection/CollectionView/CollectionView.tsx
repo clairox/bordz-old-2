@@ -57,7 +57,6 @@ const CollectionView: React.FunctionComponent = () => {
 	} = useCollection(handle, limit, sortKey, filtersWithPriceRange, reverse)
 
 	if (error) {
-		// TODO: Do error stuff here
 		return <></>
 	}
 
@@ -79,7 +78,6 @@ const CollectionView: React.FunctionComponent = () => {
 
 	const subcollectionNamesOrUndefined = subcollectionParam ? undefined : subcollectionNames
 
-	// TODO: Add breadcrumb
 	return (
 		<div key={`${pathname}/${searchParams.toString()}`}>
 			<CollectionHeader
@@ -116,6 +114,3 @@ const CollectionView: React.FunctionComponent = () => {
 }
 
 export default CollectionView
-
-// TODO: Use images from Zumiez collection page for featured images
-// TODO: Make suspense fallbacks for CollectionView and its children

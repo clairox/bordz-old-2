@@ -50,7 +50,6 @@ const SignupForm = () => {
 		}
 	}, [])
 
-	// TODO: ?? Store extra account details (birth date, etc.) in postgres db
 	const onSubmit = async (data: FormData) => {
 		setFormErrorMessage('')
 

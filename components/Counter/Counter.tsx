@@ -1,9 +1,6 @@
 'use client'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useRef } from 'react'
 
-// TODO: don't allow defaultValue and value as props at the same time
-// TODO: default to minValue if given value from props is lower
-// TODO: default to maxValue if given value from props is higher
 const Counter: React.FunctionComponent<{
 	defaultValue?: number
 	value?: number | ''

@@ -38,5 +38,3 @@ const AccountAction: React.FunctionComponent<{
 }
 
 export default AccountAction
-
-// TODO: Change Actions to Buttons
