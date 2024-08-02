@@ -80,6 +80,8 @@ export const PATCH = async (request: NextRequest) => {
 		response.headers.append('Set-Cookie', cookie)
 	}
 
+	response.headers.append('Access-Control-Allow-Origin', '*')
+	response.headers.append('Access-Control-Allow-Methods', 'PATCH,DELETE')
 	return response
 }
 
@@ -114,8 +116,6 @@ const getCustomerQuery = async (customerAccessToken: string) => {
 		`)
 	}
 
-	response.headers.append('Access-Control-Allow-Origin', '*')
-	response.headers.append('Access-Control-Allow-Methods', 'PATCH,DELETE')
 	return await response.json()
 }
 
