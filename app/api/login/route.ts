@@ -71,6 +71,8 @@ export const POST = async (request: NextRequest) => {
 
 	const response = NextResponse.json({ success: true })
 	response.headers.append('Set-Cookie', cookie)
+	response.headers.append('Access-Control-Allow-Origin', '*')
+	response.headers.append('Access-Control-Allow-Methods', 'POST')
 	return response
 }
 

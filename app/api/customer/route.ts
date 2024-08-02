@@ -114,6 +114,8 @@ const getCustomerQuery = async (customerAccessToken: string) => {
 		`)
 	}
 
+	response.headers.append('Access-Control-Allow-Origin', '*')
+	response.headers.append('Access-Control-Allow-Methods', 'PATCH,DELETE')
 	return await response.json()
 }
 
@@ -157,5 +159,8 @@ export const DELETE = async (request: NextRequest) => {
 		`)
 	}
 
-	return NextResponse.json(await response.json())
+	const routeResponse = NextResponse.json(await response.json())
+	response.headers.append('Access-Control-Allow-Origin', '*')
+	response.headers.append('Access-Control-Allow-Methods', 'PATCH,DELETE')
+	return routeResponse
 }

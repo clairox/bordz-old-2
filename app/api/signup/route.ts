@@ -52,5 +52,8 @@ export const POST = async (request: NextRequest) => {
 		)
 	}
 
-	return NextResponse.json({ success: true, data: { email: customer.email } })
+	const response = NextResponse.json({ success: true, data: { email: customer.email } })
+	response.headers.append('Access-Control-Allow-Origin', '*')
+	response.headers.append('Access-Control-Allow-Methods', 'POST')
+	return response
 }
