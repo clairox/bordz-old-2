@@ -33,9 +33,37 @@ jobs:
       - name: Run tests in Docker container
         run: docker buildx build --target tester --load .
 
+      - name: Create GitHub deployment
+        id: create_deployment
+        uses: octokit/request-action@v2.x
+        with:
+          route: POST /repos/${{ github.repository }}/deployments
+          ref: ${{ github.sha }}
+          environment: production
+          auto_merge: false
+          required_contexts: []
+
       - name: Deploy to Vercel
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         run: |
           npm install -g vercel
           vercel --token $VERCEL_TOKEN --prod --yes
+
+      - name: Set deployment status to success
+        if: success()
+        uses: octokit/request-action@v2.x
+        with:
+          route: POST /repos/${{ github.repository }}/deployments/${{ steps.create_deployment.outputs.id }}/statuses
+          state: success
+          environment: production
+          log_url: ${{ github.server_url }}/${{ github.repository }}/actionis/runs/${{ github.run_id }}
+
+      - name: Set deployment status to failure
+        if: failure()
+        uses: octokit/request-action@v2.x
+        with:
+          route: POST /repos/${{ github.repository }}/deployments/${{ steps.create_deployment.outputs.id }}/statuses
+          state: failure
+          environment: production
+          log_url: ${{ github.server_url }}/${{ github.repository }}/actionis/runs/${{ github.run_id }}
