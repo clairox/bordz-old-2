@@ -28,7 +28,7 @@ jobs:
 
       - name: Log deployment outputs
         run: |
-          echo "Deployment Outputs: ${{ toJSON(steps.create_deployment.outputs.data) }}"
+          echo "Deployment Outputs: ${{ steps.create_deployment.outputs.data.id }}"
 
       - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v3.6.1
