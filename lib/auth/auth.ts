@@ -6,7 +6,7 @@ type AuthResponse = {
 
 interface LoginResponse extends AuthResponse {}
 export const login = async (email: string, password: string): Promise<LoginResponse> => {
-	const response = await fetch(`http://localhost:3000/api/login`, {
+	const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/login`, {
 		method: 'POST',
 		body: JSON.stringify({ email, password }),
 		headers: {
@@ -25,7 +25,7 @@ export const signup = async (
 	firstName: string,
 	lastName: string
 ): Promise<SignupResponse> => {
-	const response = await fetch(`http://localhost:3000/api/signup`, {
+	const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/signup`, {
 		method: 'POST',
 		body: JSON.stringify({ firstName, lastName, email, password }),
 		headers: {
@@ -44,7 +44,7 @@ export const signup = async (
 
 type LogoutResponse = Omit<AuthResponse, 'data'>
 export const logout = async (): Promise<LogoutResponse> => {
-	const response = await fetch(`http://localhost:3000/api/logout`, {
+	const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/logout`, {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json',

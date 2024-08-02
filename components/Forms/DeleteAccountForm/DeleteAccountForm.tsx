@@ -43,7 +43,7 @@ const DeleteAccountForm = () => {
 			return setFormErrorMessage('Password is incorrect.')
 		}
 
-		const response = await fetch(`http://localhost:3000/api/customer`, {
+		const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/customer`, {
 			method: 'DELETE',
 			headers: {
 				'Content-Type': 'application/json',

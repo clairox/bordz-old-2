@@ -32,7 +32,7 @@ const PersonalInfoForm = () => {
 
 	const onSubmit = async (data: FormData) => {
 		const { email, firstName, lastName } = data
-		const response = await fetch(`http://localhost:3000/api/customer`, {
+		const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/customer`, {
 			method: 'PATCH',
 			body: JSON.stringify({ email, firstName, lastName }),
 			headers: {

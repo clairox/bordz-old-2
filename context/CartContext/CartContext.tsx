@@ -336,7 +336,7 @@ const useProvideCart = () => {
 }
 
 const fetchProductById = async (pid: number): Promise<Product | undefined> => {
-	const res = await fetch(`http://localhost:3000/api/products/${pid}`)
+	const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products/${pid}`)
 	return await res.json()
 }
 
