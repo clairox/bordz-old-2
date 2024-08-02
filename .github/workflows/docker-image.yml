@@ -41,7 +41,7 @@ jobs:
           ref: ${{ github.sha }}
           environment: production
           auto_merge: false
-          required_contexts: []
+          required_contexts: '[]'
 
       - name: Deploy to Vercel
         env:
