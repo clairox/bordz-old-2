@@ -1,4 +1,4 @@
-import { gql } from '@/__generated__'
+import { gql } from '@/__generated__/storefront'
 
 const GET_COLLECTION = gql(`
 	query GetCollection(
@@ -57,6 +57,45 @@ const GET_COLLECTION_MAX_PRICE = gql(`
 						maxVariantPrice {
 							amount
 						}
+					}
+				}
+			}
+		}
+	}
+`)
+
+const GET_PRODUCT = gql(`
+	query GetProduct($handle: String!) {
+		product(handle: $handle) {
+			description
+			handle
+			id
+			productType
+			tags
+			title
+			vendor
+			images {
+				nodes {
+					altText
+					height
+					id
+					src
+					width
+				}
+			}
+			variants {
+				nodes {
+					availableForSale
+					id
+					quantityAvailable
+					title
+					compareAtPriceV2 {
+						amount
+						currencyCode
+					}
+					priceV2 {
+						amount
+						currencyCode
 					}
 				}
 			}
@@ -155,4 +194,12 @@ const GET_CUSTOMER = gql(`
 	}
 `)
 
-export { GET_COLLECTION, GET_COLLECTION_MAX_PRICE, GET_CUSTOMER }
+const GET_CUSTOMER_ID_ONLY = gql(`
+	query Customer($customerAccessToken: String!) {
+		customer(customerAccessToken: $customerAccessToken) {
+			id
+		}
+	}
+`)
+
+export { GET_COLLECTION, GET_COLLECTION_MAX_PRICE, GET_PRODUCT, GET_CUSTOMER, GET_CUSTOMER_ID_ONLY }

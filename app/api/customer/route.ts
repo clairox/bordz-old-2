@@ -1,5 +1,7 @@
+import { DELETE_CUSTOMER } from '@/lib/adminAPI/mutations'
 import { getClient } from '@/lib/apollo/apolloClient'
-import { UPDATE_CUSTOMER } from '@/lib/mutations'
+import { UPDATE_CUSTOMER } from '@/lib/storefrontAPI/mutations'
+import { GET_CUSTOMER_ID_ONLY } from '@/lib/storefrontAPI/queries'
 import { serialize } from 'cookie'
 import { NextRequest, NextResponse } from 'next/server'
 
@@ -85,8 +87,6 @@ export const PATCH = async (request: NextRequest) => {
 	return response
 }
 
-const gql = String.raw
-
 const getCustomerQuery = async (customerAccessToken: string) => {
 	const response = await fetch(process.env.NEXT_PUBLIC_SHOPIFY_BASE_URL!, {
 		method: 'POST',
@@ -95,13 +95,7 @@ const getCustomerQuery = async (customerAccessToken: string) => {
 			'X-Shopify-Storefront-Access-Token': process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN!,
 		},
 		body: JSON.stringify({
-			query: gql`
-				query Customer($customerAccessToken: String!) {
-					customer(customerAccessToken: $customerAccessToken) {
-						id
-					}
-				}
-			`,
+			query: GET_CUSTOMER_ID_ONLY,
 			variables: { customerAccessToken },
 		}),
 	})
@@ -134,17 +128,7 @@ export const DELETE = async (request: NextRequest) => {
 			'X-Shopify-Access-Token': process.env.SHOPIFY_ADMIN_API_ACCESS_TOKEN!,
 		},
 		body: JSON.stringify({
-			query: gql`
-				mutation CustomerDelete($id: ID!) {
-					customerDelete(input: { id: $id }) {
-						deletedCustomerId
-						userErrors {
-							field
-							message
-						}
-					}
-				}
-			`,
+			query: DELETE_CUSTOMER,
 			variables: { id: data.customer.id },
 		}),
 	})

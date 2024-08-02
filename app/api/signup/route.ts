@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getClient } from '@/lib/apollo/apolloClient'
-import { SIGNUP } from '@/lib/mutations'
+import { SIGNUP } from '@/lib/storefrontAPI/mutations'
 
 export const POST = async (request: NextRequest) => {
 	const { firstName, lastName, email, password } = await request.json()

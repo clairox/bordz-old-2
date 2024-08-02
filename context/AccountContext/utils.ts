@@ -1,4 +1,4 @@
-import { GetCustomerQuery } from '@/__generated__/graphql'
+import { GetCustomerQuery } from '@/__generated__/storefront/graphql'
 
 type MailingAddress = {
 	address1: string

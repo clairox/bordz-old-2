@@ -1,4 +1,4 @@
-import { gql } from '@/__generated__'
+import { gql } from '@/__generated__/storefront'
 
 const LOGIN = gql(`
 	mutation Login(

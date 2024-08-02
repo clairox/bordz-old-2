@@ -1,5 +1,5 @@
-import { GetCollectionQuery, ProductFilter } from '@/__generated__/graphql'
-import { GET_COLLECTION_MAX_PRICE } from '@/lib/queries'
+import { GetCollectionQuery, ProductFilter } from '@/__generated__/storefront/graphql'
+import { GET_COLLECTION_MAX_PRICE } from '@/lib/storefrontAPI/queries'
 import { useSuspenseQuery } from '@apollo/client/react/hooks'
 
 const useCollectionMaxPrice = (handle: string, limit: number, filters: ProductFilter[]) => {

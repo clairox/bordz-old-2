@@ -1,6 +1,6 @@
 import AccountRoot from '@/components/Account/AccountRoot'
 import { getClient } from '@/lib/apollo/apolloClient'
-import { GET_CUSTOMER } from '@/lib/queries'
+import { GET_CUSTOMER } from '@/lib/storefrontAPI/queries'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import React from 'react'

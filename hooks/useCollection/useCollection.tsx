@@ -2,8 +2,8 @@ import {
 	GetCollectionQuery,
 	ProductCollectionSortKeys,
 	ProductFilter,
-} from '@/__generated__/graphql'
-import { GET_COLLECTION } from '@/lib/queries'
+} from '@/__generated__/storefront/graphql'
+import { GET_COLLECTION } from '@/lib/storefrontAPI/queries'
 import { ProductListItem } from '@/types'
 import { useSuspenseQuery } from '@apollo/client/react/hooks'
 

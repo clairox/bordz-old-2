@@ -1,4 +1,4 @@
-import { ProductCollectionSortKeys, ProductFilter } from '@/__generated__/graphql'
+import { ProductCollectionSortKeys, ProductFilter } from '@/__generated__/storefront/graphql'
 import { ReadonlyURLSearchParams } from 'next/navigation'
 import { isNumeric } from './number'
 import { ProductFilterMap } from '@/types'

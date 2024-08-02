@@ -1,0 +1,11 @@
+schema:
+  - ${SHOPIFY_ADMIN_BASE_URL}:
+      headers:
+        X-Shopify-Access-Token: ${SHOPIFY_ADMIN_API_ACCESS_TOKEN}
+documents: './lib/adminAPI/**/*.{ts,tsx}'
+generates:
+  './__generated__/admin/':
+    preset: 'client'
+    plugins: []
+    presetConfig:
+      gqlTagName: 'gql'

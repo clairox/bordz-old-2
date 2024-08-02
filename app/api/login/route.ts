@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getClient } from '@/lib/apollo/apolloClient'
-import { LOGIN } from '@/lib/mutations'
+import { LOGIN } from '@/lib/storefrontAPI/mutations'
 import { serialize } from 'cookie'
 
 export const POST = async (request: NextRequest) => {

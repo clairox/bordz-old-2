@@ -1,4 +1,4 @@
-import { GetCollectionQuery, ProductCollectionSortKeys } from '@/__generated__/graphql'
+import { GetCollectionQuery, ProductCollectionSortKeys } from '@/__generated__/storefront/graphql'
 import { renderHook } from '@testing-library/react'
 import { useCollection } from './useCollection'
 

@@ -1,7 +1,7 @@
 import React from 'react'
 import CollectionView from '@/components/Collection/CollectionView'
 import { PreloadQuery } from '@/lib/apollo/apolloClient'
-import { GET_COLLECTION } from '@/lib/queries'
+import { GET_COLLECTION } from '@/lib/storefrontAPI/queries'
 import { getFiltersServer, getSortKey, MAX_PRODUCTS_PER_LOAD } from '@/lib/utils/collection'
 import _ from 'lodash'
 

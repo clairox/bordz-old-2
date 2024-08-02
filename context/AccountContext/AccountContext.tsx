@@ -1,5 +1,5 @@
 'use client'
-import { GetCustomerQuery } from '@/__generated__/graphql'
+import { GetCustomerQuery } from '@/__generated__/storefront/graphql'
 import React, { createContext, useContext } from 'react'
 import { Customer, toSafeCustomer } from './utils'
 

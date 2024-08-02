@@ -2,9 +2,9 @@ schema:
   - ${NEXT_PUBLIC_SHOPIFY_BASE_URL}:
       headers:
         X-Shopify-Storefront-Access-Token: ${NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN}
-documents: '{app,components,context,lib,test}/**/*.{ts,tsx}'
+documents: './lib/storefrontAPI/**/*.{ts,tsx}'
 generates:
-  './__generated__/':
+  './__generated__/storefront/':
     preset: 'client'
     plugins: []
     presetConfig:

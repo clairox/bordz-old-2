@@ -8,7 +8,7 @@ import ChangePassword from '../Sections/ChangePassword'
 import PersonalInfo from '../Sections/PersonalInfo'
 import DeleteAccount from '../Sections/DeleteAccount'
 import { AccountProvider } from '@/context/AccountContext/AccountContext'
-import { GetCustomerQuery } from '@/__generated__/graphql'
+import { GetCustomerQuery } from '@/__generated__/storefront/graphql'
 
 const AccountRoot: React.FunctionComponent<{
 	section: string

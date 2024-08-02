@@ -1,4 +1,4 @@
-import { GetCollectionMaxPriceQuery } from '@/__generated__/graphql'
+import { GetCollectionMaxPriceQuery } from '@/__generated__/storefront/graphql'
 import { renderHook } from '@testing-library/react'
 import { useCollectionMaxPrice } from './useCollectionMaxPrice'
 
