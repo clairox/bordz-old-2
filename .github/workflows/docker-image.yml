@@ -45,6 +45,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Log deployment outputs
+        run: |
+          echo "Deployment Outputs: ${{ toJSON(steps.create_deployment.outputs.data) }}"
+
       - name: Deploy to Vercel
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
