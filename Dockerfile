@@ -24,7 +24,7 @@ FROM base AS tester
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-RUN npm run test
+RUN CI=true npm run test
 
 # Production image, copy all the files and run next
 FROM base AS runner
