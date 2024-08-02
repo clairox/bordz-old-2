@@ -2,37 +2,40 @@ name: Docker Image CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ['main']
   pull_request:
-    branches: [ "main" ]
+    branches: ['main']
 
 jobs:
-
   build:
-
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-    
-    - name: Setup Docker Buildx
-      uses: docker/setup-buildx-action@v3.6.1
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Cache Docker layers
-      uses: actions/cache@v4.0.2
-      with:
-        path: /tmp/.buildx-cache
-        key: ${{ runner.os }}-buildx-${{ github.sha }}
-        restore-keys: |
-          ${{ runner.os }}-buildx-
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3.6.1
 
-    - name: Build Docker image
-      run: |
-        docker buildx create --use
-        docker buildx build --cache-from=type=local,src=/tmp/.buildx-cache --cache-to=type=local,dest=/tmp/.buildx-cache --tag clairox/bordz:latest --tag clairox/bordz:${{ github.sha }} --load .
-      
-    - name: Run tests in Docker container
-      run: docker buildx build --target tester --load .
-            
-            
+      - name: Cache Docker layers
+        uses: actions/cache@v4.0.2
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
+
+      - name: Build Docker image
+        run: |
+          docker buildx create --use
+          docker buildx build --cache-from=type=local,src=/tmp/.buildx-cache --cache-to=type=local,dest=/tmp/.buildx-cache --tag clairox/bordz:latest --tag clairox/bordz:${{ github.sha }} --load .
+
+      - name: Run tests in Docker container
+        run: docker buildx build --target tester --load .
+
+      - name: Deploy to Vercel
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          npm install -g vercel
+          vercel --prod --token $VERCEL_TOKEN
