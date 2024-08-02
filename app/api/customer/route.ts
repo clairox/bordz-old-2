@@ -127,7 +127,7 @@ export const DELETE = async (request: NextRequest) => {
 
 	const { data } = await getCustomerQuery(customerAccessToken.value)
 
-	const response = await fetch(process.env.SHOPIFY_ADMIN_BASE_URL!, {
+	const fetchResponse = await fetch(process.env.SHOPIFY_ADMIN_BASE_URL!, {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json',
@@ -149,18 +149,18 @@ export const DELETE = async (request: NextRequest) => {
 		}),
 	})
 
-	if (!response.ok) {
-		const text = await response.text()
+	if (!fetchResponse.ok) {
+		const text = await fetchResponse.text()
 
 		throw new Error(`
 			Failed to fetch data
-			Status: ${response.status}
+			Status: ${fetchResponse.status}
 			Response: ${text}
 		`)
 	}
 
-	const routeResponse = NextResponse.json(await response.json())
+	const response = NextResponse.json(await fetchResponse.json())
 	response.headers.append('Access-Control-Allow-Origin', '*')
 	response.headers.append('Access-Control-Allow-Methods', 'PATCH,DELETE')
-	return routeResponse
+	return response
 }
