@@ -63,7 +63,7 @@ const cartReducer = (state: CartState, action: CartAction) => {
 	switch (action.type) {
 		case 'SET_CART':
 			action.payload.items.forEach(item => {
-				preload(`http://localhost:3000/api/products/${item.pid}`, fetcher)
+				preload(`${process.env.NEXT_PUBLIC_API_URL}/products/${item.pid}`, fetcher)
 			})
 
 			return {
@@ -77,7 +77,7 @@ const cartReducer = (state: CartState, action: CartAction) => {
 			}
 		case 'ADD_ITEM':
 			const newItem = action.payload
-			preload(`http://localhost:3000/api/products/${newItem.pid}`, fetcher)
+			preload(`${process.env.NEXT_PUBLIC_API_URL}/products/${newItem.pid}`, fetcher)
 
 			return {
 				...state,
@@ -336,7 +336,7 @@ const useProvideCart = () => {
 }
 
 const fetchProductById = async (pid: number): Promise<Product | undefined> => {
-	const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products/${pid}`)
+	const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products/${pid}`)
 	return await res.json()
 }
 

@@ -46,7 +46,7 @@ const CartItem: React.FunctionComponent<{
 	deleteItem: (id: number) => void
 	updateItemQuantity: (id: number, quantity: number) => Promise<boolean>
 }> = ({ cartItem, deleteItem, updateItemQuantity }) => {
-	const { data: product } = useSWR(`http://localhost:3000/api/products/${cartItem.pid}`, fetcher)
+	const { data: product } = useSWR(`${process.env.NEXT_PUBLIC_API_URL}/products/${cartItem.pid}`, fetcher)
 	const [quantity, setQuantity] = useState<number | ''>(cartItem.quantity)
 
 	useEffect(() => {
@@ -105,7 +105,7 @@ const CartItem: React.FunctionComponent<{
 	}
 
 	const handleDelete = () => {
-		mutate(`http://localhost:3000/api/products/${cartItem.pid}`, undefined, false)
+		mutate(`${process.env.NEXT_PUBLIC_API_URL}/products/${cartItem.pid}`, undefined, false)
 		deleteItem(cartItem.id)
 	}
 

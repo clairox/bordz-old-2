@@ -34,7 +34,7 @@ const ChangePasswordForm = () => {
 		setFormSuccessMessage('')
 		setFormErrorMessage('')
 
-		const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/customer`, {
+		const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/customer`, {
 			method: 'PATCH',
 			body: JSON.stringify({ password: data.password }),
 			headers: {

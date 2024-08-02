@@ -5,11 +5,11 @@ import type { CartItem } from '@/types'
 
 beforeAll(async () => {
 	global.fetch = vi.fn((path: string) => {
-		if (path === 'http://localhost:3000/api/products/1') {
+		if (path === `${process.env.NEXT_PUBLIC_API_URL}/products/1`) {
 			return Promise.resolve({
 				json: () => Promise.resolve(product1),
 			})
-		} else if (path === 'http://localhost:3000/api/products/2') {
+		} else if (path === `${process.env.NEXT_PUBLIC_API_URL}/products/2`) {
 			return Promise.resolve({
 				json: () => Promise.resolve(product2),
 			})
