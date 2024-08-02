@@ -42,6 +42,8 @@ jobs:
           environment: production
           auto_merge: false
           required_contexts: '[]'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Deploy to Vercel
         env:
@@ -58,6 +60,8 @@ jobs:
           state: success
           environment: production
           log_url: ${{ github.server_url }}/${{ github.repository }}/actionis/runs/${{ github.run_id }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set deployment status to failure
         if: failure()
@@ -67,3 +71,5 @@ jobs:
           state: failure
           environment: production
           log_url: ${{ github.server_url }}/${{ github.repository }}/actionis/runs/${{ github.run_id }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
