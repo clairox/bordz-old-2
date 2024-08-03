@@ -9,7 +9,7 @@ export const middleware = (request: NextRequest) => {
 		const customerAccessToken = request.cookies.get('customerAccessToken')
 		if (!customerAccessToken) {
 			return NextResponse.json(
-				{ success: false, data: {}, error: { code: '', message: '' } },
+				{ success: false, error: { code: 'UNAUTHORIZED', message: 'Missing access token' } },
 				{ status: 401 }
 			)
 		}
