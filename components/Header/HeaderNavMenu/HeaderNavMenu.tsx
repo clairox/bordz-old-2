@@ -1,6 +1,6 @@
 'use client'
 import React, { useEffect, useState } from 'react'
-import { NavigationMenu, NavigationMenuList } from '@/components/ui/NavigationMenu'
+import { NavigationMenu, NavigationMenuList } from '@/components/UI/NavigationMenu'
 import NavMenuItem, { Subcategories } from '@/components/Header/HeaderNavMenuItem'
 import navMenuData from './navMenuData.json'
 

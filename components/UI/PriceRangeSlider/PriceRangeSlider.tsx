@@ -1,5 +1,5 @@
 import React from 'react'
-import RangeSlider from '../RangeSlider'
+import RangeSlider from '@/components/UI/RangeSlider'
 import { roundUp } from '@/lib/utils/number'
 
 const PriceRangeSlider: React.FunctionComponent<{

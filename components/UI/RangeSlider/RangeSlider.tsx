@@ -1,5 +1,5 @@
 import React from 'react'
-import { Slider } from '../ui/Slider'
+import { Slider } from '@/components/UI/Slider'
 
 const RangeSlider: React.FunctionComponent<{
 	setValue: (newValue: number[]) => void

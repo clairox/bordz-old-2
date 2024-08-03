@@ -1,6 +1,6 @@
 'use client'
 import React, { useState } from 'react'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/Popover'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/UI/Popover'
 import HeaderButton from '@/components/Header/HeaderAction'
 import { BagSimple } from '@phosphor-icons/react/dist/ssr'
 

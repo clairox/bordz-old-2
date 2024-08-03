@@ -5,7 +5,7 @@ import { X } from '@phosphor-icons/react'
 import Image from 'next/image'
 import React, { useEffect, useState } from 'react'
 import useSWR, { mutate } from 'swr'
-import Counter from '@/components/Counter'
+import Counter from '@/components/UI/Counter'
 
 const CartBase: React.FunctionComponent<{
 	children: (items: CartItem[], subtotal: number) => React.ReactNode
@@ -46,7 +46,10 @@ const CartItem: React.FunctionComponent<{
 	deleteItem: (id: number) => void
 	updateItemQuantity: (id: number, quantity: number) => Promise<boolean>
 }> = ({ cartItem, deleteItem, updateItemQuantity }) => {
-	const { data: product } = useSWR(`${process.env.NEXT_PUBLIC_API_URL}/products/${cartItem.pid}`, fetcher)
+	const { data: product } = useSWR(
+		`${process.env.NEXT_PUBLIC_API_URL}/products/${cartItem.pid}`,
+		fetcher
+	)
 	const [quantity, setQuantity] = useState<number | ''>(cartItem.quantity)
 
 	useEffect(() => {

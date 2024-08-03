@@ -1,5 +1,5 @@
 'use client'
-import { Button } from '@/components/ui/Button'
+import { Button } from '@/components/UI/Button'
 import { useAccountContext } from '@/context/AccountContext/AccountContext'
 import { Gear } from '@phosphor-icons/react/dist/ssr'
 import Link from 'next/link'

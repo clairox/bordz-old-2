@@ -1,6 +1,6 @@
 'use client'
 import React, { useState } from 'react'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/Popover'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/UI/Popover'
 import MiniLoginForm from '@/components/Forms/MiniLoginForm'
 import HeaderAction from '@/components/Header/HeaderAction'
 import { User } from '@phosphor-icons/react'

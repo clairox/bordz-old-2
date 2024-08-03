@@ -4,20 +4,20 @@ import Link from 'next/link'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/Form'
-import { Input } from '@/components/ui/Input'
-import { Button } from '@/components/ui/Button'
+import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/UI/Form'
+import { Input } from '@/components/UI/Input'
+import { Button } from '@/components/UI/Button'
 import {
 	Select,
 	SelectContent,
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
-} from '@/components/ui/Select'
-import PasswordInput from '@/components/PasswordInput'
+} from '@/components/UI/Select'
+import PasswordInput from '@/components/UI/PasswordInput'
 import SignupFormSchema from './schema'
 import { months, days, years } from './schema/values'
-import FormErrorBox from '@/components/FormResponseBox/FormErrorBox'
+import FormErrorBox from '@/components/UI/FormResponseBox/FormErrorBox'
 import { signup } from '@/lib/auth'
 
 type FormData = z.infer<typeof SignupFormSchema>

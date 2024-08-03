@@ -7,7 +7,7 @@ import {
 	NavigationMenuLink,
 	NavigationMenuTrigger,
 	navigationMenuTriggerStyle,
-} from '@/components/ui/NavigationMenu'
+} from '@/components/UI/NavigationMenu'
 
 type NavMenuLink = {
 	title: string

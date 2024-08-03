@@ -5,7 +5,7 @@ import {
 	AccordionContent,
 	AccordionItem,
 	AccordionTrigger,
-} from '@/components/ui/Accordion'
+} from '@/components/UI/Accordion'
 
 const CollectionSidebarMenu: React.FunctionComponent<{
 	openRefinements: string[]

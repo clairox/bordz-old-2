@@ -1,6 +1,6 @@
 'use client'
 import React, { useState } from 'react'
-import Counter from '@/components/Counter'
+import Counter from '@/components/UI/Counter'
 import Button from './Button'
 
 const AddCartItem: React.FunctionComponent<{ productId: number; maxQuantity: number }> = ({

@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Input } from '@/components/ui/Input'
+import { Input } from '@/components/UI/Input'
 import { Eye, EyeSlash } from '@phosphor-icons/react'
 
 const PasswordInput = React.forwardRef<

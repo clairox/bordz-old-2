@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 import { ProductFilterMap } from '@/types'
 import _ from 'lodash'
 import { CollectionSidebarMenu, CollectionSidebarMenuItem } from '../CollectionSidebarMenu'
-import PriceRangeSlider from '@/components/PriceRangeSlider'
+import PriceRangeSlider from '@/components/UI/PriceRangeSlider'
 import CollectionSidebarHeader from '../CollectionSidebarHeader/CollectionSidebarHeader'
 import { roundUp } from '@/lib/utils/number'
 import {
