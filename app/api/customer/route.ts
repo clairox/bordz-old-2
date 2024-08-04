@@ -95,7 +95,7 @@ const getCustomerQuery = async (customerAccessToken: string) => {
 			'X-Shopify-Storefront-Access-Token': process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN!,
 		},
 		body: JSON.stringify({
-			query: GET_CUSTOMER_ID_ONLY,
+			query: print(GET_CUSTOMER_ID_ONLY),
 			variables: { customerAccessToken },
 		}),
 	})
@@ -128,14 +128,13 @@ export const DELETE = async (request: NextRequest) => {
 			'X-Shopify-Access-Token': process.env.SHOPIFY_ADMIN_API_ACCESS_TOKEN!,
 		},
 		body: JSON.stringify({
-			query: DELETE_CUSTOMER,
+			query: print(DELETE_CUSTOMER),
 			variables: { id: data.customer.id },
 		}),
 	})
 
 	if (!fetchResponse.ok) {
 		const text = await fetchResponse.text()
-
 		throw new Error(`
 			Failed to fetch data
 			Status: ${fetchResponse.status}
