@@ -53,8 +53,10 @@ const SignupForm = () => {
 	const onSubmit = async (data: FormData) => {
 		setFormErrorMessage('')
 
-		const { firstName, lastName, email, password } = data
-		const { success, error } = await signup(email, password, firstName, lastName)
+		const { firstName, lastName, month, day, year, email, password } = data
+		const birthDate = new Date(`${month} ${day}, ${year}`)
+
+		const { success, error } = await signup(email, password, firstName, lastName, birthDate)
 
 		if (success === false) {
 			return setFormErrorMessage(error?.message || 'Something went wrong, please try again.')

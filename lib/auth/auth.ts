@@ -1,21 +1,30 @@
+import { fetcher } from '../fetcher'
+import { FetcherError } from '../fetcher/fetcher'
+
 type AuthResponse = {
 	success: boolean
 	data?: any
-	error?: { code: string; message: string; field?: string[] }
+	error?: { message: string; code: string; field?: string[] }
 }
 
 interface LoginResponse extends AuthResponse {}
 export const login = async (email: string, password: string): Promise<LoginResponse> => {
-	const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/login`, {
-		method: 'POST',
-		body: JSON.stringify({ email, password }),
-		headers: {
-			'Content-Type': 'application/json',
-		},
-		cache: 'no-cache',
-	})
-
-	return await response.json()
+	try {
+		const config = {
+			method: 'POST',
+			body: JSON.stringify({ email, password }),
+			cache: 'no-cache' as RequestCache,
+		}
+		const response = await fetcher('/login', config)
+		return { success: true, data: response.data }
+	} catch (error) {
+		if (error instanceof FetcherError) {
+			const { message, code } = error.response.data
+			return { success: false, error: { message, code } }
+		} else {
+			throw new Error('Something went wrong, please try again.')
+		}
+	}
 }
 
 interface SignupResponse extends AuthResponse {}
@@ -23,23 +32,28 @@ export const signup = async (
 	email: string,
 	password: string,
 	firstName: string,
-	lastName: string
+	lastName: string,
+	birthDate: Date
 ): Promise<SignupResponse> => {
-	const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/signup`, {
-		method: 'POST',
-		body: JSON.stringify({ firstName, lastName, email, password }),
-		headers: {
-			'Content-Type': 'application/json',
-		},
-		cache: 'no-cache',
-	})
+	try {
+		const config = {
+			method: 'POST',
+			body: JSON.stringify({ firstName, lastName, birthDate, email, password }),
+			cache: 'no-cache' as RequestCache,
+		}
+		const response = await fetcher('/signup', config)
+		const { cartId } = response.data
+		localStorage.setItem('cartId', cartId)
 
-	if (response.ok) {
-		const { data: customer } = await response.json()
-		return await login(customer.email, password)
+		return await login(email, password)
+	} catch (error) {
+		if (error instanceof FetcherError) {
+			const { message, code } = error.response.data
+			return { success: false, error: { message, code } }
+		} else {
+			throw new Error('Something went wrong, please try again.')
+		}
 	}
-
-	return await response.json()
 }
 
 type LogoutResponse = Omit<AuthResponse, 'data'>

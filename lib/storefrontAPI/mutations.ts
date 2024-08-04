@@ -36,6 +36,7 @@ const SIGNUP = gql(`
 			input: { firstName: $firstName, lastName: $lastName, email: $email, password: $password }
 		) {
 			customer {
+				id
 				email
 			}
 			customerUserErrors {
@@ -86,4 +87,19 @@ const UPDATE_CUSTOMER = gql(`
 	}			
 `)
 
-export { LOGIN, SIGNUP, UPDATE_CUSTOMER }
+const CREATE_CART = gql(`
+	mutation CartCreate {
+		cartCreate {
+			cart {
+				id
+			}
+			userErrors {
+				code
+				field
+				message
+			}
+		}
+	}
+`)
+
+export { LOGIN, SIGNUP, UPDATE_CUSTOMER, CREATE_CART }
