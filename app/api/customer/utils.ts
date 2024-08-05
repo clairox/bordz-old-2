@@ -1,9 +1,5 @@
 import { DeleteCustomerMutation } from '@/__generated__/admin/graphql'
-import {
-	CustomerErrorCode,
-	GetCustomerIdOnlyQuery,
-	UpdateCustomerMutation,
-} from '@/__generated__/storefront/graphql'
+import { CustomerErrorCode, UpdateCustomerMutation } from '@/__generated__/storefront/graphql'
 import { DELETE_CUSTOMER } from '@/lib/adminAPI/mutations'
 import { gqlFetcher } from '@/lib/fetcher'
 import { UPDATE_CUSTOMER } from '@/lib/storefrontAPI/mutations'
