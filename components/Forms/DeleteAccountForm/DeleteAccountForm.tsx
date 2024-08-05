@@ -11,6 +11,8 @@ import DeleteAccountFormSchema from './schema'
 import { usePathname, useRouter } from 'next/navigation'
 import { login, logout } from '@/lib/auth'
 import { useAccountContext } from '@/context/AccountContext/AccountContext'
+import { fetcher } from '@/lib/fetcher'
+import { FetcherError } from '@/lib/fetcher/fetcher'
 
 type FormData = z.infer<typeof DeleteAccountFormSchema>
 
@@ -43,27 +45,27 @@ const DeleteAccountForm = () => {
 			return setFormErrorMessage('Password is incorrect.')
 		}
 
-		const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/customer`, {
-			method: 'DELETE',
-			headers: {
-				'Content-Type': 'application/json',
-			},
-			cache: 'no-cache',
-		})
+		try {
+			await fetcher('/customer', {
+				method: 'DELETE',
+				cache: 'no-cache',
+			})
 
-		if (response.status === 401) {
-			const url = '/login?redirect=' + encodeURIComponent(pathname) + '&reason=session_expired'
-			return router.push(url)
-		}
-
-		if (response.ok) {
 			const { success } = await logout()
 			if (success) {
 				window.location.href = '/'
 			}
-		} else {
-			const res = await response.json()
-			setFormErrorMessage(res.error?.message)
+		} catch (error) {
+			if (error instanceof FetcherError) {
+				if (error.response.status === 401) {
+					const url = '/login?redirect=' + encodeURIComponent(pathname) + '&reason=session_expired'
+					return router.push(url)
+				} else {
+					setFormErrorMessage(error.response.data.message)
+				}
+			} else {
+				throw new Error('Something went wrong')
+			}
 		}
 	}
 

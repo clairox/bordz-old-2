@@ -11,6 +11,8 @@ import FormErrorBox from '@/components/UI/FormResponseBox/FormErrorBox'
 import ChangePasswordFormSchema from './schema'
 import { useRouter } from 'next/navigation'
 import { usePathname } from 'next/navigation'
+import { fetcher } from '@/lib/fetcher'
+import { FetcherError } from '@/lib/fetcher/fetcher'
 
 type FormData = z.infer<typeof ChangePasswordFormSchema>
 
@@ -34,29 +36,29 @@ const ChangePasswordForm = () => {
 		setFormSuccessMessage('')
 		setFormErrorMessage('')
 
-		const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/customer`, {
-			method: 'PATCH',
-			body: JSON.stringify({ password: data.password }),
-			headers: {
-				'Content-Type': 'application/json',
-			},
-			cache: 'no-cache',
-		})
+		try {
+			await fetcher('/customer', {
+				method: 'PATCH',
+				body: JSON.stringify({ password: data.password }),
+				cache: 'no-cache',
+			})
 
-		if (response.status === 401) {
-			const url = '/login?redirect=' + encodeURIComponent(pathname) + '&reason=session_expired'
-			return router.push(url)
-		}
-
-		if (response.ok) {
-			setFormSuccessMessage('Password changed successfully!')
+			setFormSuccessMessage('Password updated successfully!')
 
 			const activeElement = document.activeElement as HTMLElement
 			activeElement.blur()
 			form.reset()
-		} else {
-			const res = await response.json()
-			setFormErrorMessage(res.error?.message)
+		} catch (error) {
+			if (error instanceof FetcherError) {
+				if (error.response.status === 401) {
+					const url = '/login?redirect=' + encodeURIComponent(pathname) + '&reason=session_expired'
+					return router.push(url)
+				} else {
+					setFormErrorMessage(error.response.data.message)
+				}
+			} else {
+				throw new Error('Something went wrong.')
+			}
 		}
 	}
 

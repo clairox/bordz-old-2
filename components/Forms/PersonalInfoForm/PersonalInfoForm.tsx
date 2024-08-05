@@ -10,10 +10,15 @@ import FormErrorBox from '@/components/UI/FormResponseBox/FormErrorBox'
 import { Input } from '@/components/UI/Input'
 import { Button } from '@/components/UI/Button'
 import { useAccountContext } from '@/context/AccountContext/AccountContext'
+import { fetcher, FetcherError } from '@/lib/fetcher/fetcher'
+import { useRouter, usePathname } from 'next/navigation'
 
 type FormData = z.infer<typeof PersonalInfoFormSchema>
 
 const PersonalInfoForm = () => {
+	const router = useRouter()
+	const pathname = usePathname()
+
 	const { customer } = useAccountContext()
 	const { email, firstName, lastName } = customer
 
@@ -32,23 +37,29 @@ const PersonalInfoForm = () => {
 
 	const onSubmit = async (data: FormData) => {
 		const { email, firstName, lastName } = data
-		const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/customer`, {
-			method: 'PATCH',
-			body: JSON.stringify({ email, firstName, lastName }),
-			headers: {
-				'Content-Type': 'application/json',
-			},
-			cache: 'no-cache',
-		})
 
-		if (response.ok) {
+		try {
+			await fetcher('/customer', {
+				method: 'PATCH',
+				body: JSON.stringify({ email, firstName, lastName }),
+				cache: 'no-cache',
+			})
+
 			setFormSuccessMessage('Personal info updated successfully!')
 
 			const activeElement = document.activeElement as HTMLElement
 			activeElement.blur()
-		} else {
-			const res = await response.json()
-			setFormErrorMessage(res.error?.message)
+		} catch (error) {
+			if (error instanceof FetcherError) {
+				if (error.response.status === 401) {
+					const url = '/login?redirect=' + encodeURIComponent(pathname) + '&reason=session_expired'
+					return router.push(url)
+				} else {
+					setFormErrorMessage(error.response.data.message)
+				}
+			} else {
+				throw new Error('Something went wrong')
+			}
 		}
 	}
 
