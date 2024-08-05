@@ -17,7 +17,7 @@ COPY . .
 
 ENV NEXT_TELEMETRY_DISABLED=1
 
-RUN npm run build
+RUN npx prisma generate && npm run build
 
 # Test stage
 FROM base AS tester
