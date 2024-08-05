@@ -8,6 +8,7 @@
 		"start": "next start",
 		"lint": "next lint",
 		"test": "vitest",
+		"postinstall": "prisma generate",
 		"codegen:storefront": "DOTENV_CONFIG_PATH=.env.local graphql-codegen --config codegen-storefront.yml --require dotenv/config",
 		"codegen:admin": "DOTENV_CONFIG_PATH=.env.local graphql-codegen --config codegen-admin.yml --require dotenv/config",
 		"codegen": "npm run codegen:storefront && npm run codegen:admin"
