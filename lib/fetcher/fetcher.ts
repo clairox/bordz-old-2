@@ -29,11 +29,11 @@ export class FetcherResponse {
 	}
 }
 
-const fetcher = async (path: string, config: RequestInit) => {
+const fetcher = async (path: string, config?: RequestInit) => {
 	const url = process.env.NEXT_PUBLIC_API_URL + path
 	const headers = {
 		'Content-Type': 'application/json',
-		...config.headers,
+		...config?.headers,
 	}
 
 	const response = await fetch(url, {
