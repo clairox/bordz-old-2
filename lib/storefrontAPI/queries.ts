@@ -195,7 +195,7 @@ const GET_CUSTOMER = gql(`
 `)
 
 const GET_CUSTOMER_ID_ONLY = gql(`
-	query Customer($customerAccessToken: String!) {
+	query GetCustomerIdOnly($customerAccessToken: String!) {
 		customer(customerAccessToken: $customerAccessToken) {
 			id
 		}

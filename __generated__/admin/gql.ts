@@ -13,7 +13,7 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
  * Therefore it is highly recommended to use the babel or swc plugin for production.
  */
 const documents = {
-    "\n\tmutation CustomerDelete($id: ID!) {\n\t\tcustomerDelete(input: { id: $id }) {\n\t\t\tdeletedCustomerId\n\t\t\tuserErrors {\n\t\t\t\tfield\n\t\t\t\tmessage\n\t\t\t}\n\t\t}\n\t}\n": types.CustomerDeleteDocument,
+    "\n\tmutation DeleteCustomer($id: ID!) {\n\t\tcustomerDelete(input: { id: $id }) {\n\t\t\tdeletedCustomerId\n\t\t\tuserErrors {\n\t\t\t\tfield\n\t\t\t\tmessage\n\t\t\t}\n\t\t}\n\t}\n": types.DeleteCustomerDocument,
 };
 
 /**
@@ -33,7 +33,7 @@ export function gql(source: string): unknown;
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function gql(source: "\n\tmutation CustomerDelete($id: ID!) {\n\t\tcustomerDelete(input: { id: $id }) {\n\t\t\tdeletedCustomerId\n\t\t\tuserErrors {\n\t\t\t\tfield\n\t\t\t\tmessage\n\t\t\t}\n\t\t}\n\t}\n"): (typeof documents)["\n\tmutation CustomerDelete($id: ID!) {\n\t\tcustomerDelete(input: { id: $id }) {\n\t\t\tdeletedCustomerId\n\t\t\tuserErrors {\n\t\t\t\tfield\n\t\t\t\tmessage\n\t\t\t}\n\t\t}\n\t}\n"];
+export function gql(source: "\n\tmutation DeleteCustomer($id: ID!) {\n\t\tcustomerDelete(input: { id: $id }) {\n\t\t\tdeletedCustomerId\n\t\t\tuserErrors {\n\t\t\t\tfield\n\t\t\t\tmessage\n\t\t\t}\n\t\t}\n\t}\n"): (typeof documents)["\n\tmutation DeleteCustomer($id: ID!) {\n\t\tcustomerDelete(input: { id: $id }) {\n\t\t\tdeletedCustomerId\n\t\t\tuserErrors {\n\t\t\t\tfield\n\t\t\t\tmessage\n\t\t\t}\n\t\t}\n\t}\n"];
 
 export function gql(source: string) {
   return (documents as any)[source] ?? {};
