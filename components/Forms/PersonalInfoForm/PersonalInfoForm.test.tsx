@@ -13,6 +13,11 @@ vi.mock('@/context/AccountContext/AccountContext', () => ({
 	}),
 }))
 
+vi.mock('next/navigation', () => ({
+	useRouter: vi.fn().mockReturnValue({ push: vi.fn() }),
+	usePathname: vi.fn().mockReturnValue('pathname'),
+}))
+
 describe('PersonalInfoForm', () => {
 	it('renders and shows all fields correctly', () => {
 		const { getByRole } = render(<PersonalInfoForm />)

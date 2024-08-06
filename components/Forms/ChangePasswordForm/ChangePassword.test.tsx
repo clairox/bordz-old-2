@@ -1,16 +1,22 @@
 import { render } from '@testing-library/react'
 import ChangePasswordForm from './ChangePasswordForm'
 import userEvent from '@testing-library/user-event'
+import { FetcherError, FetcherResponse } from '@/lib/fetcher/fetcher'
 
 const mocks = vi.hoisted(() => {
 	return {
 		push: vi.fn(),
+		fetcherMock: vi.fn(),
 	}
 })
 
 vi.mock('next/navigation', () => ({
 	useRouter: vi.fn().mockReturnValue({ push: mocks.push }),
 	usePathname: vi.fn().mockReturnValue('/account/change-password'),
+}))
+
+vi.mock('@/lib/fetcher', () => ({
+	fetcher: mocks.fetcherMock.mockImplementation(() => {}),
 }))
 
 describe('ChangePasswordForm', () => {
@@ -22,7 +28,20 @@ describe('ChangePasswordForm', () => {
 	})
 
 	it('calls router.push with correct value when fetch returns with 401 status', async () => {
-		global.fetch = vi.fn().mockReturnValueOnce({ status: 401 })
+		mocks.fetcherMock.mockImplementationOnce(() => {
+			const response = new FetcherResponse(
+				{
+					ok: false,
+					headers: {},
+					status: 401,
+					type: 'error',
+					url: 'url',
+					redirected: false,
+				} as Response,
+				{}
+			)
+			throw new FetcherError('error', response.status, response)
+		})
 		const { getByRole, getByLabelText } = render(<ChangePasswordForm />)
 
 		await userEvent.type(getByLabelText('Password'), 'testpassword')
@@ -35,7 +54,9 @@ describe('ChangePasswordForm', () => {
 	})
 
 	it('renders and shows formSuccessBox if password is updated successfully', async () => {
-		global.fetch = vi.fn().mockReturnValueOnce({ ok: true })
+		mocks.fetcherMock.mockImplementationOnce(() => {
+			success: true
+		})
 		const { getByRole, getByLabelText, getByTestId } = render(<ChangePasswordForm />)
 
 		await userEvent.type(getByLabelText('Password'), 'testpassword')

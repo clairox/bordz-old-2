@@ -1,13 +1,14 @@
 import { render } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import DeleteAccountForm from './DeleteAccountForm'
+import { FetcherError, FetcherResponse } from '@/lib/fetcher/fetcher'
 
 const mocks = vi.hoisted(() => {
 	return {
 		push: vi.fn(),
 		login: vi.fn(),
 		logout: vi.fn(),
-		fetch: vi.fn(),
+		fetcherMock: vi.fn(),
 	}
 })
 
@@ -32,7 +33,9 @@ vi.mock('@/context/AccountContext/AccountContext', () => ({
 	}),
 }))
 
-global.fetch = mocks.fetch.mockReturnValue({ status: 200, ok: true })
+vi.mock('@/lib/fetcher', () => ({
+	fetcher: mocks.fetcherMock.mockImplementation(() => {}),
+}))
 
 describe('DeleteAccountForm', () => {
 	it('renders and shows all fields', () => {
@@ -42,7 +45,20 @@ describe('DeleteAccountForm', () => {
 	})
 
 	it('calls router.push with correct value when fetch returns with 401 status', async () => {
-		mocks.fetch.mockReturnValueOnce({ status: 401 })
+		mocks.fetcherMock.mockImplementationOnce(() => {
+			const response = new FetcherResponse(
+				{
+					ok: false,
+					headers: {},
+					status: 401,
+					type: 'error',
+					url: 'url',
+					redirected: false,
+				} as Response,
+				{}
+			)
+			throw new FetcherError('error', response.status, response)
+		})
 		const { getByRole, getByLabelText } = render(<DeleteAccountForm />)
 
 		await userEvent.type(getByLabelText('Confirm Password'), 'testpassword')
