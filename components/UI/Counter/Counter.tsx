@@ -1,150 +1,130 @@
 'use client'
-import React, { useRef } from 'react'
+import _ from 'lodash'
+import React, { useState, useEffect } from 'react'
+import { Input } from '../Input'
+import { Minus, Plus } from '@phosphor-icons/react'
+
+type CounterValue = number | '' | '-'
 
 const Counter: React.FunctionComponent<{
-	defaultValue?: number
-	value?: number | ''
-	minValue?: number
-	maxValue?: number
-	decrement?: () => void
-	increment?: () => void
-	setValue: (value: number | '') => void
-	onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void
-	onBlur?: (event: React.FocusEvent<HTMLInputElement>) => void
-}> = ({ value = 1, minValue, maxValue, increment, decrement, setValue, onChange, onBlur }) => {
-	const inputRef = useRef<HTMLInputElement>(null)
+	value?: number
+	min?: number
+	max?: number
+	canType?: boolean
+	onChange?: (newCount: number) => void
+}> = ({ value = 0, min = -Infinity, max = Infinity, canType = true, onChange }) => {
+	value = _.clamp(value, min, max)
+	const [count, setCount] = useState(value)
+	const [inputValue, setInputValue] = useState<CounterValue>(value)
+
+	useEffect(() => {
+		setCount(value)
+		setInputValue(value)
+	}, [value])
+
+	const setCounterValue = async (count: number) => {
+		if (onChange) {
+			await onChange(count)
+		}
+
+		setCount(count)
+		setInputValue(count)
+	}
+
+	const handleIncrement = () => {
+		if (count < max) {
+			const newCount = count + 1
+			setCounterValue(newCount)
+		}
+	}
 
 	const handleDecrement = () => {
-		if (decrement) {
-			return decrement()
+		if (count > min) {
+			const newCount = count - 1
+			setCounterValue(newCount)
 		}
-
-		if (minValue !== undefined && +value <= minValue) {
-			return setValue(minValue)
-		}
-
-		setValue(+value - 1)
-		// if (inputRef.current === null) {
-		// 	return
-		// }
-
-		// const inputElement = inputRef.current
-		// const newValue = +inputElement.value - 1
-
-		// if (minValue !== undefined && newValue < minValue) {
-		// 	return triggerChange(minValue)
-		// }
-
-		// return triggerChange(newValue)
-	}
-	const handleIncrement = () => {
-		if (increment) {
-			return increment()
-		}
-
-		if (maxValue !== undefined && +value >= maxValue) {
-			return setValue(maxValue)
-		}
-
-		setValue(+value + 1)
-		// if (inputRef.current === null) {
-		// 	return
-		// }
-
-		// const inputElement = inputRef.current
-		// const newValue = +inputElement.value + 1
-
-		// if (maxValue !== undefined && newValue > maxValue) {
-		// 	return triggerChange(maxValue)
-		// }
-
-		// return triggerChange(newValue)
 	}
 
 	const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-		if (onChange) {
-			return onChange(event)
+		if (!canType) {
+			return
 		}
 
 		if (event.target.value === '' || /^\s*$/.test(event.target.value)) {
-			return setValue('')
-		}
-
-		const newValue = +event.target.value
-
-		if (isNaN(newValue)) {
+			setInputValue('')
 			return
 		}
 
-		if (minValue !== undefined && newValue < minValue) {
-			return setValue(minValue)
-		} else if (maxValue !== undefined && newValue > maxValue) {
-			return setValue(maxValue)
+		if (event.target.value === '-') {
+			setInputValue('-')
+			return
 		}
 
-		setValue(newValue)
-		// if (event.target.value === '' || /^\s*$/.test(event.target.value)) {
-		// 	return setTextValue('')
-		// }
-		// const newValue = +event.target.value
-		// if (isNaN(newValue)) {
-		// 	return
-		// }
-		// if (minValue !== undefined && newValue < minValue) {
-		// 	return setTextValue(minValue.toString())
-		// } else if (maxValue !== undefined && newValue > maxValue) {
-		// 	return setTextValue(maxValue.toString())
-		// }
-		// return setTextValue(newValue.toString())
+		const valueAsNumber = Number(event.target.value)
+
+		if (isNaN(valueAsNumber)) {
+			return
+		}
+
+		const valueAsInt = _.toSafeInteger(valueAsNumber)
+		const newCount = _.clamp(valueAsInt, min, max)
+		setInputValue(newCount)
 	}
 
 	const handleBlur = (event: React.FocusEvent<HTMLInputElement>) => {
-		if (onBlur) {
-			return onBlur(event)
-		}
-
-		if (minValue !== undefined && value === '') {
-			setValue(minValue)
-		}
-	}
-
-	const triggerChange = (newValue: number | '') => {
-		const inputElement = inputRef.current
-		if (inputElement === null) {
+		if (inputValue === '' || inputValue === '-') {
+			const newCount = min > 0 ? min : 0
+			setCounterValue(newCount)
 			return
 		}
 
-		const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
-			window.HTMLInputElement.prototype,
-			'value'
-		)?.set
-		if (nativeInputValueSetter === undefined) {
-			return
-		}
-
-		nativeInputValueSetter.call(inputElement, newValue)
-		const event = new Event('input', { bubbles: true })
-		inputElement.dispatchEvent(event)
+		setCounterValue(Number(event.target.value))
 	}
+
+	// const triggerChange = (newValue: number | '') => {
+	// 	const inputElement = inputRef.current
+	// 	if (inputElement === null) {
+	// 		return
+	// 	}
+
+	// 	const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
+	// 		window.HTMLInputElement.prototype,
+	// 		'value'
+	// 	)?.set
+	// 	if (nativeInputValueSetter === undefined) {
+	// 		return
+	// 	}
+
+	// 	nativeInputValueSetter.call(inputElement, newValue)
+	// 	const event = new Event('input', { bubbles: true })
+	// 	inputElement.dispatchEvent(event)
+	// }
 
 	return (
-		<div className="flex flex-row">
-			<button onClick={handleDecrement}>
-				<span>-</span>
+		<div className="flex flex-row h-8">
+			<button
+				data-testid="decrementButton"
+				className="flex justify-center items-center w-8 border border-black"
+				onClick={handleDecrement}
+			>
+				<Minus size={15} weight={'regular'} />
 			</button>
 			<div>
-				<input
+				<Input
 					pattern=""
-					className="w-6"
+					className="px-1 w-10 h-8 border-l-0 border-r-0 text-center text-base"
 					type="text"
-					value={value}
+					value={inputValue}
 					onChange={handleChange}
 					onBlur={handleBlur}
-					ref={inputRef}
 				/>
 			</div>
-			<button onClick={handleIncrement}>
-				<span>+</span>
+			<button
+				data-testid="incrementButton"
+				className="flex justify-center items-center w-8 border border-black"
+				onClick={handleIncrement}
+			>
+				<Plus size={15} weight={'regular'} />
 			</button>
 		</div>
 	)

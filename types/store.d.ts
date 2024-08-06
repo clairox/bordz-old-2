@@ -1,3 +1,5 @@
+import { Money } from '@phosphor-icons/react'
+
 export type MailingAddress = {
 	address1: string
 	address2: string
@@ -112,4 +114,30 @@ export type Product = {
 	title: string
 	variants: Variant[]
 	vendor: string
+}
+
+export type CartLineMerchandise = Variant & {
+	product: Omit<Product, 'description' | 'productType' | 'variants' | 'vendor'>
+}
+
+export type CartLine = {
+	cost: {
+		amountPerQuantity: Money
+		compareAtAmountPerQuantity?: Money
+		subtotalAmount: Money
+		totalAmount: Money
+	}
+	id: string
+	merchandise: CartLineMerchandise
+	quantity: number
+}
+
+export type Cart = {
+	id: string
+	cost: {
+		subtotalAmount: Money
+		totalAmount: Money
+	}
+	lines: CartLine[]
+	totalQuantity: number
 }

@@ -1,344 +1,256 @@
 'use client'
-import React, { useCallback, useContext, useEffect, useReducer, useState } from 'react'
-import { createContext } from 'react'
-import type { CartItem, Product } from '@/types'
-import { makeCartItem } from '@/lib/utils/cart'
-import { preload } from 'swr'
-import { LocalCart } from '@/lib/localCart/localCart'
+import {
+	AddCartLineMutation,
+	GetCartQuery,
+	UpdateCartLineMutation,
+	RemoveCartLineMutation,
+	CreateCartMutation,
+} from '@/__generated__/storefront/graphql'
+import { fetcher } from '@/lib/fetcher'
+import { FetcherError } from '@/lib/fetcher/fetcher'
+import {
+	ADD_CART_LINE,
+	UPDATE_CART_LINE,
+	REMOVE_CART_LINE,
+	CREATE_CART,
+} from '@/lib/storefrontAPI/mutations'
+import { GET_CART } from '@/lib/storefrontAPI/queries'
+import { toSafeCart } from '@/lib/utils/gql'
+import { Cart } from '@/types/store'
+import { useLazyQuery, useMutation } from '@apollo/client'
+import React, { createContext, useCallback, useContext, useEffect, useState } from 'react'
 
-type GetItemOptions = {
-	refresh?: boolean
+type CartContextType = {
+	cart: Cart | null
+	addCartLine: (variantId: string, quantity: number) => Promise<Cart | null>
+	updateCartLine: (lineId: string, updatedProperties: { quantity: number }) => Promise<Cart | null>
+	deleteCartLine: (lineId: string) => Promise<Cart | null>
 }
 
-type CartContextValue = {
-	size: number
-	subtotal: number
-	setCart: (items: CartItem[], id: string) => Promise<boolean>
-	addItem: (pid: number, quantity: number) => Promise<boolean>
-	updateItemQuantity: (id: number, quantity: number) => Promise<boolean>
-	clearCart: () => Promise<void>
-	deleteItem: (id: number) => Promise<void>
-	getItems: (options?: GetItemOptions) => Promise<CartItem[]>
-	getItem: (id: number, options?: GetItemOptions) => Promise<CartItem | undefined>
+const defaultCartContextValue = {
+	cart: null,
+	addCartLine: async (variantId: string, quantity: number) => null,
+	updateCartLine: async (lineId: string, updatedProperties: { quantity: number }) => null,
+	deleteCartLine: async (lineId: string) => null,
 }
 
-const CartContext = createContext<CartContextValue>({
-	size: 0,
-	subtotal: 0,
-	setCart: async () => false,
-	addItem: async () => false,
-	updateItemQuantity: async () => false,
-	clearCart: async () => {},
-	deleteItem: async () => {},
-	getItems: async () => [],
-	getItem: async () => undefined,
-})
+const CartContext = createContext<CartContextType>(defaultCartContextValue)
 
-const CartProvider: React.FunctionComponent<React.PropsWithChildren> = ({ children }) => {
-	const cart = useProvideCart()
-	return <CartContext.Provider value={cart}>{children}</CartContext.Provider>
+export const CartProvider: React.FunctionComponent<React.PropsWithChildren> = ({ children }) => {
+	const providedCart = useProvideCart()
+	return <CartContext.Provider value={providedCart}>{children}</CartContext.Provider>
 }
 
-const useCartContext = () => useContext(CartContext)
-
-type CartState = {
-	items: CartItem[]
-	id: string
-	size: number
-	subtotal: number
-}
-
-type CartAction =
-	| { type: 'SET_CART'; payload: { items: CartItem[]; id: string } }
-	| { type: 'ADD_ITEM'; payload: CartItem }
-	| { type: 'UPDATE_ITEM_QUANTITY'; payload: { id: number; linePrice: number; quantity: number } }
-	| { type: 'DELETE_ITEM'; payload: { id: number } }
-	| { type: 'CLEAR_CART' }
-
-const initialCartState = { items: [], id: 'local', size: 0, subtotal: 0 }
-
-const fetcher = (url: string) => fetch(url).then(res => res.json())
-
-const cartReducer = (state: CartState, action: CartAction) => {
-	switch (action.type) {
-		case 'SET_CART':
-			action.payload.items.forEach(item => {
-				preload(`${process.env.NEXT_PUBLIC_API_URL}/products/${item.pid}`, fetcher)
-			})
-
-			return {
-				items: action.payload.items,
-				id: action.payload.id || state.id,
-				size: action.payload.items.reduce((currentSize, item) => currentSize + item.quantity, 0),
-				subtotal: action.payload.items.reduce(
-					(currentTotal, item) => currentTotal + item.linePrice,
-					0
-				),
-			}
-		case 'ADD_ITEM':
-			const newItem = action.payload
-			preload(`${process.env.NEXT_PUBLIC_API_URL}/products/${newItem.pid}`, fetcher)
-
-			return {
-				...state,
-				items: [...state.items, newItem],
-				size: state.size + newItem.quantity,
-				subtotal: state.subtotal + newItem.linePrice,
-			}
-		case 'UPDATE_ITEM_QUANTITY':
-			return {
-				...state,
-				items: state.items.map(item => {
-					if (item.id === action.payload.id) {
-						return {
-							...item,
-							quantity: action.payload.quantity,
-							linePrice: action.payload.linePrice,
-						}
-					}
-
-					return item
-				}),
-				size: state.items.reduce((total, item) => {
-					return total + (item.id === action.payload.id ? action.payload.quantity : item.quantity)
-				}, 0),
-				subtotal: state.items.reduce(
-					(currentTotal, item) =>
-						currentTotal +
-						(item.id === action.payload.id ? action.payload.linePrice : item.linePrice),
-					0
-				),
-			}
-		case 'DELETE_ITEM':
-			const itemToDelete = state.items.find(item => item.id === action.payload.id)
-			if (itemToDelete === undefined) {
-				return state
-			}
-
-			return {
-				...state,
-				items: state.items.filter((item: CartItem) => item.id !== itemToDelete.id),
-				size: state.size - itemToDelete.quantity,
-				subtotal: state.subtotal - itemToDelete.linePrice,
-			}
-		case 'CLEAR_CART':
-			return initialCartState
-	}
-}
+export const useCartContext = () => useContext(CartContext)
 
 const useProvideCart = () => {
-	const [cartState, dispatch] = useReducer(cartReducer, initialCartState)
-	const [localCart, setLocalCart] = useState<LocalCart | undefined>(undefined)
+	const [cart, setCart] = useState<Cart | null>(null)
 
-	const addItemToLocalStorage = useCallback(
-		async (product: Product, quantity: number): Promise<void> => {
-			const newItem = makeCartItem(product, quantity)
-			const storedCartItem = localCart?.add(newItem)
+	const [getCartQuery] = useLazyQuery(GET_CART)
+	const [createCartMutation] = useMutation(CREATE_CART)
+	const [addCartLineMutation] = useMutation(ADD_CART_LINE)
+	const [updateCartLineMutation] = useMutation(UPDATE_CART_LINE)
+	const [removeCartLineMutation] = useMutation(REMOVE_CART_LINE)
 
-			if (storedCartItem) {
-				dispatch({ type: 'ADD_ITEM', payload: storedCartItem })
+	const getCartIdFromCustomer = async (): Promise<string | null> => {
+		try {
+			const response = await fetcher('/customer')
+			const { cartId } = response.data
+
+			return cartId
+		} catch (error) {
+			if (error instanceof FetcherError) {
+				if (error.response.status === 401) {
+					return null
+				} else {
+					throw error
+				}
+			} else {
+				throw error
+			}
+		}
+	}
+
+	const createCart = useCallback(async (): Promise<{ __typename?: 'Cart'; id: string } | null> => {
+		try {
+			const { data } = await createCartMutation()
+
+			const createCartResult = data?.cartCreate as CreateCartMutation['cartCreate']
+			const userErrors = createCartResult?.userErrors
+			if (userErrors && userErrors.length > 0) {
+				return null
+			}
+
+			const cart = createCartResult?.cart
+			if (cart == undefined) {
+				return null
+			}
+
+			return cart
+		} catch (error) {
+			throw error
+		}
+	}, [createCartMutation])
+
+	const loadCartId = useCallback(async () => {
+		const cartIdFromCustomer = await getCartIdFromCustomer()
+		if (cartIdFromCustomer) {
+			localStorage.setItem('cartId', cartIdFromCustomer)
+			return cartIdFromCustomer
+		}
+
+		const newCart = await createCart()
+		if (newCart == undefined) {
+			throw new Error('Something went wrong.')
+		}
+
+		const newCartId = newCart.id
+
+		localStorage.setItem('cartId', newCartId)
+		return newCartId
+	}, [createCart])
+
+	const loadCart = useCallback(async () => {
+		let id = localStorage.getItem('cartId') || (await loadCartId())
+
+		try {
+			const { data, error } = await getCartQuery({ variables: { id } })
+			const cart = data?.cart as GetCartQuery['cart']
+			if (error || cart == undefined) {
+				return null
+			}
+
+			const safeCart = toSafeCart(cart)
+			setCart(safeCart)
+			return safeCart
+		} catch (error) {
+			throw new Error('A problem occurred while trying to retrieve the cart.')
+		}
+	}, [loadCartId, getCartQuery])
+
+	useEffect(() => {
+		loadCart()
+	}, [loadCart])
+
+	const updateCartLine = useCallback(
+		async (lineId: string, updatedProperties: { quantity: number }): Promise<Cart | null> => {
+			let id = localStorage.getItem('cartId') || (await loadCartId())
+
+			try {
+				const { quantity } = updatedProperties
+				const { data } = await updateCartLineMutation({
+					variables: {
+						cartId: id,
+						lineId,
+						quantity,
+					},
+				})
+
+				const updateCartLineResult =
+					data?.cartLinesUpdate as UpdateCartLineMutation['cartLinesUpdate']
+
+				const userErrors = updateCartLineResult?.userErrors
+				if (userErrors && userErrors.length > 0) {
+					return null
+				}
+
+				const updatedCart = updateCartLineResult?.cart
+				if (updatedCart == undefined) {
+					return null
+				}
+
+				const safeUpdatedCart = toSafeCart(updatedCart)
+				setCart(safeUpdatedCart)
+				return safeUpdatedCart
+			} catch (error) {
+				throw new Error('A problem occurred while trying to update the cart.')
 			}
 		},
-		[localCart]
+		[loadCartId, updateCartLineMutation]
 	)
-	const addItemToDatabase = async (product: Product, quantity: number): Promise<void> => {}
 
-	const updateItemQuantityInLocalStorage = useCallback(
-		async (product: Product, item: CartItem, quantity: number): Promise<void> => {
-			const updatedQuantity = quantity
-			const updatedLinePrice = updatedQuantity * product.salePrice
+	const addCartLine = useCallback(
+		async (variantId: string, quantity: number): Promise<Cart | null> => {
+			let id = localStorage.getItem('cartId') || (await loadCartId())
 
-			const {
-				id,
-				linePrice,
-				quantity: qty,
-			} = localCart?.update(item.id, {
-				quantity: updatedQuantity,
-				linePrice: updatedLinePrice,
-			}) as CartItem
+			if (cart === null) {
+				return null
+			}
 
-			if (id !== undefined && qty !== undefined) {
-				dispatch({
-					type: 'UPDATE_ITEM_QUANTITY',
-					payload: { id, linePrice, quantity: qty },
+			const existingLine = cart.lines.find(line => line.merchandise.id === variantId)
+			if (existingLine) {
+				const quantityAvailable = existingLine.merchandise.quantityAvailable
+				const newQuantity = existingLine.quantity + quantity
+				return updateCartLine(existingLine.id, {
+					quantity: Math.min(quantityAvailable, newQuantity),
 				})
 			}
-		},
-		[localCart]
-	)
-	const updateItemQuantityInDatabase = async (item: CartItem, quantity: number): Promise<void> => {}
 
-	const deleteItemFromLocalStorage = useCallback(
-		async (id: number): Promise<void> => {
-			localCart?.delete(id)
+			try {
+				const { data } = await addCartLineMutation({
+					variables: {
+						cartId: id,
+						variantId,
+						quantity,
+					},
+				})
 
-			dispatch({ type: 'DELETE_ITEM', payload: { id } })
-		},
-		[localCart]
-	)
-	const deleteItemFromDatabase = () => {}
+				const addCartLineResult = data?.cartLinesAdd as AddCartLineMutation['cartLinesAdd']
 
-	const setCart = useCallback(async (items: CartItem[], id: string): Promise<boolean> => {
-		// If user exists update cart on server
-		// Otherwise update cart locally
-
-		dispatch({ type: 'SET_CART', payload: { items, id } })
-
-		return true
-	}, [])
-
-	const addItem = useCallback(
-		async (pid: number, quantity: number): Promise<boolean> => {
-			const product = await fetchProductById(pid)
-			if (product === undefined) {
-				return false
-			}
-
-			const existingItem = localCart?.getByProductId(product.id)
-
-			if (existingItem) {
-				if (existingItem.quantity === product.quantity) {
-					return false
+				const userErrors = addCartLineResult?.userErrors
+				if (userErrors && userErrors.length > 0) {
+					return null
 				}
 
-				const newQuantity =
-					existingItem.quantity + quantity < product.quantity
-						? existingItem.quantity + quantity
-						: product.quantity
-				await updateItemQuantityInLocalStorage(product, existingItem, newQuantity)
-			} else {
-				const quantityToAdd = quantity <= product.quantity ? quantity : product.quantity
-				await addItemToLocalStorage(product, quantityToAdd)
-			}
-
-			return true
-		},
-		[addItemToLocalStorage, localCart, updateItemQuantityInLocalStorage]
-	)
-
-	const updateItemQuantity = useCallback(
-		async (id: number, quantity: number): Promise<boolean> => {
-			const existingItem = localCart?.get(id)
-			if (existingItem === undefined) {
-				return false
-			}
-
-			const product = await fetchProductById(existingItem.pid)
-			if (product === undefined) {
-				return false
-			}
-
-			const isQuantityAvailable = quantity <= product.quantity
-			const newQuantity = isQuantityAvailable ? quantity : product.quantity
-			if (newQuantity === 0) {
-				await deleteItemFromLocalStorage(id)
-				return true
-			}
-			await updateItemQuantityInLocalStorage(product, existingItem, newQuantity)
-			return true
-		},
-		[deleteItemFromLocalStorage, localCart, updateItemQuantityInLocalStorage]
-	)
-
-	const deleteItem = useCallback(
-		async (id: number): Promise<void> => {
-			await deleteItemFromLocalStorage(id)
-		},
-		[deleteItemFromLocalStorage]
-	)
-
-	const clearCart = useCallback(async (): Promise<void> => {
-		localCart?.clear()
-		dispatch({ type: 'CLEAR_CART' })
-	}, [localCart])
-
-	const getRefreshedItems = useCallback(async (): Promise<CartItem[]> => {
-		const items: CartItem[] = []
-		await Promise.all(
-			cartState.items.map(async (item: CartItem) => {
-				const product = await fetchProductById(item.pid)
-				if (product) {
-					const refreshedItem = {
-						...item,
-						...makeCartItem(product, item.quantity),
-					}
-					items.push(refreshedItem)
-				} else {
-					await deleteItem(item.id)
+				const updatedCart = addCartLineResult?.cart
+				if (updatedCart == undefined) {
+					return null
 				}
-			})
-		)
 
-		return items
-	}, [cartState.items, deleteItem])
-
-	const getRefreshedItem = useCallback(
-		async (id: number): Promise<CartItem | undefined> => {
-			const item = cartState.items.find(item => item.id === id)
-			if (item === undefined) {
-				return undefined
+				const safeUpdatedCart = toSafeCart(updatedCart)
+				setCart(safeUpdatedCart)
+				return safeUpdatedCart
+			} catch (error) {
+				throw new Error('A problem occurred while trying to update the cart.')
 			}
+		},
+		[cart, loadCartId, addCartLineMutation, updateCartLine]
+	)
 
-			const product = await fetchProductById(id)
-			if (product) {
-				return {
-					...item,
-					...makeCartItem(product, item.quantity),
+	const deleteCartLine = useCallback(
+		async (lineId: string): Promise<Cart | null> => {
+			let id = localStorage.getItem('cartId') || (await loadCartId())
+
+			try {
+				const { data } = await removeCartLineMutation({
+					variables: {
+						cartId: id,
+						lineId,
+					},
+				})
+
+				const removeCartLineResult =
+					data?.cartLinesRemove as RemoveCartLineMutation['cartLinesRemove']
+
+				const userErrors = removeCartLineResult?.userErrors
+				if (userErrors && userErrors.length > 0) {
+					return null
 				}
-			} else {
-				await deleteItem(id)
-				return undefined
+
+				const updatedCart = removeCartLineResult?.cart
+				if (updatedCart == undefined) {
+					return null
+				}
+
+				const safeUpdatedCart = toSafeCart(updatedCart)
+				setCart(safeUpdatedCart)
+				return safeUpdatedCart
+			} catch (error) {
+				throw new Error('A problem occurred while trying to update the cart.')
 			}
 		},
-		[cartState.items, deleteItem]
+		[loadCartId, removeCartLineMutation]
 	)
 
-	const getItems = useCallback(
-		async (options?: GetItemOptions): Promise<CartItem[]> => {
-			const items = options?.refresh ? await getRefreshedItems() : cartState.items
-			return items.toSorted((a, b) => +new Date(a.createdAt) - +new Date(b.createdAt))
-		},
-		[getRefreshedItems, cartState.items]
-	)
-
-	const getItem = useCallback(
-		async (id: number, options?: GetItemOptions): Promise<CartItem | undefined> => {
-			return options?.refresh
-				? await getRefreshedItem(id)
-				: cartState.items.find(item => item.id === id)
-		},
-		[getRefreshedItem, cartState.items]
-	)
-
-	useEffect(() => {
-		if (typeof window !== 'undefined' && localCart === undefined) {
-			setLocalCart(new LocalCart())
-		}
-	}, [localCart])
-
-	useEffect(() => {
-		if (setCart && localCart) {
-			setCart(JSON.parse(localStorage.getItem('cartItems') || '[]'), 'local')
-		}
-	}, [localCart, setCart])
-
-	return {
-		size: cartState.size,
-		subtotal: cartState.subtotal,
-		setCart,
-		addItem,
-		updateItemQuantity,
-		deleteItem,
-		getItems,
-		getItem,
-		clearCart,
-	}
+	return { cart, addCartLine, updateCartLine, deleteCartLine }
 }
-
-const fetchProductById = async (pid: number): Promise<Product | undefined> => {
-	const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products/${pid}`)
-	return await res.json()
-}
-
-export { CartProvider, useCartContext, useProvideCart }
-export type { CartContextValue, CartState }

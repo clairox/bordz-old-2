@@ -11,6 +11,7 @@ export class FetcherError extends Error {
 }
 
 export class FetcherResponse {
+	public ok: boolean
 	public headers: Headers
 	public status: number
 	public type: ResponseType
@@ -19,7 +20,8 @@ export class FetcherResponse {
 	public data: any
 
 	constructor(response: Response, data: any) {
-		const { headers, status, type, url, redirected } = response
+		const { ok, headers, status, type, url, redirected } = response
+		this.ok = ok
 		this.headers = headers
 		this.status = status
 		this.type = type
@@ -103,4 +105,18 @@ const gqlFetcher = async (config: GQLFetcherConfig) => {
 	return data
 }
 
-export { fetcher, gqlFetcher }
+type GQLSpecificFetcherConfig = Omit<GQLFetcherConfig, 'api' | 'token'>
+const gqlStorefrontFetcher = async (config: GQLSpecificFetcherConfig) => {
+	const storefrontAccessToken = process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN
+	if (storefrontAccessToken == undefined) {
+		throw new Error('Missing access token')
+	}
+
+	return gqlFetcher({
+		...config,
+		api: 'storefront',
+		token: storefrontAccessToken,
+	})
+}
+
+export { fetcher, gqlFetcher, gqlStorefrontFetcher }

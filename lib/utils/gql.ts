@@ -1,5 +1,8 @@
-import { GetCustomerQuery, GetProductQuery } from '@/__generated__/storefront/graphql'
+import { GetCartQuery, GetCustomerQuery, GetProductQuery } from '@/__generated__/storefront/graphql'
 import {
+	Cart,
+	CartLine,
+	CartLineMerchandise,
 	Customer,
 	Image,
 	MailingAddress,
@@ -98,6 +101,35 @@ const ensureVariant = (variant: any): Variant => ({
 	title: ensureString(variant?.title),
 })
 
+const ensureCartLineMerchandise = (merchandise: any): CartLineMerchandise => ({
+	availableForSale: ensureBoolean(merchandise?.availableForSale),
+	compareAtPrice: merchandise?.compareAtPriceV2
+		? ensureMoney(merchandise?.compareAtPriceV2)
+		: undefined,
+	id: ensureString(merchandise?.id),
+	price: ensureMoney(merchandise?.priceV2),
+	product: {
+		handle: ensureString(merchandise?.product?.handle),
+		id: ensureString(merchandise?.product?.id),
+		images: ensureArray(merchandise?.product?.images.nodes, ensureImage),
+		title: ensureString(merchandise?.product?.title),
+	},
+	quantityAvailable: ensureNumber(merchandise?.quantityAvailable),
+	title: ensureString(merchandise?.title),
+})
+
+const ensureCartLine = (line: any): CartLine => ({
+	cost: {
+		amountPerQuantity: ensureMoney(line?.cost.subtotalAmount),
+		compareAtAmountPerQuantity: ensureMoney(line?.cost.totalAmount),
+		subtotalAmount: ensureMoney(line?.cost.subtotalAmount),
+		totalAmount: ensureMoney(line?.cost.totalAmount),
+	},
+	id: ensureString(line?.id),
+	merchandise: ensureCartLineMerchandise(line?.merchandise),
+	quantity: ensureNumber(line?.quantity),
+})
+
 const toSafeCustomer = (customer: GetCustomerQuery['customer']): Customer | null => {
 	if (!customer) {
 		return null
@@ -154,4 +186,27 @@ const toSafeProduct = (product: GetProductQuery['productByHandle']): Product | n
 	}
 }
 
-export { toSafeCustomer, toSafeProduct }
+const toSafeCart = (cart: GetCartQuery['cart']): Cart | null => {
+	if (!cart) {
+		return null
+	}
+
+	try {
+		const safeCart: Cart = {
+			id: ensureString(cart.id),
+			cost: {
+				subtotalAmount: ensureMoney(cart.cost.subtotalAmount),
+				totalAmount: ensureMoney(cart.cost.totalAmount),
+			},
+			lines: ensureArray(cart.lines.nodes, ensureCartLine),
+			totalQuantity: ensureNumber(cart.totalQuantity),
+		}
+
+		return safeCart
+	} catch (error) {
+		console.error('Failed to convert cart:', error)
+		return null
+	}
+}
+
+export { toSafeCustomer, toSafeProduct, toSafeCart }

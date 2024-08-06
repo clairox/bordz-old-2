@@ -34,6 +34,7 @@
 		"clsx": "^2.1.1",
 		"cookie": "^0.6.0",
 		"dotenv": "^16.4.5",
+		"eventemitter3": "^5.0.1",
 		"lodash": "^4.17.21",
 		"lucide-react": "^0.395.0",
 		"next": "14.2.4",

@@ -1,5 +1,8 @@
-import { Money, Variant } from '@/types/store'
+import { Button } from '@/components/UI/Button'
+import Counter from '@/components/UI/Counter'
+import { Variant } from '@/types/store'
 import React, { useState } from 'react'
+import { useCartContext } from '@/context/CartContext'
 
 const ProductInfo: React.FunctionComponent<{
 	id: string
@@ -8,11 +11,24 @@ const ProductInfo: React.FunctionComponent<{
 	variants: Variant[]
 }> = ({ id, title, description, variants }) => {
 	const [selectedVariant, setSelectedVariant] = useState(variants[0])
+	const [quantity, setQuantity] = useState(1)
+
+	const { addCartLine } = useCartContext()
 
 	const handleSelectVariant = (id: string) => {
 		const variant = variants.find(variant => variant.id === id)
 		if (variant !== undefined) {
 			setSelectedVariant(variant)
+		}
+	}
+
+	const handleAddToCart = async () => {
+		const updatedCart = await addCartLine(
+			selectedVariant.id,
+			Math.min(quantity, selectedVariant.quantityAvailable)
+		)
+		if (updatedCart) {
+			console.log('Line added!')
 		}
 	}
 
@@ -41,7 +57,15 @@ const ProductInfo: React.FunctionComponent<{
 					)
 				})}
 			</div>
-			{/* <AddCartItem productId={product.id} maxQuantity={selectedVariant.quantityAvailable} /> */}
+			<Counter
+				value={quantity}
+				min={1}
+				max={99}
+				onChange={newQuantity => setQuantity(newQuantity)}
+			/>
+			<div className="flex">
+				<Button onClick={handleAddToCart}>Add To Bag</Button>
+			</div>
 			<div>
 				<p className="font-bold">Description:</p>
 				<p>{description}</p>

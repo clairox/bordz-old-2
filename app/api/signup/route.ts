@@ -18,10 +18,7 @@ export const POST = async (request: NextRequest) => {
 			},
 		})
 
-		const cartIdParts = internalCustomer.cartId.split('/')
-		const cartIdStripped = cartIdParts[cartIdParts.length - 1]
-
-		const response = NextResponse.json({ email: customer.email, cartId: cartIdStripped })
+		const response = NextResponse.json({ email: customer.email, cartId: internalCustomer.cartId })
 		response.headers.append('Access-Control-Allow-Origin', '*')
 		response.headers.append('Access-Control-Allow-Methods', 'POST')
 		return response

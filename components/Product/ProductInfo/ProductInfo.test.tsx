@@ -3,6 +3,16 @@ import { render } from '@testing-library/react'
 import ProductInfo from './ProductInfo'
 import userEvent from '@testing-library/user-event'
 
+const mocks = vi.hoisted(() => {
+	return {
+		addCartLine: vi.fn(),
+	}
+})
+
+vi.mock('@/context/CartContext', () => ({
+	useCartContext: vi.fn().mockReturnValue({ addCartLine: mocks.addCartLine }),
+}))
+
 describe('ProductInfo', () => {
 	const id = 'product1'
 	const title = 'Test Product'
@@ -63,5 +73,20 @@ describe('ProductInfo', () => {
 		expect(getByText('$39.95')).toBeVisible()
 		expect(firstVariantOption).toHaveClass('cursor-pointer hover:bg-gray-100')
 		expect(secondVariantOption).toHaveClass('bg-black text-white cursor-default')
+	})
+
+	describe('add to cart button', () => {
+		it('calls addCartLine with correct quantity on click', async () => {
+			const { getByRole, getByTestId } = render(
+				<ProductInfo id={id} title={title} description={description} variants={variants} />
+			)
+
+			const incrementButton = getByTestId('incrementButton')
+			await userEvent.click(incrementButton)
+			await userEvent.click(incrementButton)
+			await userEvent.click(getByRole('button', { name: 'Add To Bag' }))
+
+			expect(mocks.addCartLine).toHaveBeenCalledWith('variant1', 3)
+		})
 	})
 })

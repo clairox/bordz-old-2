@@ -28216,7 +28216,7 @@ export type Mutation = {
   /**
    * Disposes reverse delivery line items for a reverse delivery on the same shop.
    *
-   * @deprecated `reverseDeliveryDispose` will be removed in API version 2025-01. Use `reverseFulfillmentOrderDispose` instead.
+   * @deprecated `reverseDeliveryDispose` will be removed in API version 2024-10. Use `reverseFulfillmentOrderDispose` instead.
    */
   reverseDeliveryDispose?: Maybe<ReverseDeliveryDisposePayload>;
   /** Updates a reverse delivery with associated external shipping information. */

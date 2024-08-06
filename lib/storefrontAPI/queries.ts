@@ -1,5 +1,77 @@
 import { gql } from '@/__generated__/storefront'
 
+const GET_CART = gql(`
+	query GetCart($id: ID!) {
+		cart(id: $id) {
+			id
+			totalQuantity
+			lines(first: 20) {
+				nodes {
+					id
+					quantity
+					merchandise {
+						... on ProductVariant {
+							availableForSale
+							compareAtPriceV2 {
+								amount
+								currencyCode
+							}
+							id
+							title
+							priceV2 {
+								amount
+								currencyCode
+							}
+							product {
+								handle
+								id
+								title
+								images(first: 1) {
+									nodes {
+										altText
+										height
+										src
+										width
+									}
+								}
+							}
+							quantityAvailable
+						}
+					}
+					cost {
+						amountPerQuantity {
+							amount
+							currencyCode
+						}
+						compareAtAmountPerQuantity {
+							amount
+							currencyCode
+						}
+						subtotalAmount {
+							amount
+							currencyCode
+                    	}
+						totalAmount {
+							amount
+							currencyCode
+						}
+					}
+				}
+			}
+			cost {
+				subtotalAmount {
+					amount
+					currencyCode
+				}
+				totalAmount {
+					amount
+					currencyCode
+				}
+			}
+		}
+	}	
+`)
+
 const GET_COLLECTION = gql(`
 	query GetCollection(
 		$handle: String!
@@ -202,4 +274,11 @@ const GET_CUSTOMER_ID_ONLY = gql(`
 	}
 `)
 
-export { GET_COLLECTION, GET_COLLECTION_MAX_PRICE, GET_PRODUCT, GET_CUSTOMER, GET_CUSTOMER_ID_ONLY }
+export {
+	GET_CART,
+	GET_COLLECTION,
+	GET_COLLECTION_MAX_PRICE,
+	GET_PRODUCT,
+	GET_CUSTOMER,
+	GET_CUSTOMER_ID_ONLY,
+}
