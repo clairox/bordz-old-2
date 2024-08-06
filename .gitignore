@@ -40,4 +40,4 @@ next-env.d.ts
 /playwright/.cache/
 
 # todos
-todos.md
+todos.txt
