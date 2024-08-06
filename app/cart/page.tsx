@@ -1,8 +1,7 @@
-import FullCart from '@/components/Cart/FullCart'
 import React from 'react'
 
 const Page = () => {
-	return <FullCart />
+	return <></>
 }
 
 export default Page
