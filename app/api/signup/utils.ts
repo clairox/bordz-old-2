@@ -1,5 +1,5 @@
 import {
-	CartCreateMutation,
+	CreateCartMutation,
 	CartErrorCode,
 	CustomerErrorCode,
 	SignupMutation,
@@ -10,7 +10,7 @@ import { APIError, makeGQLError, UserError } from '@/lib/utils/api'
 import { print } from 'graphql'
 
 type SignupResult = SignupMutation['customerCreate']
-type CreateCartResult = CartCreateMutation['cartCreate']
+type CreateCartResult = CreateCartMutation['cartCreate']
 type CustomerUserError = UserError & { code?: CustomerErrorCode | null }
 type CartUserError = UserError & { code?: CartErrorCode | null }
 
