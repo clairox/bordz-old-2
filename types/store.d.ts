@@ -96,6 +96,11 @@ export type Image = {
 	width: number
 }
 
+export type SelectedOption = {
+	name: string
+	value: string
+}
+
 export type Variant = {
 	availableForSale: boolean
 	compareAtPrice?: Money

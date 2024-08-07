@@ -11,4 +11,5 @@ model Customer {
 	id			String		@id
 	cartId		String 		@unique
 	birthDate 	DateTime
+	wishlist	String[]
 }

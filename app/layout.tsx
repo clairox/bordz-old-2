@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils/cn'
 import { ApolloWrapper } from '@/lib/apollo/apolloWrapper'
 import '@/styles/globals.css'
 import { CartProvider } from '@/context/CartContext'
+import WishlistInit from '@/components/Wishlist/WishlistInit'
 
 const fontSans = FontSans({ subsets: ['latin'], variable: '--font-sans' })
 
@@ -19,8 +20,10 @@ export default async function RootLayout({ children }: Readonly<React.PropsWithC
 			<body className={cn('', fontSans.className)}>
 				<ApolloWrapper>
 					<CartProvider>
-						<Header />
-						<main className="flex justify-center mx-auto max-w-[1366px]">{children}</main>
+						<WishlistInit>
+							<Header />
+							<main className="flex justify-center mx-auto max-w-[1366px]">{children}</main>
+						</WishlistInit>
 					</CartProvider>
 				</ApolloWrapper>
 			</body>

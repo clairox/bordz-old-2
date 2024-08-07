@@ -1588,12 +1588,18 @@ export enum AppUsageRecordSortKeys {
   Relevance = 'RELEVANCE'
 }
 
-/** Represents a generic custom attribute. */
+/** Represents a generic custom attribute, such as whether an order is a customer's first. */
 export type Attribute = {
   __typename?: 'Attribute';
-  /** Key or name of the attribute. */
+  /**
+   * Key or name of the attribute. For example, `"customersFirstOrder"`.
+   *
+   */
   key: Scalars['String']['output'];
-  /** Value of the attribute. */
+  /**
+   * Value of the attribute. For example, `"true"`.
+   *
+   */
   value?: Maybe<Scalars['String']['output']>;
 };
 
@@ -28082,9 +28088,15 @@ export type Mutation = {
   productUpdateMedia?: Maybe<ProductUpdateMediaPayload>;
   /** Appends media from a product to variants of the product. */
   productVariantAppendMedia?: Maybe<ProductVariantAppendMediaPayload>;
-  /** Creates a product variant. */
+  /**
+   * Creates a product variant.
+   * @deprecated Use `productVariantsBulkCreate` instead.
+   */
   productVariantCreate?: Maybe<ProductVariantCreatePayload>;
-  /** Deletes a product variant. */
+  /**
+   * Deletes a product variant.
+   * @deprecated Use `productVariantsBulkDelete` instead.
+   */
   productVariantDelete?: Maybe<ProductVariantDeletePayload>;
   /** Detaches media from product variants. */
   productVariantDetachMedia?: Maybe<ProductVariantDetachMediaPayload>;
@@ -28100,7 +28112,10 @@ export type Mutation = {
   productVariantLeaveSellingPlanGroups?: Maybe<ProductVariantLeaveSellingPlanGroupsPayload>;
   /** Creates new bundles, updates existing bundles, and removes bundle components for one or multiple bundles. */
   productVariantRelationshipBulkUpdate?: Maybe<ProductVariantRelationshipBulkUpdatePayload>;
-  /** Updates a product variant. */
+  /**
+   * Updates a product variant.
+   * @deprecated Use `productVariantsBulkUpdate` instead.
+   */
   productVariantUpdate?: Maybe<ProductVariantUpdatePayload>;
   /**
    * Creates product variants in bulk. If you want to create a single variant, then use
@@ -31766,7 +31781,7 @@ export type Order = CommentEventSubject & HasEvents & HasLocalizationExtensions 
   /** The total weight of the order after returns, in grams. */
   currentTotalWeight: Scalars['UnsignedInt64']['output'];
   /**
-   * A list of the custom attributes added to the order.
+   * A list of additional merchant-facing details that have been added to the order. For example, whether an order is a customer's first.
    *
    */
   customAttributes: Array<Attribute>;
@@ -53281,5 +53296,14 @@ export type DeleteCustomerMutationVariables = Exact<{
 
 export type DeleteCustomerMutation = { __typename?: 'Mutation', customerDelete?: { __typename?: 'CustomerDeletePayload', deletedCustomerId?: string | null, userErrors: Array<{ __typename?: 'UserError', field?: Array<string> | null, message: string }> } | null };
 
+export type GetProductVariantsQueryVariables = Exact<{
+  limit: Scalars['Int']['input'];
+  query: Scalars['String']['input'];
+}>;
+
+
+export type GetProductVariantsQuery = { __typename?: 'QueryRoot', productVariants: { __typename?: 'ProductVariantConnection', nodes: Array<{ __typename?: 'ProductVariant', availableForSale: boolean, compareAtPrice?: any | null, id: string, price: any, title: string, product: { __typename?: 'Product', handle: string, id: string, title: string, featuredImage?: { __typename?: 'Image', altText?: string | null, height?: number | null, src: any, width?: number | null } | null }, selectedOptions: Array<{ __typename?: 'SelectedOption', name: string, value: string }> }>, pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean } } };
+
 
 export const DeleteCustomerDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"DeleteCustomer"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"customerDelete"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"deletedCustomerId"}},{"kind":"Field","name":{"kind":"Name","value":"userErrors"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"field"}},{"kind":"Field","name":{"kind":"Name","value":"message"}}]}}]}}]}}]} as unknown as DocumentNode<DeleteCustomerMutation, DeleteCustomerMutationVariables>;
+export const GetProductVariantsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetProductVariants"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"limit"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"query"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"productVariants"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"first"},"value":{"kind":"Variable","name":{"kind":"Name","value":"limit"}}},{"kind":"Argument","name":{"kind":"Name","value":"query"},"value":{"kind":"Variable","name":{"kind":"Name","value":"query"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"nodes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"availableForSale"}},{"kind":"Field","name":{"kind":"Name","value":"compareAtPrice"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"price"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"product"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"handle"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"featuredImage"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"altText"}},{"kind":"Field","name":{"kind":"Name","value":"height"}},{"kind":"Field","name":{"kind":"Name","value":"src"}},{"kind":"Field","name":{"kind":"Name","value":"width"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"selectedOptions"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"value"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"pageInfo"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"hasNextPage"}}]}}]}}]}}]} as unknown as DocumentNode<GetProductVariantsQuery, GetProductVariantsQueryVariables>;

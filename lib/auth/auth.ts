@@ -6,20 +6,13 @@ import { toSafeCart } from '../utils/gql'
 import { GetCartQuery } from '@/__generated__/storefront/graphql'
 import { ADD_CART_LINES } from '../storefrontAPI/mutations'
 import { Cart } from '@/types/store'
+import { mergeWishlists } from '../utils/wishlist'
+import { getInternalCustomer, updateInternalCustomer } from '../utils/customer'
 
 type AuthResponse = {
 	success: boolean
 	data?: any
 	error?: { message: string; code: string; field?: string[] }
-}
-
-const getCustomer = async () => {
-	try {
-		const response = await fetcher('/customer')
-		return response.data
-	} catch (error) {
-		throw error
-	}
 }
 
 const mergeCarts = async (sourceCartId: string, targetCartId: string): Promise<Cart | null> => {
@@ -76,15 +69,31 @@ export const login = async (email: string, password: string): Promise<LoginRespo
 		}
 		const response = await fetcher('/login', config)
 
+		const customer = await getInternalCustomer()
+		if (customer == undefined) {
+			throw new Error('No customer was found after login')
+		}
+
+		// Merge carts
 		const currentCartId = localStorage.getItem('cartId')
 		if (currentCartId) {
-			const { cartId: targetCartId } = await getCustomer()
-			const targetCart = await mergeCarts(currentCartId, targetCartId)
+			const targetCart = await mergeCarts(currentCartId, customer.cartId)
 
 			if (targetCart != undefined) {
 				localStorage.setItem('cartId', targetCart.id)
 			}
 		}
+
+		// Merge wishlists
+		const localWishlist: string[] = JSON.parse(localStorage.getItem('wishlist') || '[]')
+		const mergedWishlist = mergeWishlists(localWishlist, customer.wishlist)
+
+		const updatedCustomer = await updateInternalCustomer({ wishlist: mergedWishlist })
+		if (updatedCustomer == undefined) {
+			throw new Error('A problem has occurred while updating customer')
+		}
+
+		localStorage.setItem('wishlist', JSON.stringify(updatedCustomer.wishlist))
 
 		return { success: true, data: response.data }
 	} catch (error) {
@@ -106,9 +115,10 @@ export const signup = async (
 	birthDate: Date
 ): Promise<SignupResponse> => {
 	try {
+		const wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]')
 		const config = {
 			method: 'POST',
-			body: JSON.stringify({ firstName, lastName, birthDate, email, password }),
+			body: JSON.stringify({ firstName, lastName, birthDate, email, password, wishlist }),
 			cache: 'no-cache' as RequestCache,
 		}
 		const response = await fetcher('/signup', config)
@@ -137,6 +147,8 @@ export const logout = async (): Promise<LogoutResponse> => {
 		if (response.ok) {
 			localStorage.removeItem('cartId')
 		}
+
+		localStorage.setItem('wishlist', '[]')
 
 		return { success: true }
 	} catch (error) {

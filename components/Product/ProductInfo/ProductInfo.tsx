@@ -1,8 +1,11 @@
+'use client'
 import { Button } from '@/components/UI/Button'
 import Counter from '@/components/UI/Counter'
 import { Variant } from '@/types/store'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useCartContext } from '@/context/CartContext'
+import { HeartStraight } from '@phosphor-icons/react'
+import { addWishlistItem, getLocalWishlist, removeWishlistItem } from '@/lib/utils/wishlist'
 
 const ProductInfo: React.FunctionComponent<{
 	id: string
@@ -12,6 +15,13 @@ const ProductInfo: React.FunctionComponent<{
 }> = ({ id, title, description, variants }) => {
 	const [selectedVariant, setSelectedVariant] = useState(variants[0])
 	const [quantity, setQuantity] = useState(1)
+
+	const [isInWishlist, setIsInWishlist] = useState(false)
+
+	useEffect(() => {
+		const wishlist = getLocalWishlist()
+		setIsInWishlist(wishlist.includes(selectedVariant.id))
+	}, [selectedVariant])
 
 	const { addCartLine } = useCartContext()
 
@@ -29,6 +39,17 @@ const ProductInfo: React.FunctionComponent<{
 		)
 		if (updatedCart) {
 			console.log('Line added!')
+		}
+	}
+
+	const handleWishlistToggle = async () => {
+		const item = selectedVariant.id
+		if (isInWishlist) {
+			const itemRemoved = await removeWishlistItem(item)
+			setIsInWishlist(!itemRemoved)
+		} else {
+			const itemAdded = await addWishlistItem(item)
+			setIsInWishlist(itemAdded)
 		}
 	}
 
@@ -65,6 +86,13 @@ const ProductInfo: React.FunctionComponent<{
 			/>
 			<div className="flex">
 				<Button onClick={handleAddToCart}>Add To Bag</Button>
+				<Button onClick={handleWishlistToggle}>
+					{isInWishlist ? (
+						<HeartStraight size={28} weight={'fill'} />
+					) : (
+						<HeartStraight size={28} weight={'regular'} />
+					)}
+				</Button>
 			</div>
 			<div>
 				<p className="font-bold">Description:</p>
