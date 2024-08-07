@@ -1,12 +1,14 @@
 import { Product } from '@/__generated__/admin/graphql'
 import { GetProductVariants_Product, GetProductVariants_ProductVariant } from '../types'
 import {
-	ensureBoolean,
-	ensureImage,
+	ensureString,
 	ensureNumber,
+	ensureBoolean,
+	ensureArray,
+	ensureMoney,
+	ensureImage,
 	ensureSelectedOption,
 } from '@/lib/utils/typeGuarding'
-import { ensureArray, ensureMoney, ensureString } from '@/lib/utils/gql'
 
 const ensureProduct = (product: Product): GetProductVariants_Product => ({
 	handle: ensureString(product.handle),
