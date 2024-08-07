@@ -2,7 +2,7 @@ import prisma from '@/prisma/client'
 import { serialize } from 'cookie'
 import { NextRequest, NextResponse } from 'next/server'
 import { deleteCustomer, getCustomer, updateCustomer } from './utils'
-import { APIError, defaultErrorResponse } from '@/lib/utils/api'
+import { APIError, DEFAULT_ERROR_RESPONSE } from '@/lib/utils/api'
 
 export const GET = async (request: NextRequest) => {
 	const customerAccessToken = request.cookies.get('customerAccessToken')
@@ -23,7 +23,7 @@ export const GET = async (request: NextRequest) => {
 		})
 
 		if (internalCustomer == undefined) {
-			return defaultErrorResponse
+			return DEFAULT_ERROR_RESPONSE
 		}
 
 		const response = NextResponse.json(internalCustomer)
@@ -35,7 +35,7 @@ export const GET = async (request: NextRequest) => {
 			const { message, code, status } = error
 			return NextResponse.json({ message, code }, { status })
 		} else {
-			return defaultErrorResponse
+			return DEFAULT_ERROR_RESPONSE
 		}
 	}
 }
@@ -49,7 +49,7 @@ export const PATCH = async (request: NextRequest) => {
 		)
 	}
 
-	const { email, password, firstName, lastName } = await request.json()
+	const { email, password, firstName, lastName, birthDate, cartId, wishlist } = await request.json()
 
 	try {
 		const { customer, newAccessToken } = await updateCustomer(
@@ -60,15 +60,16 @@ export const PATCH = async (request: NextRequest) => {
 			lastName
 		)
 
-		const internalCustomer = await prisma.customer.findUnique({
+		const internalCustomer = await prisma.customer.update({
 			where: {
 				id: customer.id,
 			},
+			data: {
+				cartId,
+				birthDate,
+				wishlist,
+			},
 		})
-
-		if (internalCustomer == undefined) {
-			return defaultErrorResponse
-		}
 
 		const response = NextResponse.json(internalCustomer)
 
@@ -96,7 +97,7 @@ export const PATCH = async (request: NextRequest) => {
 			const { message, code, status } = error
 			return NextResponse.json({ message, code }, { status })
 		} else {
-			return defaultErrorResponse
+			return DEFAULT_ERROR_RESPONSE
 		}
 	}
 }
@@ -129,7 +130,7 @@ export const DELETE = async (request: NextRequest) => {
 			const { message, code, status } = error
 			return NextResponse.json({ message, code }, { status })
 		} else {
-			return defaultErrorResponse
+			return DEFAULT_ERROR_RESPONSE
 		}
 	}
 }

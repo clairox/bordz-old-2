@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { serialize } from 'cookie'
-import { APIError, defaultErrorResponse } from '@/lib/utils/api'
+import { APIError, DEFAULT_ERROR_RESPONSE } from '@/lib/utils/api'
 import { login } from './utils'
 
 export const POST = async (request: NextRequest) => {
@@ -32,7 +32,7 @@ export const POST = async (request: NextRequest) => {
 			const { message, code, status } = error
 			return NextResponse.json({ message, code }, { status })
 		} else {
-			return defaultErrorResponse
+			return DEFAULT_ERROR_RESPONSE
 		}
 	}
 }

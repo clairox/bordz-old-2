@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server'
 
 export type UserError = { field?: string[] | null; message: string }
 
-export const defaultErrorResponse = NextResponse.json(
+export const DEFAULT_ERROR_RESPONSE = NextResponse.json(
 	{ message: 'Internal Server Error', code: 'INTERNAL_SERVER_ERROR' },
 	{ status: 500 }
 )

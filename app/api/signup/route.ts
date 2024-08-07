@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/prisma/client'
-import { APIError, defaultErrorResponse } from '@/lib/utils/api'
+import { APIError, DEFAULT_ERROR_RESPONSE } from '@/lib/utils/api'
 import { createCart, signup } from './utils'
 
 export const POST = async (request: NextRequest) => {
-	const { firstName, lastName, email, password, birthDate } = await request.json()
+	const { firstName, lastName, email, password, birthDate, wishlist } = await request.json()
 
 	try {
 		const cart = await createCart()
@@ -15,6 +15,7 @@ export const POST = async (request: NextRequest) => {
 				id: customer.id,
 				cartId: cart.id,
 				birthDate: new Date(birthDate),
+				wishlist: (wishlist as string[]) || [],
 			},
 		})
 
@@ -27,7 +28,7 @@ export const POST = async (request: NextRequest) => {
 			const { message, code, status } = error
 			return NextResponse.json({ message, code }, { status })
 		} else {
-			return defaultErrorResponse
+			return DEFAULT_ERROR_RESPONSE
 		}
 	}
 }
