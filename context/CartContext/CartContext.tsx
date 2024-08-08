@@ -22,7 +22,7 @@ import React, { createContext, useCallback, useContext, useEffect, useState } fr
 
 type CartContextType = {
 	cart: Cart | null
-	addCartLine: (variantId: string, quantity: number) => Promise<Cart | null>
+	addCartLine: (variantId: string, quantity: number) => Promise<Cart | null> // TODO let quantity be optional
 	updateCartLine: (lineId: string, updatedProperties: { quantity: number }) => Promise<Cart | null>
 	deleteCartLine: (lineId: string) => Promise<Cart | null>
 }
@@ -170,6 +170,7 @@ const useProvideCart = () => {
 	)
 
 	const addCartLine = useCallback(
+		// TODO default quantity to 1
 		async (variantId: string, quantity: number): Promise<Cart | null> => {
 			let id = localStorage.getItem('cartId') || (await loadCartId())
 

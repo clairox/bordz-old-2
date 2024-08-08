@@ -70,7 +70,7 @@ export const signup = async (
 		throw new APIError()
 	}
 
-	return customer
+	return { customer }
 }
 
 export const createCart = async () => {
@@ -101,5 +101,5 @@ export const createCart = async () => {
 		throw new APIError()
 	}
 
-	return cart
+	return { cart }
 }

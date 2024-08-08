@@ -7,8 +7,8 @@ export const POST = async (request: NextRequest) => {
 	const { firstName, lastName, email, password, birthDate, wishlist } = await request.json()
 
 	try {
-		const cart = await createCart()
-		const customer = await signup(email, password, firstName, lastName)
+		const { cart } = await createCart()
+		const { customer } = await signup(email, password, firstName, lastName)
 
 		const internalCustomer = await prisma.customer.create({
 			data: {
@@ -21,7 +21,6 @@ export const POST = async (request: NextRequest) => {
 
 		const response = NextResponse.json({ email: customer.email, cartId: internalCustomer.cartId })
 		response.headers.append('Access-Control-Allow-Origin', '*')
-		response.headers.append('Access-Control-Allow-Methods', 'POST')
 		return response
 	} catch (error) {
 		if (error instanceof APIError) {

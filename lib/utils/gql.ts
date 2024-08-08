@@ -16,24 +16,25 @@ import {
 	Variant,
 } from '@/types/store'
 
-const ensureString = (value: any, defaultValue = ''): string =>
+export const ensureString = (value: any, defaultValue = ''): string =>
 	typeof value === 'string' ? value : defaultValue
 
-const ensureNumber = (value: any, defaultValue = 0): number =>
+export const ensureNumber = (value: any, defaultValue = 0): number =>
 	typeof value === 'number' ? value : defaultValue
 
-const ensureDate = (value: any, defaultValue = new Date()): Date =>
+export const ensureDate = (value: any, defaultValue = new Date()): Date =>
 	value instanceof Date ? value : new Date(defaultValue)
 
-const ensureBoolean = (value: any, defaultValue = false): boolean =>
+export const ensureBoolean = (value: any, defaultValue = false): boolean =>
 	typeof value === 'boolean' ? value : defaultValue
 
-const ensureNullableString = (value: any): string | undefined => (value ? String(value) : undefined)
+export const ensureNullableString = (value: any): string | undefined =>
+	value ? String(value) : undefined
 
-const ensureArray = <T>(value: any, itemGuard: (item: any) => T): T[] =>
+export const ensureArray = <T>(value: any, itemGuard: (item: any) => T): T[] =>
 	Array.isArray(value) ? value.map(itemGuard) : []
 
-const ensureMoney = (value: any): Money => ({
+export const ensureMoney = (value: any): Money => ({
 	amount: ensureNumber(parseFloat(value?.amount)),
 	currencyCode: ensureString(value?.currencyCode),
 })

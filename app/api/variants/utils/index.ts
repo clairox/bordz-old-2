@@ -5,6 +5,8 @@ import { APIError, makeGQLError } from '@/lib/utils/api'
 import { extractResourceId } from '@/lib/utils/ids'
 import { print } from 'graphql'
 
+type GetProductVariantResult = GetProductVariantsQuery['productVariants']
+
 const DEFAULT_LIMIT = 40
 
 const toGetVariantsQueryString = (ids: string[]): string => {
@@ -45,7 +47,7 @@ export const getVariants = async (ids: string[], limit: number = DEFAULT_LIMIT) 
 		throw makeGQLError(errors)
 	}
 
-	const getProductVariantsResult: GetProductVariantsQuery['productVariants'] = data?.productVariants
+	const getProductVariantsResult: GetProductVariantResult = data?.productVariants
 
 	const variants = getProductVariantsResult.nodes
 	const hasNextPage = getProductVariantsResult?.pageInfo.hasNextPage

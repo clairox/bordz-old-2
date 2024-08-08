@@ -7,8 +7,7 @@ export const POST = async (request: NextRequest) => {
 	const { email, password } = await request.json()
 
 	try {
-		const customerAccessToken = await login(email, password)
-
+		const { customerAccessToken } = await login(email, password)
 		const { accessToken, expiresAt } = customerAccessToken
 
 		const expiryTime = new Date(expiresAt).getTime()
@@ -24,7 +23,6 @@ export const POST = async (request: NextRequest) => {
 		const response = NextResponse.json({})
 		response.headers.append('Set-Cookie', cookie)
 		response.headers.append('Access-Control-Allow-Origin', '*')
-		response.headers.append('Access-Control-Allow-Methods', 'POST')
 
 		return response
 	} catch (error) {

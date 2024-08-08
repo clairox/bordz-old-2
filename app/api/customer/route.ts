@@ -14,7 +14,7 @@ export const GET = async (request: NextRequest) => {
 	}
 
 	try {
-		const customer = await getCustomer(customerAccessToken.value)
+		const { customer } = await getCustomer(customerAccessToken.value)
 
 		const internalCustomer = await prisma.customer.findUnique({
 			where: {
@@ -28,7 +28,6 @@ export const GET = async (request: NextRequest) => {
 
 		const response = NextResponse.json(internalCustomer)
 		response.headers.append('Access-Control-Allow-Origin', '*')
-		response.headers.append('Access-Control-Allow-Methods', 'GET,PATCH,DELETE')
 		return response
 	} catch (error) {
 		if (error instanceof APIError) {
@@ -90,7 +89,6 @@ export const PATCH = async (request: NextRequest) => {
 		}
 
 		response.headers.append('Access-Control-Allow-Origin', '*')
-		response.headers.append('Access-Control-Allow-Methods', 'GET,PATCH,DELETE')
 		return response
 	} catch (error) {
 		if (error instanceof APIError) {
@@ -112,8 +110,8 @@ export const DELETE = async (request: NextRequest) => {
 	}
 
 	try {
-		const customer = await getCustomer(customerAccessToken.value)
-		const deletedCustomerId = await deleteCustomer(customer.id)
+		const { customer } = await getCustomer(customerAccessToken.value)
+		const { deletedCustomerId } = await deleteCustomer(customer.id)
 
 		await prisma.customer.delete({
 			where: {
@@ -123,7 +121,6 @@ export const DELETE = async (request: NextRequest) => {
 
 		const response = NextResponse.json({})
 		response.headers.append('Access-Control-Allow-Origin', '*')
-		response.headers.append('Access-Control-Allow-Methods', 'GET,PATCH,DELETE')
 		return response
 	} catch (error) {
 		if (error instanceof APIError) {

@@ -65,6 +65,7 @@ export const updateCustomer = async (
 		throw new APIError()
 	}
 
+	// NOTE customerAccessToken will not be defined unless password is updated
 	const newAccessToken = updateCustomerResult?.customerAccessToken
 
 	return { customer, newAccessToken }
@@ -92,7 +93,7 @@ export const getCustomer = async (customerAccessToken: string) => {
 		throw new APIError()
 	}
 
-	return customer
+	return { customer }
 }
 
 export const deleteCustomer = async (customerId: string) => {
@@ -124,5 +125,5 @@ export const deleteCustomer = async (customerId: string) => {
 		throw new APIError()
 	}
 
-	return deletedCustomerId
+	return { deletedCustomerId }
 }

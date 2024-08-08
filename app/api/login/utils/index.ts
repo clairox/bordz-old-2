@@ -49,5 +49,5 @@ export const login = async (email: string, password: string) => {
 		throw new APIError()
 	}
 
-	return customerAccessToken
+	return { customerAccessToken }
 }
