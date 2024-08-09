@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { serialize } from 'cookie'
-import { APIError, DEFAULT_ERROR_RESPONSE } from '@/lib/utils/api'
-import { login } from './utils'
+import { handleErrorResponse } from '@/lib/utils/api'
+import { createAccessToken } from './common/requestHandlers'
 
 export const POST = async (request: NextRequest) => {
 	const { email, password } = await request.json()
 
 	try {
-		const { customerAccessToken } = await login(email, password)
+		const customerAccessToken = await createAccessToken(email, password)
 		const { accessToken, expiresAt } = customerAccessToken
 
 		const expiryTime = new Date(expiresAt).getTime()
@@ -22,15 +22,8 @@ export const POST = async (request: NextRequest) => {
 
 		const response = NextResponse.json({})
 		response.headers.append('Set-Cookie', cookie)
-		response.headers.append('Access-Control-Allow-Origin', '*')
-
 		return response
 	} catch (error) {
-		if (error instanceof APIError) {
-			const { message, code, status } = error
-			return NextResponse.json({ message, code }, { status })
-		} else {
-			return DEFAULT_ERROR_RESPONSE
-		}
+		return handleErrorResponse(error as Error)
 	}
 }

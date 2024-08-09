@@ -11,14 +11,16 @@ import FormErrorBox from '@/components/UI/FormResponseBox/FormErrorBox'
 import ChangePasswordFormSchema from './schema'
 import { useRouter } from 'next/navigation'
 import { usePathname } from 'next/navigation'
-import { fetcher } from '@/lib/fetcher'
-import { FetcherError } from '@/lib/fetcher/fetcher'
+import { useAccountContext } from '@/context/AccountContext/AccountContext'
+import { makeLoginRedirectURL } from '@/lib/auth/auth'
 
 type FormData = z.infer<typeof ChangePasswordFormSchema>
 
 const ChangePasswordForm = () => {
 	const router = useRouter()
 	const pathname = usePathname()
+
+	const { updatePassword } = useAccountContext()
 
 	const form = useForm<FormData>({
 		resolver: zodResolver(ChangePasswordFormSchema),
@@ -37,11 +39,7 @@ const ChangePasswordForm = () => {
 		setFormErrorMessage('')
 
 		try {
-			await fetcher('/customer', {
-				method: 'PATCH',
-				body: JSON.stringify({ password: data.password }),
-				cache: 'no-cache',
-			})
+			await updatePassword(data.password)
 
 			setFormSuccessMessage('Password updated successfully!')
 
@@ -49,16 +47,14 @@ const ChangePasswordForm = () => {
 			activeElement.blur()
 			form.reset()
 		} catch (error) {
-			if (error instanceof FetcherError) {
-				if (error.response.status === 401) {
-					const url = '/login?redirect=' + encodeURIComponent(pathname) + '&reason=session_expired'
-					return router.push(url)
-				} else {
-					setFormErrorMessage(error.response.data.message)
-				}
-			} else {
-				throw new Error('Something went wrong.')
+			const { message } = error as Error
+			if (message === 'Session expired') {
+				const url = makeLoginRedirectURL(pathname, 'session_expired')
+				router.push(url.toString())
+				return
 			}
+
+			setFormErrorMessage(message)
 		}
 	}
 

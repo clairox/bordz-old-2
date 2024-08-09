@@ -5,7 +5,6 @@ import {
 	ensureNumber,
 	ensureBoolean,
 	ensureArray,
-	ensureMoney,
 	ensureImage,
 	ensureSelectedOption,
 } from '@/lib/utils/typeGuarding'

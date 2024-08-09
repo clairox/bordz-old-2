@@ -6,14 +6,14 @@ import Link from 'next/link'
 import React from 'react'
 
 const AccountSidebar = () => {
+	const { customer } = useAccountContext()
+
 	const handleLogout = async () => {
 		const { success } = await logout()
 		if (success) {
 			window.location.href = '/'
 		}
 	}
-
-	const { customer } = useAccountContext()
 
 	return (
 		<div className="col-span-4 flex flex-col">

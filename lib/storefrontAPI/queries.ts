@@ -84,20 +84,28 @@ const GET_COLLECTION = gql(`
 			title
 			products(first: $limit, sortKey: $sortKey, reverse: $reverse, filters: $filters) {
 				nodes {
+					availableForSale
+					description
+					handle
 					id
 					title
-					handle
-					description
-					availableForSale
-					priceRange {
-						maxVariantPrice {
-							amount
-						}
-					}
+					totalInventory
 					featuredImage {
 						src
 						width
 						height
+					}
+					compareAtPriceRange {
+						maxVariantPrice {
+							amount
+							currencyCode
+						}
+					}
+					priceRange {
+						maxVariantPrice {
+							amount
+							currencyCode
+						}
 					}
 				}
 				pageInfo {
@@ -107,7 +115,6 @@ const GET_COLLECTION = gql(`
 					label
 					values {
 						label
-						input
 						count
 					}
 				}
@@ -261,6 +268,14 @@ const GET_CUSTOMER = gql(`
 						currencyCode
 					}
 				}
+			}
+			metafields(identifiers: [
+					{ namespace: "custom", key: "cartid" },
+					{ namespace: "custom", key: "birthdate" },
+					{ namespace: "custom", key: "wishlist" },
+				]) {
+				key
+				value
 			}
 		}
 	}

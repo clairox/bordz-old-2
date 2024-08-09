@@ -14,8 +14,6 @@ const Settings = () => {
 		router.push('/account/delete-account')
 	}
 
-	const { email, firstName, lastName, defaultAddress } = customer
-
 	return (
 		<div>
 			<div className="w-full">
@@ -34,11 +32,11 @@ const Settings = () => {
 					</div>
 					<div>
 						<p className="font-semibold">Email</p>
-						<p className="mb-3">{email}</p>
+						<p className="mb-3">{customer?.email}</p>
 						<p className="font-semibold">First name</p>
-						<p className="mb-3">{firstName}</p>
+						<p className="mb-3">{customer?.firstName}</p>
 						<p className="font-semibold">Last name</p>
-						<p>{lastName}</p>
+						<p>{customer?.lastName}</p>
 					</div>
 				</div>
 				<div className="px-8 py-5 w-full border-r border-b border-black">
@@ -48,7 +46,7 @@ const Settings = () => {
 							Edit
 						</Link>
 					</div>
-					{defaultAddress !== undefined ? <p>Address</p> : <p>No home address saved.</p>}
+					{customer?.defaultAddress !== undefined ? <p>Address</p> : <p>No home address saved.</p>}
 				</div>
 				<div className="px-8 py-5 w-full border-r border-b border-black">
 					<h2 className="mb-6 font-semibold text-lg">Delete Account</h2>

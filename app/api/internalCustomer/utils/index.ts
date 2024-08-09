@@ -4,7 +4,7 @@ import { DELETE_CUSTOMER } from '@/lib/adminAPI/mutations'
 import { gqlFetcher } from '@/lib/fetcher'
 import { UPDATE_CUSTOMER } from '@/lib/storefrontAPI/mutations'
 import { GET_CUSTOMER_ID_ONLY } from '@/lib/storefrontAPI/queries'
-import { APIError, makeGQLError, UserError } from '@/lib/utils/api'
+import { GenericAPIError, makeGQLError, UserError } from '@/lib/utils/api'
 import { print } from 'graphql'
 
 type UpdateCustomerResult = UpdateCustomerMutation['customerUpdate']
@@ -18,16 +18,16 @@ const makeCustomerUserError = (errors: CustomerUserError[]) => {
 	switch (code) {
 		case 'UNIDENTIFIED_CUSTOMER':
 			message = 'Login failed. Please verify your email and password.'
-			return new APIError(message, code, 401)
+			return new GenericAPIError(message, code, 401)
 		default:
-			return new APIError()
+			return new GenericAPIError()
 	}
 }
 
 const makeDeleteCustomerUserError = (errors: UserError[]) => {
 	const message = errors[0].message
 	const code = 'DELETE_ERROR'
-	return new APIError(message, code, 500)
+	return new GenericAPIError(message, code, 500)
 }
 
 export const updateCustomer = async (
@@ -62,7 +62,7 @@ export const updateCustomer = async (
 
 	const customer = updateCustomerResult?.customer
 	if (customer == undefined) {
-		throw new APIError()
+		throw new GenericAPIError()
 	}
 
 	// NOTE customerAccessToken will not be defined unless password is updated
@@ -90,7 +90,7 @@ export const getCustomer = async (customerAccessToken: string) => {
 
 	const customer = data?.customer
 	if (customer == undefined) {
-		throw new APIError()
+		throw new GenericAPIError()
 	}
 
 	return { customer }
@@ -122,7 +122,7 @@ export const deleteCustomer = async (customerId: string) => {
 
 	const deletedCustomerId = deleteCustomerResult?.deletedCustomerId
 	if (deletedCustomerId == undefined) {
-		throw new APIError()
+		throw new GenericAPIError()
 	}
 
 	return { deletedCustomerId }

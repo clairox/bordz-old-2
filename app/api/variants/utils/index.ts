@@ -1,7 +1,7 @@
 import { GetProductVariantsQuery, ProductVariant } from '@/__generated__/admin/graphql'
 import { GET_VARIANTS } from '@/lib/adminAPI/query'
 import { gqlFetcher } from '@/lib/fetcher'
-import { APIError, makeGQLError } from '@/lib/utils/api'
+import { GenericAPIError, makeGQLError } from '@/lib/utils/api'
 import { extractResourceId } from '@/lib/utils/ids'
 import { print } from 'graphql'
 
@@ -11,7 +11,7 @@ const DEFAULT_LIMIT = 40
 
 const toGetVariantsQueryString = (ids: string[]): string => {
 	if (ids.length === 0) {
-		throw new APIError("'ids' should contain at least one item")
+		throw new GenericAPIError("'ids' should contain at least one item")
 	}
 
 	let queryString = 'id:'
@@ -52,7 +52,7 @@ export const getVariants = async (ids: string[], limit: number = DEFAULT_LIMIT) 
 	const variants = getProductVariantsResult.nodes
 	const hasNextPage = getProductVariantsResult?.pageInfo.hasNextPage
 	if (variants == undefined || hasNextPage == undefined) {
-		throw new APIError()
+		throw new GenericAPIError()
 	}
 
 	return { variants, hasNextPage }

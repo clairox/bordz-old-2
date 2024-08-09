@@ -11,13 +11,12 @@ import DeleteAccountFormSchema from './schema'
 import { usePathname, useRouter } from 'next/navigation'
 import { login, logout } from '@/lib/auth'
 import { useAccountContext } from '@/context/AccountContext/AccountContext'
-import { fetcher } from '@/lib/fetcher'
-import { FetcherError } from '@/lib/fetcher/fetcher'
+import { makeLoginRedirectURL } from '@/lib/auth/auth'
 
 type FormData = z.infer<typeof DeleteAccountFormSchema>
 
 const DeleteAccountForm = () => {
-	const { customer } = useAccountContext()
+	const { customer, deleteCustomer } = useAccountContext()
 
 	const router = useRouter()
 	const pathname = usePathname()
@@ -46,26 +45,21 @@ const DeleteAccountForm = () => {
 		}
 
 		try {
-			await fetcher('/customer', {
-				method: 'DELETE',
-				cache: 'no-cache',
-			})
+			await deleteCustomer()
 
 			const { success } = await logout()
 			if (success) {
 				window.location.href = '/'
 			}
 		} catch (error) {
-			if (error instanceof FetcherError) {
-				if (error.response.status === 401) {
-					const url = '/login?redirect=' + encodeURIComponent(pathname) + '&reason=session_expired'
-					return router.push(url)
-				} else {
-					setFormErrorMessage(error.response.data.message)
-				}
-			} else {
-				throw new Error('Something went wrong')
+			const { message } = error as Error
+			if (message === 'Session expired') {
+				const url = makeLoginRedirectURL(pathname, 'session_expired')
+				router.push(url.toString())
+				return
 			}
+
+			setFormErrorMessage(message)
 		}
 	}
 

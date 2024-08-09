@@ -1,32 +1,39 @@
-import AccountRoot from '@/components/Account/AccountRoot'
-import { getClient } from '@/lib/apollo/apolloClient'
-import { GET_CUSTOMER } from '@/lib/storefrontAPI/queries'
-import { cookies } from 'next/headers'
-import { redirect } from 'next/navigation'
+'use client'
 import React from 'react'
+import Addresses from '@/components/Account/Sections/Addresses'
+import ChangePassword from '@/components/Account/Sections/ChangePassword'
+import DeleteAccount from '@/components/Account/Sections/DeleteAccount'
+import Orders from '@/components/Account/Sections/Orders'
+import PersonalInfo from '@/components/Account/Sections/PersonalInfo'
+import Settings from '@/components/Account/Sections/Settings'
+import { useParams } from 'next/navigation'
+import { useAccountContext } from '@/context/AccountContext/AccountContext'
 
-const Page: React.FunctionComponent<{ params: { section: string[] } }> = async ({ params }) => {
-	const customerAccessToken = cookies().get('customerAccessToken')
-	if (!customerAccessToken) {
-		redirect('/login')
+const Page = () => {
+	const section = useParams().section[0]
+
+	const { loading } = useAccountContext()
+
+	if (loading) {
+		return <div>Loading...</div>
 	}
 
-	const { data, error } = await getClient().query({
-		query: GET_CUSTOMER,
-		variables: { customerAccessToken: customerAccessToken.value },
-	})
-
-	if (error) {
-		console.error(error.message)
-		return <></>
+	switch (section) {
+		case 'settings':
+			return <Settings />
+		case 'orders':
+			return <Orders />
+		case 'personal-info':
+			return <PersonalInfo />
+		case 'addresses':
+			return <Addresses />
+		case 'change-password':
+			return <ChangePassword />
+		case 'delete-account':
+			return <DeleteAccount />
+		default:
+			return <></>
 	}
-
-	if (data.customer === undefined) {
-		redirect('/login')
-	}
-
-	const [sectionParam] = params.section
-	return <AccountRoot section={sectionParam} customer={data.customer} />
 }
 
 export default Page

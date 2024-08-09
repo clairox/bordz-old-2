@@ -15,6 +15,14 @@ type AuthResponse = {
 	error?: { message: string; code: string; field?: string[] }
 }
 
+export const makeLoginRedirectURL = (redirect: string, reason: string): URL => {
+	const url = new URL('/login', window.location.origin)
+	url.searchParams.set('redirect', encodeURIComponent(redirect))
+	url.searchParams.set('reason', reason)
+
+	return url
+}
+
 const mergeCarts = async (sourceCartId: string, targetCartId: string): Promise<Cart | null> => {
 	const { data, error } = await gqlStorefrontFetcher({
 		query: print(GET_CART),
@@ -68,32 +76,28 @@ export const login = async (email: string, password: string): Promise<LoginRespo
 			cache: 'no-cache' as RequestCache,
 		}
 		const response = await fetcher('/login', config)
-
-		const customer = await getInternalCustomer()
-		if (customer == undefined) {
-			throw new Error('No customer was found after login')
-		}
+		const customer = response.data
 
 		// Merge carts
-		const currentCartId = localStorage.getItem('cartId')
-		if (currentCartId) {
-			const targetCart = await mergeCarts(currentCartId, customer.cartId)
+		// const currentCartId = localStorage.getItem('cartId')
+		// if (currentCartId) {
+		// 	const targetCart = await mergeCarts(currentCartId, customer.cartId)
 
-			if (targetCart != undefined) {
-				localStorage.setItem('cartId', targetCart.id)
-			}
-		}
+		// 	if (targetCart != undefined) {
+		// 		localStorage.setItem('cartId', targetCart.id)
+		// 	}
+		// }
 
 		// Merge wishlists
-		const localWishlist: string[] = JSON.parse(localStorage.getItem('wishlist') || '[]')
-		const mergedWishlist = mergeWishlists(localWishlist, customer.wishlist)
+		// const localWishlist: string[] = JSON.parse(localStorage.getItem('wishlist') || '[]')
+		// const mergedWishlist = mergeWishlists(localWishlist, customer.wishlist)
 
-		const updatedCustomer = await updateInternalCustomer({ wishlist: mergedWishlist })
-		if (updatedCustomer == undefined) {
-			throw new Error('A problem has occurred while updating customer')
-		}
+		// const updatedCustomer = await updateInternalCustomer({ wishlist: mergedWishlist })
+		// if (updatedCustomer == undefined) {
+		// 	throw new Error('A problem has occurred while updating customer')
+		// }
 
-		localStorage.setItem('wishlist', JSON.stringify(updatedCustomer.wishlist))
+		// localStorage.setItem('wishlist', JSON.stringify(updatedCustomer.wishlist))
 
 		return { success: true, data: response.data }
 	} catch (error) {
@@ -101,6 +105,7 @@ export const login = async (email: string, password: string): Promise<LoginRespo
 			const { message, code } = error.response.data
 			return { success: false, error: { message, code } }
 		} else {
+			console.log(error)
 			throw new Error('Something went wrong, please try again.')
 		}
 	}
@@ -122,9 +127,8 @@ export const signup = async (
 			cache: 'no-cache' as RequestCache,
 		}
 		const response = await fetcher('/signup', config)
-		const customer = response.data
 
-		return await login(customer.email, password)
+		return { success: true, data: response.data }
 	} catch (error) {
 		if (error instanceof FetcherError) {
 			const { message, code } = error.response.data

@@ -1,8 +1,7 @@
-import prisma from '@/prisma/client'
-import { serialize } from 'cookie'
+import { handleErrorResponse } from '@/lib/utils/api'
 import { NextRequest, NextResponse } from 'next/server'
-import { deleteCustomer, getCustomer, updateCustomer } from './utils'
-import { APIError, DEFAULT_ERROR_RESPONSE } from '@/lib/utils/api'
+import { deleteCustomer, getCustomer, updateCustomer } from './common/requestHandlers'
+import { serialize } from 'cookie'
 
 export const GET = async (request: NextRequest) => {
 	const customerAccessToken = request.cookies.get('customerAccessToken')
@@ -14,28 +13,10 @@ export const GET = async (request: NextRequest) => {
 	}
 
 	try {
-		const { customer } = await getCustomer(customerAccessToken.value)
-
-		const internalCustomer = await prisma.customer.findUnique({
-			where: {
-				id: customer.id,
-			},
-		})
-
-		if (internalCustomer == undefined) {
-			return DEFAULT_ERROR_RESPONSE
-		}
-
-		const response = NextResponse.json(internalCustomer)
-		response.headers.append('Access-Control-Allow-Origin', '*')
-		return response
+		const customer = await getCustomer(customerAccessToken.value)
+		return NextResponse.json(customer)
 	} catch (error) {
-		if (error instanceof APIError) {
-			const { message, code, status } = error
-			return NextResponse.json({ message, code }, { status })
-		} else {
-			return DEFAULT_ERROR_RESPONSE
-		}
+		return handleErrorResponse(error as Error)
 	}
 }
 
@@ -48,30 +29,23 @@ export const PATCH = async (request: NextRequest) => {
 		)
 	}
 
-	const { email, password, firstName, lastName, birthDate, cartId, wishlist } = await request.json()
+	const body = await request.json()
+
+	const values = {
+		email: body.email,
+		password: body.password,
+		firstName: body.firstName,
+		lastName: body.lastName,
+		birthDate: body.birthDate,
+		phone: body.phone,
+		cartId: body.cartId,
+		wishlist: body.wishlist,
+	}
 
 	try {
-		const { customer, newAccessToken } = await updateCustomer(
-			customerAccessToken.value,
-			email,
-			password,
-			firstName,
-			lastName
-		)
+		const { customer, newAccessToken } = await updateCustomer(customerAccessToken.value, values)
 
-		const internalCustomer = await prisma.customer.update({
-			where: {
-				id: customer.id,
-			},
-			data: {
-				cartId,
-				birthDate,
-				wishlist,
-			},
-		})
-
-		const response = NextResponse.json(internalCustomer)
-
+		const response = NextResponse.json(customer)
 		if (newAccessToken) {
 			const { accessToken, expiresAt } = newAccessToken
 
@@ -88,15 +62,9 @@ export const PATCH = async (request: NextRequest) => {
 			response.headers.append('Set-Cookie', cookie)
 		}
 
-		response.headers.append('Access-Control-Allow-Origin', '*')
 		return response
 	} catch (error) {
-		if (error instanceof APIError) {
-			const { message, code, status } = error
-			return NextResponse.json({ message, code }, { status })
-		} else {
-			return DEFAULT_ERROR_RESPONSE
-		}
+		return handleErrorResponse(error as Error)
 	}
 }
 
@@ -109,25 +77,12 @@ export const DELETE = async (request: NextRequest) => {
 		)
 	}
 
+	const { id } = await request.json()
+
 	try {
-		const { customer } = await getCustomer(customerAccessToken.value)
-		const { deletedCustomerId } = await deleteCustomer(customer.id)
-
-		await prisma.customer.delete({
-			where: {
-				id: deletedCustomerId,
-			},
-		})
-
-		const response = NextResponse.json({})
-		response.headers.append('Access-Control-Allow-Origin', '*')
-		return response
+		await deleteCustomer(id)
+		return new NextResponse(null, { status: 204 })
 	} catch (error) {
-		if (error instanceof APIError) {
-			const { message, code, status } = error
-			return NextResponse.json({ message, code }, { status })
-		} else {
-			return DEFAULT_ERROR_RESPONSE
-		}
+		return handleErrorResponse(error as Error)
 	}
 }

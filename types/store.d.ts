@@ -1,8 +1,6 @@
-import { Money } from '@phosphor-icons/react'
-
-export type MailingAddress = {
+type MailingAddress = {
 	address1: string
-	address2: string
+	address2?: string
 	city: string
 	country: string
 	formatted: string[]
@@ -10,14 +8,14 @@ export type MailingAddress = {
 	firstName: string
 	id: string
 	name: string
-	phone: string
+	phone?: string
 	provinceCode: string
 	zip: string
 }
 
-export type OrderCancelReason = 'CUSTOMER' | 'DECLINED' | 'FRAUD' | 'INVENTORY' | 'OTHER' | 'STAFF'
+type OrderCancelReason = 'CUSTOMER' | 'DECLINED' | 'FRAUD' | 'INVENTORY' | 'OTHER' | 'STAFF'
 
-export type OrderFinancialStatus =
+type OrderFinancialStatus =
 	| 'AUTHORIZED'
 	| 'PAID'
 	| 'PARTIALLY_PAID'
@@ -26,7 +24,7 @@ export type OrderFinancialStatus =
 	| 'REFUNDED'
 	| 'VOIDED'
 
-export type OrderFulfillmentStatus =
+type OrderFulfillmentStatus =
 	| 'FULFILLED'
 	| 'IN_PROGRESS'
 	| 'ON_HOLD'
@@ -37,18 +35,7 @@ export type OrderFulfillmentStatus =
 	| 'SCHEDULED'
 	| 'UNFULFILLED'
 
-export type OrderLineItem = {
-	currentQuantity: number
-	quantity: number
-	title: string
-}
-
-export type Money = {
-	amount: number
-	currencyCode: string
-}
-
-export type Order = {
+type Order = {
 	billingAddress: MailingAddress
 	cancelReason?: OrderCancelReason
 	canceledAt?: Date
@@ -72,7 +59,13 @@ export type Order = {
 	totalShippingPrice: Money
 }
 
-export type Customer = {
+type OrderLineItem = {
+	currentQuantity: number
+	quantity: number
+	title: string
+}
+
+type Customer = {
 	acceptsMarketing: boolean
 	addresses: MailingAddress[]
 	createdAt: Date
@@ -87,6 +80,14 @@ export type Customer = {
 	phone?: string
 	tags: string[]
 	updatedAt: Date
+	cartId: string
+	birthDate: Date
+	wishlist: string[]
+}
+
+export type Money = {
+	amount: number
+	currencyCode: string
 }
 
 export type Image = {
@@ -146,3 +147,37 @@ export type Cart = {
 	lines: CartLine[]
 	totalQuantity: number
 }
+
+export type Metafield = {
+	key: string
+	value: string
+}
+
+type UpdatePersonalInfoValues = Partial<{
+	email: string
+	firstName: string
+	lastName: string
+	birthDate: string
+	phone: string
+	addresses: MailingAddress[]
+	defaultAddress: MailingAddress
+}>
+
+type UpdateCustomerValues = UpdatePersonalInfoValues & {
+	cartId: string
+	wishlist: string[]
+	password: string
+}
+
+type ShopifyUserError = {
+	code?: string | null
+	field?: Array<string> | null
+	message: string
+}
+
+type WishlistItem = {
+	productId: string
+	variantId: string
+}
+
+type Wishlist = WishlistItem[]

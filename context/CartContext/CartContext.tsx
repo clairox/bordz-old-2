@@ -54,7 +54,7 @@ const useProvideCart = () => {
 
 	const getCartIdFromCustomer = async (): Promise<string | null> => {
 		try {
-			const response = await fetcher('/customer')
+			const response = await fetcher('/internalCustomer')
 			const { cartId } = response.data
 
 			return cartId

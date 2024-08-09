@@ -10,8 +10,7 @@ export const POST = async () => {
 		path: '/',
 	})
 
-	const response = NextResponse.json({ success: true })
+	const response = NextResponse.json({})
 	response.headers.append('Set-Cookie', cookie)
-	response.headers.append('Access-Control-Allow-Origin', '*')
 	return response
 }

@@ -1,4 +1,4 @@
-import { APIError, DEFAULT_ERROR_RESPONSE } from '@/lib/utils/api'
+import { GenericAPIError, DEFAULT_ERROR_RESPONSE } from '@/lib/utils/api'
 import { NextRequest, NextResponse } from 'next/server'
 import { getVariants } from './utils'
 import { toSafeProductVariant } from './utils/typeGuard'
@@ -20,7 +20,7 @@ export const POST = async (request: NextRequest) => {
 		response.headers.append('Access-Control-Allow-Origin', '*')
 		return response
 	} catch (error) {
-		if (error instanceof APIError) {
+		if (error instanceof GenericAPIError) {
 			const { message, code, status } = error
 			return NextResponse.json({ message, code }, { status })
 		} else {

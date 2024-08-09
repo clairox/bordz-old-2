@@ -1,6 +1,14 @@
+import { TypedDocumentNode } from '@graphql-typed-document-node/core'
+import { GraphQLError, GraphQLFormattedError, print } from 'graphql'
+import { GenericAPIError } from '../utils/api'
+import { string } from 'zod'
+import { Code } from 'lucide-react'
+import { ShopifyUserError } from '@/types/store'
+
 export class FetcherError extends Error {
-	public status: number
+	public status: number // TODO remove status property. We will get status from response
 	public response: FetcherResponse
+	public code: string = 'Fetcher Error'
 
 	constructor(message: string, status: number, response: FetcherResponse) {
 		super(message)
@@ -43,15 +51,19 @@ const fetcher = async (path: string, config?: RequestInit) => {
 		headers,
 	})
 
-	const data = await response.json()
-
 	if (!response.ok) {
 		const message = `Request failed with status code ${response.status}`
+		const data = await response.json()
 		const errorResponse = new FetcherResponse(response, data)
 
 		throw new FetcherError(message, response.status, errorResponse)
 	}
 
+	if (response.status === 204) {
+		return new FetcherResponse(response, null)
+	}
+
+	const data = await response.json()
 	return new FetcherResponse(response, data)
 }
 
@@ -117,6 +129,185 @@ const gqlStorefrontFetcher = async (config: GQLSpecificFetcherConfig) => {
 		api: 'storefront',
 		token: storefrontAccessToken,
 	})
+}
+
+type GraphQLFetcherConfig = {
+	variables?: Record<string, any>
+	cache?: RequestCache
+}
+
+type GraphQLFetcherResponse<Q> = {
+	data: Q | null | undefined
+	errors: GraphQLError[] | null | undefined
+}
+
+export class GraphQLFetcherError extends Error {
+	public status: number = 500
+	public extensions: { [key: string]: unknown }
+
+	constructor(error: GraphQLError) {
+		super(error.message)
+
+		this.extensions = error.extensions
+		this.evaluateStatus()
+	}
+
+	evaluateStatus() {
+		switch (this.message) {
+			case 'Creating Customer Limit exceeded. Please try again later.':
+				this.status = 429
+				break
+			default:
+				this.status = 500
+				break
+		}
+	}
+}
+
+export class GraphQLUserError extends Error {
+	public status: number = 500
+	public code: string = 'USER_ERROR'
+
+	constructor(message: string, statusEvaluation?: Record<string, any>) {
+		super(message)
+
+		this.evaluateStatus(statusEvaluation)
+	}
+
+	evaluateStatus(statusEvaluation?: Record<string, any>) {
+		if (statusEvaluation == undefined) {
+			this.status = 500
+			return
+		}
+
+		const message = this.message
+
+		const keys = Object.keys(statusEvaluation)
+		if (keys.includes(message)) {
+			this.status = statusEvaluation[message]
+		} else {
+			this.status = 500
+		}
+	}
+}
+
+export class GraphQLUserErrorWithCode extends GraphQLUserError {
+	constructor(message: string, code: string, statusEvaluation?: Record<string, any>) {
+		super(message, statusEvaluation)
+
+		this.code = code
+		this.evaluateStatus(statusEvaluation)
+	}
+
+	evaluateStatus(statusEvaluation?: Record<string, any>) {
+		if (statusEvaluation == undefined) {
+			this.status = 500
+			return
+		}
+
+		const code = this.code
+
+		const keys = Object.keys(statusEvaluation)
+		if (keys.includes(code)) {
+			this.status = statusEvaluation[code]
+		} else {
+			this.status = 500
+		}
+	}
+}
+
+export const checkGraphQLErrors = (errors: GraphQLError[] | null | undefined) => {
+	if (errors) {
+		throw new GraphQLFetcherError(errors[0])
+	}
+}
+
+export const checkUserErrors = (
+	errors: ShopifyUserError[] | null | undefined,
+	statusEvaluation?: Record<string, number>
+) => {
+	if (errors && errors.length > 0) {
+		const { message, code } = errors[0]
+		if (code) {
+			throw new GraphQLUserErrorWithCode(message, code, statusEvaluation)
+		} else {
+			throw new GraphQLUserError(message, statusEvaluation)
+		}
+	}
+}
+
+// TODO const shopifyGraphQLAPIFetcher = () => {}
+
+export const storefrontAPIFetcher = async <Q, V>(
+	query: TypedDocumentNode<Q, V>,
+	config?: GraphQLFetcherConfig
+): Promise<GraphQLFetcherResponse<Q>> => {
+	const token = process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN
+	if (token == undefined) {
+		throw new Error('Missing Storefront API access token')
+	}
+
+	const url = process.env.SHOPIFY_STOREFRONT_BASE_URL
+	if (url == undefined) {
+		throw new Error('Missing Storefront API URL')
+	}
+
+	const fetchResponse = await fetch(url, {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json', 'X-Shopify-Storefront-Access-Token': token },
+		body: JSON.stringify({
+			query: print(query),
+			variables: config?.variables,
+		}),
+		cache: config?.cache,
+	})
+
+	const data = await fetchResponse.json()
+
+	if (!fetchResponse.ok) {
+		const message = `Request failed with status code ${fetchResponse.status}`
+		const errorResponse = new FetcherResponse(fetchResponse, data)
+
+		throw new FetcherError(message, fetchResponse.status, errorResponse)
+	}
+
+	return data as GraphQLFetcherResponse<Q>
+}
+
+export const adminAPIFetcher = async <Q, V>(
+	query: TypedDocumentNode<Q, V>,
+	config?: GraphQLFetcherConfig
+): Promise<GraphQLFetcherResponse<Q>> => {
+	const token = process.env.SHOPIFY_ADMIN_API_ACCESS_TOKEN
+	if (token == undefined) {
+		throw new Error('Missing Admin API access token')
+	}
+
+	const url = process.env.SHOPIFY_ADMIN_BASE_URL
+	if (url == undefined) {
+		throw new Error('Missing Admin API URL')
+	}
+
+	const fetchResponse = await fetch(url, {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json', 'X-Shopify-Access-Token': token },
+		body: JSON.stringify({
+			query: print(query),
+			variables: config?.variables,
+		}),
+		cache: config?.cache,
+	})
+
+	const data = await fetchResponse.json()
+
+	if (!fetchResponse.ok) {
+		const message = `Request failed with status code ${fetchResponse.status}`
+		const errorResponse = new FetcherResponse(fetchResponse, data)
+
+		throw new FetcherError(message, fetchResponse.status, errorResponse)
+	}
+
+	return data as GraphQLFetcherResponse<Q>
 }
 
 export { fetcher, gqlFetcher, gqlStorefrontFetcher }
