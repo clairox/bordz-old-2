@@ -77,7 +77,7 @@ describe('CollectionProductListItem', () => {
 		const product = testProducts[0]
 		const { getByRole, unmount } = render(<CollectionProductListItem product={product} />)
 
-		expect(getByRole('link')).toHaveAttribute('href', '/shop/products/' + product.handle)
+		expect(getByRole('link')).toHaveAttribute('href', '/products/' + product.handle)
 		unmount()
 	})
 })

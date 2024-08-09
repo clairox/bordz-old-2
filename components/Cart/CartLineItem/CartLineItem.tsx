@@ -52,11 +52,7 @@ const CartLineItem: React.FunctionComponent<{
 			</div>
 			<div className="cart-item-right flex flex-col">
 				<div className="flex justify-between">
-					<Link
-						onClick={handleLinkClick}
-						className="hover:underline"
-						href={`/shop/products/${handle}`}
-					>
+					<Link onClick={handleLinkClick} className="hover:underline" href={`/products/${handle}`}>
 						<h1 className="font-semibold">{productTitle}</h1>
 					</Link>
 					<button data-testid="deleteButton" onClick={handleDelete}>

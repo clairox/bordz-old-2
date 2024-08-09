@@ -93,7 +93,7 @@ const Page = () => {
 					const { name: variantName, value: variantValue } = selectedOptions[0]
 					return (
 						<article key={product.handle} className="border-r border-b border-black">
-							<Link href={`/shop/products/${product.handle}`}>
+							<Link href={`/products/${product.handle}`}>
 								<div className="relative border-b border-gray">
 									<Image
 										src={product.featuredImage?.src}

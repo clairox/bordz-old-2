@@ -22,7 +22,7 @@ const CollectionProductListItem: React.FunctionComponent<{ product: ProductListI
 }) => {
 	return (
 		<article className="border-r border-b border-black">
-			<Link href={`/shop/products/${product.handle}`}>
+			<Link href={`/products/${product.handle}`}>
 				<div className="border-b border-gray">
 					<Image
 						src={product.featuredImage.src}
