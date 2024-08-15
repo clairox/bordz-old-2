@@ -4,7 +4,7 @@ import { loadWishlist } from '@/lib/utils/wishlist'
 
 const WishlistInit: React.FunctionComponent<React.PropsWithChildren> = ({ children }) => {
 	useEffect(() => {
-		loadWishlist()
+		//loadWishlist()
 	}, [])
 
 	return <>{children}</>

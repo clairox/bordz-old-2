@@ -129,7 +129,7 @@ const useProvideCart = () => {
 	}, [loadCartId, getCartQuery])
 
 	useEffect(() => {
-		loadCart()
+		//loadCart()
 	}, [loadCart])
 
 	const updateCartLine = useCallback(

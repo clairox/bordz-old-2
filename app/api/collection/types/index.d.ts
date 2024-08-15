@@ -22,18 +22,6 @@ type FilterArray = Partial<FilterObject[]>
 
 type SortByKey = 'recommended' | 'newest' | 'priceLowToHigh' | 'priceHighToLow'
 
-type ProductListItem = {
-	availableForSale: boolean
-	description: string
-	featuredImage: Image
-	handle: string
-	id: string
-	price: Money
-	title: string
-	totalInventory: number
-	compareAtPrice?: Money
-}
-
 type AvailableFilter = {
 	label: string
 	values: Array<{

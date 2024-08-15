@@ -7,16 +7,15 @@ export const isSortByKey = (value: string | undefined): value is SortByKey => {
 	return sortBy.includes(value as SortByKey)
 }
 
-export const processPriceParams = (
-	priceMin: string | undefined,
-	priceMax: string | undefined
-): number[] => {
-	if (
-		priceMin === undefined ||
-		priceMax === undefined ||
-		!isNumeric(priceMin) ||
-		!isNumeric(priceMax)
-	) {
+export const processPriceParam = (price: string | undefined): number[] => {
+	const priceRange = price?.split(',')
+	if (priceRange == undefined || priceRange.length !== 2) {
+		return []
+	}
+
+	const [priceMin, priceMax] = priceRange
+
+	if (!isNumeric(priceMin) || !isNumeric(priceMax)) {
 		return []
 	}
 

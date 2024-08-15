@@ -180,4 +180,16 @@ type WishlistItem = {
 	variantId: string
 }
 
-type Wishlist = WishlistItem[]
+type Wishlist = Array<WishlistItem>
+
+type ProductListItem = {
+	availableForSale: boolean
+	description: string
+	featuredImage: Image
+	handle: string
+	id: string
+	price: Money
+	title: string
+	totalInventory: number
+	compareAtPrice?: Money
+}

@@ -40,7 +40,7 @@ export class FetcherResponse {
 }
 
 const fetcher = async (path: string, config?: RequestInit) => {
-	const url = process.env.NEXT_PUBLIC_API_URL + path
+	const url = path.startsWith('/') ? process.env.NEXT_PUBLIC_API_URL + path : path
 	const headers = {
 		'Content-Type': 'application/json',
 		...config?.headers,

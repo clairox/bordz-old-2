@@ -1,16 +1,22 @@
-import React from 'react'
-import RangeSlider from '@/components/UI/RangeSlider'
+import React, { useEffect, useMemo, useState } from 'react'
 import { roundUp } from '@/lib/utils/number'
+import _ from 'lodash'
+import { Slider } from '../Slider'
 
 const PriceRangeSlider: React.FunctionComponent<{
 	setValue: (newValue: number[]) => void
-	renderedValue: number[]
-	setRenderedValue: (newValue: number[]) => void
+	initialValue: number[]
 	min: number
 	max: number
 	step?: number
-}> = ({ setValue, renderedValue, setRenderedValue, min, max, step = 5 }) => {
-	let [minSelectedValue, maxSelectedValue] = renderedValue
+}> = ({ setValue, initialValue, min, max, step = 5 }) => {
+	const [renderedValue, setRenderedValue] = useState(initialValue)
+	const [minSelectedValue, maxSelectedValue] = useMemo(() => renderedValue, [renderedValue])
+
+	useEffect(() => {
+		setRenderedValue(initialValue)
+	}, [initialValue])
+
 	const roundedMaxSelectedValue = roundUp(maxSelectedValue, step)
 
 	return (
@@ -19,13 +25,15 @@ const PriceRangeSlider: React.FunctionComponent<{
 				<div>${minSelectedValue}</div>
 				<div>${roundedMaxSelectedValue}</div>
 			</div>
-			<RangeSlider
-				setValue={setValue}
-				renderedValue={[minSelectedValue, roundedMaxSelectedValue]}
-				setRenderedValue={setRenderedValue}
+			<Slider
+				value={renderedValue}
+				onValueChange={newValue => setRenderedValue(newValue)}
+				onValueCommit={newValue => setValue(newValue)}
+				step={step}
+				minStepsBetweenThumbs={5}
 				min={min}
 				max={max}
-				step={step}
+				data-testid="slider"
 			/>
 		</div>
 	)

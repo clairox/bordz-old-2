@@ -1,7 +1,7 @@
 import { checkGraphQLErrors, storefrontAPIFetcher } from '@/lib/fetcher/fetcher'
 import { isSortByKey, makeProductFilters, makeSortInputs } from './utils'
 import { GET_COLLECTION, GET_COLLECTION_MAX_PRICE } from '@/lib/storefrontAPI/queries'
-import { toSafeAvailableFilter, toSafeProductListItem } from './validators'
+import { toSafeProductListItem } from './validators'
 
 export const getCollection = async (
 	handle: string,
@@ -41,17 +41,28 @@ export const getCollection = async (
 		const collection = data?.collection
 
 		const products = collection?.products.nodes
+		const title = collection?.title
 		const hasNextPage = collection?.products.pageInfo.hasNextPage
-		const availableFilters = collection?.products.filters
 
 		if (typeof hasNextPage !== 'boolean') {
 			throw new Error('hasNextPage is not of boolean type')
 		}
 
-		const safeProducts = products?.map(product => toSafeProductListItem(product))
-		const safeAvailableFilters = availableFilters?.map(filter => toSafeAvailableFilter(filter))
+		if (typeof title !== 'string') {
+			throw new Error('title is not of string type')
+		}
 
-		return { products: safeProducts, availableFilters: safeAvailableFilters, hasNextPage }
+		const safeProducts = products?.map(product => toSafeProductListItem(product))
+
+		const productCount = collection?.products.filters
+			?.find(filter => filter.label === 'Availability')
+			?.values.find(value => value.label === 'In stock')?.count
+
+		if (typeof productCount !== 'number') {
+			throw new Error('productCount is not of number type')
+		}
+
+		return { title, products: safeProducts, hasNextPage, productCount }
 	} catch (error) {
 		throw error
 	}
@@ -59,7 +70,6 @@ export const getCollection = async (
 
 export const getCollectionMaxPrice = async (
 	handle: string,
-	priceRange: number[],
 	subcategory?: string,
 	limit: number = 40,
 	brands: string[] = [],
@@ -71,7 +81,7 @@ export const getCollectionMaxPrice = async (
 		brands,
 		sizes,
 		colors,
-		price: priceRange,
+		price: [], // NOTE price filter should not influence max price
 	})
 	const variables = {
 		handle,

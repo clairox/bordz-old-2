@@ -1,7 +1,6 @@
 import { GraphQLError } from 'graphql'
 import { NextResponse } from 'next/server'
 import { FetcherError, GraphQLFetcherError, GraphQLUserError } from '../fetcher/fetcher'
-import { mapToObject } from './maps'
 
 export type UserError = { field?: string[] | null; message: string }
 
@@ -52,10 +51,4 @@ export const makeGQLError = (errors: GraphQLError[]) => {
 	const { message, extensions } = errors[0]
 	const code = extensions.code as string
 	return new GenericAPIError(message, code, 400)
-}
-
-export const makeObjectFromSearchParams = (
-	searchParams: URLSearchParams
-): Record<string, string> => {
-	return mapToObject(new Map(searchParams))
 }

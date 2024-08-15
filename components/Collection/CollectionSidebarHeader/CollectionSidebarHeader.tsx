@@ -1,23 +1,22 @@
-import { isValidPriceRange } from '@/lib/utils/collection'
 import { ProductFilterMap } from '@/types'
 import React from 'react'
 
 const CollectionSidebarHeader: React.FunctionComponent<{
 	selectedFilters: ProductFilterMap
-	priceFilter: number[]
+	isPriceFiltered: boolean
 	clearFilters: () => void
-	deselectNonPriceFilter: (filterKey: string, filterValue: string) => void
+	deselectToggleableFilter: (filterKey: string, filterValue: string) => void
 	removePriceFilter: () => void
 }> = ({
 	selectedFilters,
-	priceFilter = [],
+	isPriceFiltered,
 	clearFilters,
-	deselectNonPriceFilter,
+	deselectToggleableFilter,
 	removePriceFilter,
 }) => {
-	const hasFilters = selectedFilters.size > 0 || isValidPriceRange(priceFilter)
+	const hasFilters = selectedFilters.size > 0 || isPriceFiltered
 
-	const handleFilterClick = (key: string, value: string) => deselectNonPriceFilter(key, value)
+	const handleFilterClick = (key: string, value: string) => deselectToggleableFilter(key, value)
 
 	const makeSelectedFilterListElementByKey = (filterKey: string) => {
 		const values = selectedFilters.get(filterKey)
@@ -55,9 +54,9 @@ const CollectionSidebarHeader: React.FunctionComponent<{
 			{makeSelectedFilterListElementByKey('brand')}
 			{makeSelectedFilterListElementByKey('size')}
 			{makeSelectedFilterListElementByKey('color')}
-			{isValidPriceRange(priceFilter) && (
+			{isPriceFiltered && (
 				<div className="pt-2 cursor-pointer hover:underline" onClick={() => removePriceFilter()}>
-					x ${priceFilter[0]} - ${priceFilter[1]}
+					x ${selectedFilters.get('price')?.[0]} - ${selectedFilters.get('price')?.[1]}
 				</div>
 			)}
 		</div>

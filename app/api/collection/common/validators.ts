@@ -7,7 +7,8 @@ import {
 	ensureNumber,
 	ensureString,
 } from '@/lib/utils/typeGuarding'
-import { AvailableFilter, ProductListItem } from '../types'
+import { AvailableFilter } from '../types'
+import { ProductListItem } from '@/types/store'
 
 const ensureAvailableFilterValue = (filterValue: any): { label: string; count: number } => ({
 	label: ensureString(filterValue.label),

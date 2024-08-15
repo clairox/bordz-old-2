@@ -1,26 +1,55 @@
-import React from 'react'
+'use client'
 import CollectionView from '@/components/Collection/CollectionView'
-import { PreloadQuery } from '@/lib/apollo/apolloClient'
-import { GET_COLLECTION } from '@/lib/storefrontAPI/queries'
-import { getFiltersServer, getSortKey, MAX_PRODUCTS_PER_LOAD } from '@/lib/utils/collection'
-import _ from 'lodash'
+import useSearchParamsObject from '@/hooks/useSearchParamsObject'
+import { fetcher } from '@/lib/fetcher'
+import { ProductListItem } from '@/types/store'
+import { useParams } from 'next/navigation'
+import { useEffect, useState } from 'react'
 
-const CollectionPage: React.FunctionComponent<{
-	params: { collection: string[] }
-	searchParams: { [key: string]: string }
-}> = async ({ params, searchParams }) => {
-	const [collectionParam, subcollectionParam] = params.collection
+const Page = () => {
+	const [products, setProducts] = useState<ProductListItem[] | undefined>(undefined)
+	const [hasNextPage, setHasNextPage] = useState(false)
+	const [maxPrice, setMaxPrice] = useState(Infinity)
+	const [productCount, setProductCount] = useState(NaN)
 
-	const handle = collectionParam
-	const limit = MAX_PRODUCTS_PER_LOAD + _.toInteger(searchParams['start'])
-	const { sortKey, reverse } = getSortKey(searchParams['sortBy'])
-	const filters = getFiltersServer(searchParams, subcollectionParam)
+	const params = useParams()
+	const searchParams = useSearchParamsObject()
 
-	return (
-		<PreloadQuery query={GET_COLLECTION} variables={{ handle, limit, sortKey, filters, reverse }}>
-			<CollectionView />
-		</PreloadQuery>
-	)
+	useEffect(() => {
+		if (products === undefined) {
+			const [handle, subcategory] = params.collection as string[]
+
+			let url = `/collection?handle=${handle}`
+			if (subcategory) {
+				url += `subcategory=${subcategory}`
+			}
+			Object.keys(searchParams).forEach(key => (url += `${key}=${searchParams[key]}`))
+
+			fetcher(url)
+				.then(response => {
+					setProducts(response.data.products)
+					setHasNextPage(response.data.hasNextPage)
+					setMaxPrice(response.data.maxPrice)
+					setProductCount(response.data.productCount)
+				})
+				.catch(error => {
+					// TODO 500 page
+				})
+		}
+	}, [params, searchParams, products])
+
+	if (products) {
+		return (
+			<CollectionView
+				products={products}
+				maxPrice={maxPrice}
+				hasNextPage={hasNextPage}
+				productCount={productCount}
+			/>
+		)
+	}
+
+	return <></>
 }
 
-export default CollectionPage
+export default Page

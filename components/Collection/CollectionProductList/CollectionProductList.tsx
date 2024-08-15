@@ -1,5 +1,5 @@
 'use client'
-import { ProductListItem } from '@/types'
+import { ProductListItem } from '@/types/store'
 import Image from 'next/image'
 import Link from 'next/link'
 
@@ -9,8 +9,8 @@ const CollectionProductList: React.FunctionComponent<{
 	if (products.length > 0) {
 		return (
 			<div className="grid grid-cols-4">
-				{products.map((item: ProductListItem) => {
-					return <CollectionProductListItem key={item.handle} product={item} />
+				{products.map((product: ProductListItem) => {
+					return <CollectionProductListItem key={product.handle} product={product} />
 				})}
 			</div>
 		)
@@ -35,7 +35,7 @@ const CollectionProductListItem: React.FunctionComponent<{ product: ProductListI
 					<div className="h-12">
 						<span className="line-clamp-2">{product.title}</span>
 					</div>
-					<div className="font-semibold">${product.price}</div>
+					<div className="font-semibold">${product.price.amount}</div>
 				</div>
 			</Link>
 		</article>

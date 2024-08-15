@@ -123,6 +123,27 @@ const GET_COLLECTION = gql(`
 	}
 `)
 
+const GET_PRODUCT_FILTERS = gql(`
+	query GetProductFilters(
+		$handle: String!
+		$limit: Int!
+		$filters: [ProductFilter!]
+	) {
+		collection(handle: $handle) {
+			products(first: $limit, filters: $filters) {
+				filters {
+					label
+					values {
+						label
+						input
+						count
+					}
+				}
+			}
+		}
+	}
+`)
+
 const GET_COLLECTION_MAX_PRICE = gql(`
 	query GetCollectionMaxPrice(
 		$handle: String!
@@ -292,6 +313,7 @@ const GET_CUSTOMER_ID_ONLY = gql(`
 export {
 	GET_CART,
 	GET_COLLECTION,
+	GET_PRODUCT_FILTERS,
 	GET_COLLECTION_MAX_PRICE,
 	GET_PRODUCT,
 	GET_CUSTOMER,
