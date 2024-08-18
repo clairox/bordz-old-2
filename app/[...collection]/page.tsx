@@ -1,55 +1,57 @@
 'use client'
-import CollectionView from '@/components/Collection/CollectionView'
-import useSearchParamsObject from '@/hooks/useSearchParamsObject'
-import { fetcher } from '@/lib/fetcher'
-import { ProductListItem } from '@/types/store'
-import { useParams } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
+import CollectionHeader from '@/components/Collection/CollectionHeader'
+import CollectionSidebar from '@/components/Collection/CollectionSidebar'
+import CollectionProductList from '@/components/Collection/CollectionProductList'
+import CollectionFooter from '@/components/Collection/CollectionFooter'
+import { useRouter, useParams, usePathname, useSearchParams } from 'next/navigation'
+import { useCollection } from '@/hooks/useCollection'
 
 const Page = () => {
-	const [products, setProducts] = useState<ProductListItem[] | undefined>(undefined)
-	const [hasNextPage, setHasNextPage] = useState(false)
-	const [maxPrice, setMaxPrice] = useState(Infinity)
-	const [productCount, setProductCount] = useState(NaN)
+    const router = useRouter()
+    const pathname = usePathname()
+    const params = useParams()
+    const searchParams = useSearchParams()
+    const { title, subcategoryTitles, products, productCount, maxPrice, hasNextPage, loading } =
+        useCollection(searchParams)
 
-	const params = useParams()
-	const searchParams = useSearchParamsObject()
+    const [openRefinements, setOpenRefinements] = useState<string[]>([])
 
-	useEffect(() => {
-		if (products === undefined) {
-			const [handle, subcategory] = params.collection as string[]
+    return (
+        <div>
+            <CollectionHeader
+                title={title}
+                subcategoryTitles={subcategoryTitles}
+                pathname={pathname}
+            />
+            <div className="grid grid-cols-5">
+                <aside className="border-l border-black">
+                    <CollectionSidebar
+                        maxPrice={maxPrice}
+                        openRefinements={openRefinements}
+                        setOpenRefinements={setOpenRefinements}
+                    />
+                </aside>
+                <main className="col-span-4 border-l border-black">
+                    {products && (
+                        <>
+                            <CollectionProductList products={products} loading={loading} />
+                            <CollectionFooter
+                                productCount={products.length}
+                                totalProductCount={productCount}
+                                hasNextPage={hasNextPage}
+                                pathname={pathname}
+                                router={router}
+                                searchParams={searchParams}
+                            />
+                        </>
+                    )}
+                </main>
+            </div>
+        </div>
+    )
 
-			let url = `/collection?handle=${handle}`
-			if (subcategory) {
-				url += `subcategory=${subcategory}`
-			}
-			Object.keys(searchParams).forEach(key => (url += `${key}=${searchParams[key]}`))
-
-			fetcher(url)
-				.then(response => {
-					setProducts(response.data.products)
-					setHasNextPage(response.data.hasNextPage)
-					setMaxPrice(response.data.maxPrice)
-					setProductCount(response.data.productCount)
-				})
-				.catch(error => {
-					// TODO 500 page
-				})
-		}
-	}, [params, searchParams, products])
-
-	if (products) {
-		return (
-			<CollectionView
-				products={products}
-				maxPrice={maxPrice}
-				hasNextPage={hasNextPage}
-				productCount={productCount}
-			/>
-		)
-	}
-
-	return <></>
+    return <></>
 }
 
 export default Page

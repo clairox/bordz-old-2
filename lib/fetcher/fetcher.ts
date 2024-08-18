@@ -6,7 +6,7 @@ import { Code } from 'lucide-react'
 import { ShopifyUserError } from '@/types/store'
 
 export class FetcherError extends Error {
-	public status: number // TODO remove status property. We will get status from response
+	public status: number // TODO: remove status property. We will get status from response
 	public response: FetcherResponse
 	public code: string = 'Fetcher Error'
 
@@ -236,7 +236,7 @@ export const checkUserErrors = (
 	}
 }
 
-// TODO const shopifyGraphQLAPIFetcher = () => {}
+// TODO: const shopifyGraphQLAPIFetcher = () => {}
 
 export const storefrontAPIFetcher = async <Q, V>(
 	query: TypedDocumentNode<Q, V>,

@@ -1,82 +1,67 @@
-import {
-	GetCollectionQuery,
-	ProductCollectionSortKeys,
-	ProductFilter,
-} from '@/__generated__/storefront/graphql'
-import { GET_COLLECTION } from '@/lib/storefrontAPI/queries'
-import { ProductListItem } from '@/types'
-import { useSuspenseQuery } from '@apollo/client/react/hooks'
+'use client'
+import { fetcher } from '@/lib/fetcher'
+import { ProductListItem } from '@/types/store'
+import { useParams } from 'next/navigation'
+import { useRef, useEffect, useCallback, useState } from 'react'
+import _ from 'lodash'
+import { searchParamsToObject } from '@/lib/utils/conversions'
 
-const useCollection = (
-	handle: string,
-	limit: number,
-	sortKey: ProductCollectionSortKeys,
-	filters: ProductFilter[],
-	reverse?: boolean
-) => {
-	const { data, error } = useSuspenseQuery(GET_COLLECTION, {
-		variables: { handle, limit, sortKey, filters, reverse },
-		fetchPolicy: 'cache-and-network',
-	})
+const useCollection = (searchParams: URLSearchParams) => {
+    const [title, setTitle] = useState('')
+    const [subcategoryTitles, setSubcategoryTitles] = useState<string[]>([])
+    const [products, setProducts] = useState<ProductListItem[] | undefined>(undefined)
+    const [hasNextPage, setHasNextPage] = useState(false)
+    const [maxPrice, setMaxPrice] = useState(Infinity)
+    const [productCount, setProductCount] = useState(NaN)
+    const [loading, setLoading] = useState(true)
 
-	const collection = (data as GetCollectionQuery).collection
-	const fetchedProducts = collection?.products
-	const fetchedFilters = fetchedProducts?.filters
+    const params = useParams()
+    const currentSearchParams = useRef<Record<string, string>>({})
 
-	const renderableProducts = fetchedProducts?.nodes.map(
-		product =>
-			({
-				title: product.title,
-				handle: product.handle,
-				price: product.priceRange.maxVariantPrice.amount,
-				featuredImage: {
-					src: product.featuredImage?.src,
-					width: product.featuredImage?.width,
-					height: product.featuredImage?.height,
-				},
-			} as ProductListItem)
-	)
+    const loadCollection = useCallback(() => {
+        setLoading(true)
+        const [handle, subcategory] = params.collection as string[]
 
-	const productCount = fetchedFilters
-		?.find(filter => filter.label === 'Availability')
-		?.values.find(value => value.label === 'In stock')?.count
+        let url = `/collection?handle=${handle}`
+        if (subcategory) {
+            url += `&subcategory=${subcategory}`
+        }
+        Object.keys(currentSearchParams.current).forEach(
+            key => (url += `&${key}=${currentSearchParams.current[key]}`),
+        )
 
-	const availableFilters = new Map(
-		fetchedFilters
-			?.filter(filter => {
-				const productFilterLabels = ['Brand', 'Size', 'Color']
-				return productFilterLabels.includes(filter.label)
-			})
-			.map(filter => [
-				filter.label.toLowerCase(),
-				filter.values.filter(value => value.count > 0).map(value => value.label),
-			])
-	)
+        fetcher(url)
+            .then(response => {
+                setTitle(response.data.title)
+                setSubcategoryTitles(response.data.subcategoryTitles)
+                setProducts(response.data.products)
+                setHasNextPage(response.data.hasNextPage)
+                setMaxPrice(response.data.maxPrice)
+                setProductCount(response.data.productCount)
+                setLoading(false)
+            })
+            .catch(error => {
+                console.error(error)
+                // TODO: 500 page
+            })
+    }, [params.collection])
 
-	const priceFilter = JSON.parse(
-		fetchedFilters
-			?.find(filter => filter.label === 'Price')
-			?.values.find(value => value.label === 'Price')?.input
-	).price
-	const filteredPriceRange = [priceFilter.min, priceFilter.max]
+    useEffect(() => {
+        if (!_.isEqual(searchParams, currentSearchParams.current)) {
+            currentSearchParams.current = searchParamsToObject(searchParams)
+            loadCollection()
+        }
+    }, [params, searchParams, loadCollection, currentSearchParams])
 
-	const subcollectionNames = fetchedFilters
-		?.find(filter => filter.label === 'Subcollection')
-		?.values.map(value => value.label)
-		.toSorted()
-
-	const hasNextPage = fetchedProducts?.pageInfo.hasNextPage
-
-	return {
-		collection,
-		products: renderableProducts,
-		productCount,
-		availableFilters,
-		filteredPriceRange,
-		subcollectionNames,
-		hasNextPage,
-		error,
-	}
+    return {
+        title,
+        subcategoryTitles,
+        products,
+        productCount,
+        maxPrice,
+        hasNextPage,
+        loading,
+    }
 }
 
 export { useCollection }

@@ -4,7 +4,7 @@ import { FetcherError, GraphQLFetcherError, GraphQLUserError } from '../fetcher/
 
 export type UserError = { field?: string[] | null; message: string }
 
-// TODO make this function private
+// TODO: make this function private
 export const DEFAULT_ERROR_RESPONSE = NextResponse.json(
 	{
 		message: 'Something went wrong on our end. Please try again later.',

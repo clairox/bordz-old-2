@@ -85,7 +85,6 @@ const GET_COLLECTION = gql(`
 			products(first: $limit, sortKey: $sortKey, reverse: $reverse, filters: $filters) {
 				nodes {
 					availableForSale
-					description
 					handle
 					id
 					title
@@ -311,11 +310,11 @@ const GET_CUSTOMER_ID_ONLY = gql(`
 `)
 
 export {
-	GET_CART,
-	GET_COLLECTION,
-	GET_PRODUCT_FILTERS,
-	GET_COLLECTION_MAX_PRICE,
-	GET_PRODUCT,
-	GET_CUSTOMER,
-	GET_CUSTOMER_ID_ONLY,
+    GET_CART,
+    GET_COLLECTION,
+    GET_PRODUCT_FILTERS,
+    GET_COLLECTION_MAX_PRICE,
+    GET_PRODUCT,
+    GET_CUSTOMER,
+    GET_CUSTOMER_ID_ONLY,
 }

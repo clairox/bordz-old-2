@@ -38,7 +38,7 @@ export const updateCustomer = async (customerAccessToken: string, values: Update
 	}
 
 	try {
-		// TODO update cartId, birthDate, wishlist metafield values in the Admin API
+		// TODO: update cartId, birthDate, wishlist metafield values in the Admin API
 
 		const { data, errors } = await storefrontAPIFetcher(UPDATE_CUSTOMER, { variables })
 

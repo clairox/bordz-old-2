@@ -46,7 +46,7 @@ const Page = () => {
 			setProductVariants(response.data.variants)
 			setHasNextPage(response.data.hasNextPage)
 		} catch (error) {
-			// TODO redirect to 500 error page
+			// TODO: redirect to 500 error page
 			console.error(error)
 		}
 
@@ -60,17 +60,17 @@ const Page = () => {
 	const handleAddItemToCart = async (id: string, title: string, image: ProductImage) => {
 		const itemAdded = addCartLine(id, 1)
 		if (!itemAdded) {
-			// TODO toast('An error has occurred while adding item to cart. Please try again')
+			// TODO: toast('An error has occurred while adding item to cart. Please try again')
 			return
 		}
-		// TODO toast(`${title} added to cart`, image)
+		// TODO: toast(`${title} added to cart`, image)
 		handleRemoveItem(id)
 	}
 
 	const handleRemoveItem = async (id: string) => {
 		const itemRemoved = await removeWishlistItem(id)
 		if (!itemRemoved) {
-			// TODO toast('An error has occurred while removing item. Please try again.')
+			// TODO: toast('An error has occurred while removing item. Please try again.')
 			return
 		}
 		loadVariants()
