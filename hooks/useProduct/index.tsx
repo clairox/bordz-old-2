@@ -1,1 +1,3 @@
-export { useProduct } from './useProduct'
+import useProduct from './useProduct'
+
+export default useProduct

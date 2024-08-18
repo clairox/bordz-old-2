@@ -1,15 +1,35 @@
-import { GetProductQuery } from '@/__generated__/storefront/graphql'
-import { GET_PRODUCT } from '@/lib/storefrontAPI/queries'
-import { toSafeProduct } from '@/lib/utils/gql'
-import { useSuspenseQuery } from '@apollo/client/react/hooks'
+import { useState, useEffect, useCallback } from 'react'
+import type { Product } from '@/types/store'
+import { fetcher } from '@/lib/fetcher'
 
 const useProduct = (handle: string) => {
-	const { data, error } = useSuspenseQuery(GET_PRODUCT, { variables: { handle } })
+    const [product, setProduct] = useState<Product | undefined>(undefined)
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState<any | undefined>(undefined)
 
-	const fetchedProduct = data.productByHandle as GetProductQuery['productByHandle']
-	const product = toSafeProduct(fetchedProduct)
+    const fetchProduct = useCallback(async () => {
+        const url = '/products/' + handle
 
-	return { product, error }
+        try {
+            const response = await fetcher(url)
+            setProduct(response.data)
+            setLoading(false)
+        } catch (error) {
+            setError(error)
+        }
+    }, [handle])
+
+    useEffect(() => {
+        if (product == undefined) {
+            fetchProduct()
+        }
+    }, [product, fetchProduct])
+
+    return {
+        product,
+        loading,
+        error,
+    }
 }
 
-export { useProduct }
+export default useProduct
