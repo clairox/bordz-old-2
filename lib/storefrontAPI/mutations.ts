@@ -263,6 +263,70 @@ const CREATE_CART = gql(`
 		cartCreate {
 			cart {
 				id
+    			totalQuantity
+    			lines(first: 20) {
+    				nodes {
+    					id
+    					quantity
+    					merchandise {
+    						... on ProductVariant {
+    							availableForSale
+    							compareAtPriceV2 {
+    								amount
+    								currencyCode
+    							}
+    							id
+    							title
+    							priceV2 {
+    								amount
+    								currencyCode
+    							}
+    							product {
+    								handle
+    								id
+    								title
+    								images(first: 1) {
+    									nodes {
+    										altText
+    										height
+    										src
+    										width
+    									}
+    								}
+    							}
+    							quantityAvailable
+    						}
+    					}
+    					cost {
+    						amountPerQuantity {
+    							amount
+    							currencyCode
+    						}
+    						compareAtAmountPerQuantity {
+    							amount
+    							currencyCode
+    						}
+    						subtotalAmount {
+    							amount
+    							currencyCode
+                        	}
+    						totalAmount {
+    							amount
+    							currencyCode
+    						}
+    					}
+    				}
+    			}
+    			cost {
+    				subtotalAmount {
+    					amount
+    					currencyCode
+    				}
+    				totalAmount {
+    					amount
+    					currencyCode
+    				}
+    			}
 			}
 			userErrors {
 				code
@@ -438,13 +502,12 @@ const ADD_CART_LINE = gql(`
 	}
 `)
 
-const UPDATE_CART_LINE = gql(`
+const UPDATE_CART_LINES = gql(`
 	mutation UpdateCartLine(
 		$cartId: ID!
-		$lineId: ID!
-		$quantity: Int
+		$lines: [CartLineUpdateInput!]!
 	) {
-		cartLinesUpdate(cartId: $cartId, lines: { id: $lineId, quantity: $quantity }) {
+		cartLinesUpdate(cartId: $cartId, lines: $lines) {
 			cart {
 				id
 				totalQuantity
@@ -521,12 +584,12 @@ const UPDATE_CART_LINE = gql(`
 	}
 `)
 
-const REMOVE_CART_LINE = gql(`
+const REMOVE_CART_LINES = gql(`
 	mutation RemoveCartLine(
 		$cartId: ID!
-		$lineId: ID!
+		$lineIds: [ID!]!
 	) {
-		cartLinesRemove(cartId: $cartId, lineIds: [$lineId]) {
+		cartLinesRemove(cartId: $cartId, lineIds: $lineIds) {
 			cart {
 				id
 				totalQuantity
@@ -604,14 +667,14 @@ const REMOVE_CART_LINE = gql(`
 `)
 
 export {
-	LOGIN,
-	SIGNUP,
-	CREATE_ACCESS_TOKEN,
-	CREATE_CUSTOMER,
-	UPDATE_CUSTOMER,
-	CREATE_CART,
-	ADD_CART_LINES,
-	ADD_CART_LINE,
-	UPDATE_CART_LINE,
-	REMOVE_CART_LINE,
+    LOGIN,
+    SIGNUP,
+    CREATE_ACCESS_TOKEN,
+    CREATE_CUSTOMER,
+    UPDATE_CUSTOMER,
+    CREATE_CART,
+    ADD_CART_LINES,
+    ADD_CART_LINE,
+    UPDATE_CART_LINES,
+    REMOVE_CART_LINES,
 }
