@@ -7,7 +7,7 @@ import {
     CollectionSidebarMenuItemContent,
 } from '../CollectionSidebarMenu'
 import PriceRangeSlider from '@/components/UI/PriceRangeSlider'
-import CollectionSidebarHeader from '../CollectionSidebarHeader/CollectionSidebarHeader'
+import CollectionSidebarHeader from '../CollectionSidebarHeader'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import useProductFilters from '@/hooks/useProductFilters'
 import type { FilterTag } from '@/types'

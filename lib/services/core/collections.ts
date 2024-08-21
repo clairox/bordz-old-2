@@ -1,6 +1,6 @@
 import { ProductCollectionSortKeys, ProductFilter } from '@/__generated__/storefront/graphql'
 import { ReadonlyURLSearchParams } from 'next/navigation'
-import { isNumeric } from '../../../lib/utils/number'
+import { isNumeric } from '@/lib/utils/number'
 import { ProductFilterMap } from '@/types'
 
 export const MAX_PRODUCTS_PER_LOAD = 40
