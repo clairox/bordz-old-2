@@ -7,7 +7,7 @@ A mock ecommerce app focused on selling skateboard and snowboard parts or someth
 -   [x] Finish adapting Collection page to new API
 -   [x] Adapt product page to new API
 -   [x] Adapt Cart to new API
--   [ ] Adapt wishlist to new API
+-   [x] Adapt wishlist to new API
 -   [ ] /lib/auth.ts
 -   [ ] Reorganize code to make everything make sense with backend
 -   [ ] Implement ordering and orders

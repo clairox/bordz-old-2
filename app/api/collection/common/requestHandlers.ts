@@ -59,6 +59,10 @@ export const getCollection = async (
             title = convertParamStringToTitle(subcategory)
         }
 
+        if (!Array.isArray(products)) {
+            throw new Error('Products are not of array type')
+        }
+
         const safeProducts = products?.map(product => toSafeProductListItem(product))
 
         const productCount = collection?.products.filters

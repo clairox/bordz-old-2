@@ -223,6 +223,7 @@ export const checkUserErrors = (
     errors: ShopifyUserError[] | null | undefined,
     statusEvaluation?: Record<string, number>,
 ) => {
+    console.log(errors)
     if (errors && errors.length > 0) {
         const { message, code } = errors[0]
         if (code) {

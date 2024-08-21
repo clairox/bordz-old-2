@@ -309,6 +309,17 @@ const GET_CUSTOMER_ID_ONLY = gql(`
 	}
 `)
 
+const GET_WISHLIST = gql(`
+    query GetWishlist($customerAccessToken: String!) {
+        customer(customerAccessToken: $customerAccessToken) {
+            id
+            metafield(namespace: "custom", key: "wishlist") {
+                value
+            }
+        }
+    }
+`)
+
 export {
     GET_CART,
     GET_COLLECTION,
@@ -317,4 +328,5 @@ export {
     GET_PRODUCT,
     GET_CUSTOMER,
     GET_CUSTOMER_ID_ONLY,
+    GET_WISHLIST,
 }

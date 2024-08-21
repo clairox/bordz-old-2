@@ -102,7 +102,7 @@ const useProvideCart = () => {
             let id = localStorage.getItem('cartId') || (await loadCartId())
 
             try {
-                const response = await fetcher(`/cart/${encodeURIComponent(id)}/cartLine`, {
+                const response = await fetcher(`/cart/${encodeURIComponent(id)}/cartLines`, {
                     method: 'PATCH',
                     body: JSON.stringify({
                         lines: [
@@ -130,7 +130,7 @@ const useProvideCart = () => {
             let id = localStorage.getItem('cartId') || (await loadCartId())
 
             try {
-                const response = await fetcher(`/cart/${encodeURIComponent(id)}/cartLine`, {
+                const response = await fetcher(`/cart/${encodeURIComponent(id)}/cartLines`, {
                     method: 'POST',
                     body: JSON.stringify({
                         lines: [
@@ -157,7 +157,7 @@ const useProvideCart = () => {
             let id = localStorage.getItem('cartId') || (await loadCartId())
 
             try {
-                const response = await fetcher(`/cart/${encodeURIComponent(id)}/cartLine`, {
+                const response = await fetcher(`/cart/${encodeURIComponent(id)}/cartLines`, {
                     method: 'DELETE',
                     body: JSON.stringify({
                         lineIds: [lineId],

@@ -38,6 +38,28 @@ const CREATE_CUSTOMER_METAFIELDS = gql(`
 	}	
 `)
 
+const UPDATE_WISHLIST = gql(`
+	mutation UpdateWishlist($customerId: ID!, $wishlist: String!) {
+		metafieldsSet (
+            metafields: {
+			    ownerId: $customerId
+			    key: "wishlist"
+  			    namespace: "custom"
+			    type: "json"
+			    value: $wishlist
+            }
+		) {
+			metafields {
+                    value
+            }
+			userErrors {
+				field
+				message
+			}
+		}
+	}	
+`)
+
 const DELETE_CUSTOMER = gql(`
 	mutation DeleteCustomer($id: ID!) {
 		customerDelete(input: { id: $id }) {
@@ -50,4 +72,4 @@ const DELETE_CUSTOMER = gql(`
 	}
 `)
 
-export { CREATE_CUSTOMER_METAFIELDS, DELETE_CUSTOMER }
+export { CREATE_CUSTOMER_METAFIELDS, DELETE_CUSTOMER, UPDATE_WISHLIST }

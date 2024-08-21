@@ -175,13 +175,6 @@ type ShopifyUserError = {
     message: string
 }
 
-type WishlistItem = {
-    productId: string
-    variantId: string
-}
-
-type Wishlist = Array<WishlistItem>
-
 type ProductListItem = {
     availableForSale: boolean
     featuredImage: Image
@@ -191,4 +184,21 @@ type ProductListItem = {
     title: string
     totalInventory: number
     compareAtPrice?: Money
+}
+
+type WishlistItemProduct = {
+    featuredImage: Image
+    handle: string
+    id: string
+    title: string
+}
+
+type WishlistItem = {
+    availableForSale: boolean
+    id: string
+    price: number
+    title: string
+    product: WishlistProduct
+    selectedOptions: SelectedOption[]
+    compareAtPrice?: number
 }
