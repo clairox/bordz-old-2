@@ -1,4 +1,4 @@
-import { fetcher } from '@/lib/fetcher'
+import { restClient } from '@/lib/services/clients/restClient'
 import { ProductFilterMap } from '@/types'
 import { useParams, usePathname, useRouter } from 'next/navigation'
 import { useCallback, useEffect, useRef, useState } from 'react'
@@ -28,7 +28,7 @@ const useProductFilters = (searchParams: URLSearchParams) => {
         )
 
         try {
-            const response = await fetcher(url)
+            const response = await restClient(url)
 
             const { productFilters, selectedProductFilters } = response.data
 

@@ -1,10 +1,10 @@
-import { checkGraphQLErrors, storefrontAPIFetcher } from '@/lib/fetcher/fetcher'
-import { GET_CART } from '@/lib/storefrontAPI/queries'
+import { checkGraphQLErrors, storefrontAPIClient } from '@/lib/services/clients/graphqlClient'
+import { GET_CART } from '@/lib/graphql/shopify/storefront/queries'
 import { toSafeCart } from './validators'
 
 export const getCart = async (id: string) => {
     try {
-        const { data, errors } = await storefrontAPIFetcher(GET_CART, {
+        const { data, errors } = await storefrontAPIClient(GET_CART, {
             variables: { id },
             cache: 'no-cache',
         })

@@ -1,4 +1,4 @@
-import { getWishlist } from '@/lib/utils/wishlist'
+import { getWishlist } from '@/lib/services/core/wishlists'
 import { WishlistItem } from '@/types/store'
 import { useCallback, useEffect, useReducer } from 'react'
 

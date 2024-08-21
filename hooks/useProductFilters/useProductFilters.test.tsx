@@ -25,7 +25,7 @@ const searchParams = new URLSearchParams([
     ['price', '15,45'],
 ])
 
-const fetcher = vi.fn().mockReturnValue({
+const restClient = vi.fn().mockReturnValue({
     data: {
         productFilters: [
             {

@@ -1,5 +1,5 @@
-import { GET_VARIANTS } from '@/lib/adminAPI/query'
-import { adminAPIFetcher, checkGraphQLErrors } from '@/lib/fetcher/fetcher'
+import { GET_VARIANTS } from '@/lib/graphql/shopify/admin/queries'
+import { adminAPIClient, checkGraphQLErrors } from '@/lib/services/clients/graphqlClient'
 import { extractResourceId } from '@/lib/utils/ids'
 import { toSafeVariant } from './validators'
 
@@ -11,7 +11,7 @@ export const getProductVariants = async (ids: string[], limit: number) => {
     }
 
     try {
-        const { data, errors } = await adminAPIFetcher(GET_VARIANTS, { variables })
+        const { data, errors } = await adminAPIClient(GET_VARIANTS, { variables })
 
         checkGraphQLErrors(errors)
 

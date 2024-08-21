@@ -1,7 +1,7 @@
 'use client'
 import { Button } from '@/components/UI/Button'
 import { useCartContext } from '@/context/CartContext'
-import { removeWishlistItem } from '@/lib/utils/wishlist'
+import { removeWishlistItem } from '@/lib/services/core/wishlists'
 import { WishlistItem } from '@/types/store'
 import { Trash } from '@phosphor-icons/react'
 import Image from 'next/image'

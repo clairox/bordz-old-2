@@ -1,10 +1,14 @@
-import { checkGraphQLErrors, checkUserErrors, storefrontAPIFetcher } from '@/lib/fetcher/fetcher'
-import { CREATE_CART } from '@/lib/storefrontAPI/mutations'
+import {
+    checkGraphQLErrors,
+    checkUserErrors,
+    storefrontAPIClient,
+} from '@/lib/services/clients/graphqlClient'
+import { CREATE_CART } from '@/lib/graphql/shopify/storefront/mutations'
 import { toSafeCart } from './validators'
 
 export const createCart = async () => {
     try {
-        const { data, errors } = await storefrontAPIFetcher(CREATE_CART)
+        const { data, errors } = await storefrontAPIClient(CREATE_CART)
 
         checkGraphQLErrors(errors)
         checkUserErrors(data?.cartCreate?.userErrors)

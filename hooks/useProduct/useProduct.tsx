@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import type { Product } from '@/types/store'
-import { fetcher } from '@/lib/fetcher'
+import { restClient } from '@/lib/services/clients/restClient'
 
 const useProduct = (handle: string) => {
     const [product, setProduct] = useState<Product | undefined>(undefined)
@@ -11,7 +11,7 @@ const useProduct = (handle: string) => {
         const url = '/products/' + handle
 
         try {
-            const response = await fetcher(url)
+            const response = await restClient(url)
             setProduct(response.data)
             setLoading(false)
         } catch (error) {

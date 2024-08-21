@@ -1,7 +1,6 @@
 'use client'
 
-import { fetcher } from '@/lib/fetcher'
-import { FetcherError } from '@/lib/fetcher/fetcher'
+import { restClient, RestClientError } from '@/lib/services/clients/restClient'
 import { Cart } from '@/types/store'
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react'
 
@@ -35,12 +34,12 @@ const useProvideCart = () => {
 
     const getCartIdFromCustomer = async (): Promise<string | undefined> => {
         try {
-            const response = await fetcher('/customer')
+            const response = await restClient('/customer')
             const { cartId } = response.data
 
             return cartId
         } catch (error) {
-            if (error instanceof FetcherError) {
+            if (error instanceof RestClientError) {
                 if (error.response.status === 401) {
                     return undefined
                 } else {
@@ -54,7 +53,7 @@ const useProvideCart = () => {
 
     const createCart = useCallback(async (): Promise<Cart | undefined> => {
         try {
-            const response = await fetcher('/cart', { method: 'POST' })
+            const response = await restClient('/cart', { method: 'POST' })
             return response.data
         } catch (error) {
             setError(error)
@@ -84,7 +83,7 @@ const useProvideCart = () => {
         let id = localStorage.getItem('cartId') || (await loadCartId())
 
         try {
-            const response = await fetcher(`/cart/${encodeURIComponent(id)}`)
+            const response = await restClient(`/cart/${encodeURIComponent(id)}`)
 
             setCart(response.data)
             return response.data
@@ -102,7 +101,7 @@ const useProvideCart = () => {
             let id = localStorage.getItem('cartId') || (await loadCartId())
 
             try {
-                const response = await fetcher(`/cart/${encodeURIComponent(id)}/cartLines`, {
+                const response = await restClient(`/cart/${encodeURIComponent(id)}/cartLines`, {
                     method: 'PATCH',
                     body: JSON.stringify({
                         lines: [
@@ -130,7 +129,7 @@ const useProvideCart = () => {
             let id = localStorage.getItem('cartId') || (await loadCartId())
 
             try {
-                const response = await fetcher(`/cart/${encodeURIComponent(id)}/cartLines`, {
+                const response = await restClient(`/cart/${encodeURIComponent(id)}/cartLines`, {
                     method: 'POST',
                     body: JSON.stringify({
                         lines: [
@@ -157,7 +156,7 @@ const useProvideCart = () => {
             let id = localStorage.getItem('cartId') || (await loadCartId())
 
             try {
-                const response = await fetcher(`/cart/${encodeURIComponent(id)}/cartLines`, {
+                const response = await restClient(`/cart/${encodeURIComponent(id)}/cartLines`, {
                     method: 'DELETE',
                     body: JSON.stringify({
                         lineIds: [lineId],

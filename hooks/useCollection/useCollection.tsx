@@ -1,5 +1,5 @@
 'use client'
-import { fetcher } from '@/lib/fetcher'
+import { restClient } from '@/lib/services/clients/restClient'
 import { ProductListItem } from '@/types/store'
 import { useParams } from 'next/navigation'
 import { useRef, useEffect, useCallback, useState } from 'react'
@@ -30,7 +30,7 @@ const useCollection = (searchParams: URLSearchParams) => {
             key => (url += `&${key}=${currentSearchParams.current[key]}`),
         )
 
-        fetcher(url)
+        restClient(url)
             .then(response => {
                 setTitle(response.data.title)
                 setSubcategoryTitles(response.data.subcategoryTitles)

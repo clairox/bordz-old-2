@@ -1,12 +1,12 @@
 import { render } from '@testing-library/react'
 import ChangePasswordForm from './ChangePasswordForm'
 import userEvent from '@testing-library/user-event'
-import { FetcherError, FetcherResponse } from '@/lib/fetcher/fetcher'
+import { RestClientError, RestClientResponse } from '@/lib/services/clients/restClient'
 
 const mocks = vi.hoisted(() => {
     return {
         push: vi.fn(),
-        fetcherMock: vi.fn(),
+        restClientMock: vi.fn(),
     }
 })
 
@@ -15,8 +15,8 @@ vi.mock('next/navigation', () => ({
     usePathname: vi.fn().mockReturnValue('/account/change-password'),
 }))
 
-vi.mock('@/lib/fetcher', () => ({
-    fetcher: mocks.fetcherMock.mockImplementation(() => {}),
+vi.mock('@/lib/services/clients/restClient', () => ({
+    restClient: mocks.restClientMock.mockImplementation(() => {}),
 }))
 
 describe('ChangePasswordForm', () => {
@@ -28,8 +28,8 @@ describe('ChangePasswordForm', () => {
     })
 
     it('calls router.push with correct value when fetch returns with 401 status', async () => {
-        mocks.fetcherMock.mockImplementationOnce(() => {
-            const response = new FetcherResponse(
+        mocks.restClientMock.mockImplementationOnce(() => {
+            const response = new RestClientResponse(
                 {
                     ok: false,
                     headers: {},
@@ -40,7 +40,7 @@ describe('ChangePasswordForm', () => {
                 } as Response,
                 {},
             )
-            throw new FetcherError('error', response.status, response)
+            throw new RestClientError('error', response.status, response)
         })
         const { getByRole, getByLabelText } = render(<ChangePasswordForm />)
 
@@ -54,7 +54,7 @@ describe('ChangePasswordForm', () => {
     })
 
     it('renders and shows formSuccessBox if password is updated successfully', async () => {
-        mocks.fetcherMock.mockImplementationOnce(() => {
+        mocks.restClientMock.mockImplementationOnce(() => {
             success: true
         })
         const { getByRole, getByLabelText, getByTestId } = render(<ChangePasswordForm />)

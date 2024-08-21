@@ -10,7 +10,9 @@ A mock ecommerce app focused on selling skateboard and snowboard parts or someth
 -   [x] Adapt wishlist to new API
 -   [ ] /lib/auth.ts
 -   [ ] Reorganize code to make everything make sense with backend
+-   [ ] Implement collection searching
 -   [ ] Implement ordering and orders
 -   [ ] Implement addresses
 -   [ ] Implement checkout and payments
 -   [ ] Remove prisma and delete database
+-   [ ] Convert all '../../../file.ts' imports to use alias

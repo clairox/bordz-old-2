@@ -2,7 +2,6 @@ import type { Metadata } from 'next'
 import { Inter as FontSans } from 'next/font/google'
 import Header from '@/components/Header/Header'
 import { cn } from '@/lib/utils/cn'
-import { ApolloWrapper } from '@/lib/apollo/apolloWrapper'
 import '@/styles/globals.css'
 import { CartProvider } from '@/context/CartContext'
 
@@ -17,14 +16,10 @@ export default async function RootLayout({ children }: Readonly<React.PropsWithC
     return (
         <html lang="en">
             <body className={cn('', fontSans.className)}>
-                <ApolloWrapper>
-                    <CartProvider>
-                        <Header />
-                        <main className="flex justify-center mx-auto max-w-[1366px]">
-                            {children}
-                        </main>
-                    </CartProvider>
-                </ApolloWrapper>
+                <CartProvider>
+                    <Header />
+                    <main className="flex justify-center mx-auto max-w-[1366px]">{children}</main>
+                </CartProvider>
             </body>
         </html>
     )

@@ -1,5 +1,5 @@
 import { WishlistItem } from '@/types/store'
-import { fetcher } from '../fetcher'
+import { restClient } from '@/lib/services/clients/restClient'
 
 type WishlistData = {
     wishlist: string[]
@@ -29,7 +29,7 @@ export const addWishlistItem = async (
     item: string,
     limit: number = DEFAULT_LIMIT,
 ): Promise<WishlistData> => {
-    const response = await fetcher('/wishlist/items', {
+    const response = await restClient('/wishlist/items', {
         method: 'POST',
         body: JSON.stringify({ ids: [item], populate: true, start: limit }),
     })
@@ -45,7 +45,7 @@ export const addWishlistItem = async (
     setLocalWishlist(wishlist)
 
     try {
-        const response = await fetcher('/productVariants', {
+        const response = await restClient('/productVariants', {
             method: 'POST',
             body: JSON.stringify({
                 ids: wishlist,
@@ -64,7 +64,7 @@ export const removeWishlistItem = async (
     item: string,
     limit: number = DEFAULT_LIMIT,
 ): Promise<WishlistData> => {
-    const response = await fetcher('/wishlist/items', {
+    const response = await restClient('/wishlist/items', {
         method: 'DELETE',
         body: JSON.stringify({ ids: [item], populate: true, start: limit }),
     })
@@ -80,7 +80,7 @@ export const removeWishlistItem = async (
     setLocalWishlist(wishlist)
 
     try {
-        const response = await fetcher('/productVariants', {
+        const response = await restClient('/productVariants', {
             method: 'POST',
             body: JSON.stringify({
                 ids: wishlist,
@@ -96,7 +96,7 @@ export const removeWishlistItem = async (
 }
 
 export const getWishlist = async (limit: number = DEFAULT_LIMIT): Promise<WishlistData> => {
-    const response = await fetcher('/wishlist?populate=true&start=' + limit)
+    const response = await restClient('/wishlist?populate=true&start=' + limit)
 
     if (response.ok) {
         const wishlist = response.data.wishlist
@@ -107,7 +107,7 @@ export const getWishlist = async (limit: number = DEFAULT_LIMIT): Promise<Wishli
 
     const wishlist = getLocalWishlist()
     try {
-        const response = await fetcher('/productVariants', {
+        const response = await restClient('/productVariants', {
             method: 'POST',
             body: JSON.stringify({
                 ids: wishlist,

@@ -1,21 +1,21 @@
-import { GET_VARIANTS } from '@/lib/adminAPI/query'
-import { GET_WISHLIST } from '@/lib/storefrontAPI/queries'
+import { GET_VARIANTS } from '@/lib/graphql/shopify/admin/queries'
+import { GET_WISHLIST } from '@/lib/graphql/shopify/storefront/queries'
 import {
-    adminAPIFetcher,
+    adminAPIClient,
     checkGraphQLErrors,
     checkUserErrors,
-    storefrontAPIFetcher,
-} from '@/lib/fetcher/fetcher'
+    storefrontAPIClient,
+} from '@/lib/services/clients/graphqlClient'
 import { toSafeVariant } from './validators'
 import { extractResourceId } from '@/lib/utils/ids'
-import { UPDATE_WISHLIST } from '@/lib/adminAPI/mutations'
+import { UPDATE_WISHLIST } from '@/lib/graphql/shopify/admin/mutations'
 import _ from 'lodash'
 
 const getWishlistIdsAndCustomerId = async (
     customerAccessToken: string,
 ): Promise<{ wishlistIds: string[]; customerId: string }> => {
     try {
-        const { data, errors } = await storefrontAPIFetcher(GET_WISHLIST, {
+        const { data, errors } = await storefrontAPIClient(GET_WISHLIST, {
             variables: { customerAccessToken },
         })
 
@@ -42,7 +42,7 @@ export const addWishlistItems = async (customerAccessToken: string, ids: string[
         const { wishlistIds, customerId } = await getWishlistIdsAndCustomerId(customerAccessToken)
         const updateData = JSON.stringify(_.uniq(wishlistIds.concat(ids)))
 
-        const { data, errors } = await adminAPIFetcher(UPDATE_WISHLIST, {
+        const { data, errors } = await adminAPIClient(UPDATE_WISHLIST, {
             variables: { customerId, wishlist: updateData },
         })
 
@@ -67,7 +67,7 @@ export const removeWishlistItems = async (customerAccessToken: string, ids: stri
         const { wishlistIds, customerId } = await getWishlistIdsAndCustomerId(customerAccessToken)
         const updateData = JSON.stringify(wishlistIds.filter(id => !ids.includes(id)))
 
-        const { data, errors } = await adminAPIFetcher(UPDATE_WISHLIST, {
+        const { data, errors } = await adminAPIClient(UPDATE_WISHLIST, {
             variables: { customerId, wishlist: updateData },
         })
 
@@ -95,7 +95,7 @@ export const populateWishlist = async (ids: string[], limit: number) => {
     }
 
     try {
-        const { data, errors } = await adminAPIFetcher(GET_VARIANTS, { variables })
+        const { data, errors } = await adminAPIClient(GET_VARIANTS, { variables })
 
         checkGraphQLErrors(errors)
 

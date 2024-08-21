@@ -1,76 +1,76 @@
 import {
-	adminAPIFetcher,
-	checkGraphQLErrors,
-	checkUserErrors,
-	storefrontAPIFetcher,
-} from '@/lib/fetcher/fetcher'
-import { GET_CUSTOMER } from '@/lib/storefrontAPI/queries'
+    adminAPIClient,
+    checkGraphQLErrors,
+    checkUserErrors,
+    storefrontAPIClient,
+} from '@/lib/services/clients/graphqlClient'
+import { GET_CUSTOMER } from '@/lib/graphql/shopify/storefront/queries'
 import { toSafeCustomer } from './validators'
 import { UpdateCustomerValues } from '@/types/store'
-import { UPDATE_CUSTOMER } from '@/lib/storefrontAPI/mutations'
-import { DELETE_CUSTOMER } from '@/lib/adminAPI/mutations'
+import { UPDATE_CUSTOMER } from '@/lib/graphql/shopify/storefront/mutations'
+import { DELETE_CUSTOMER } from '@/lib/graphql/shopify/admin/mutations'
 
 export const getCustomer = async (customerAccessToken: string) => {
-	const variables = {
-		customerAccessToken,
-	}
+    const variables = {
+        customerAccessToken,
+    }
 
-	try {
-		const { data, errors } = await storefrontAPIFetcher(GET_CUSTOMER, { variables })
+    try {
+        const { data, errors } = await storefrontAPIClient(GET_CUSTOMER, { variables })
 
-		checkGraphQLErrors(errors)
+        checkGraphQLErrors(errors)
 
-		const customer = data?.customer
-		const safeCustomer = toSafeCustomer(customer)
+        const customer = data?.customer
+        const safeCustomer = toSafeCustomer(customer)
 
-		return safeCustomer
-	} catch (error) {
-		throw error
-	}
+        return safeCustomer
+    } catch (error) {
+        throw error
+    }
 }
 
 export const updateCustomer = async (customerAccessToken: string, values: UpdateCustomerValues) => {
-	const { cartId, birthDate, wishlist, ...rest } = values
+    const { cartId, birthDate, wishlist, ...rest } = values
 
-	const variables = {
-		customerAccessToken,
-		...rest,
-	}
+    const variables = {
+        customerAccessToken,
+        ...rest,
+    }
 
-	try {
-		// TODO: update cartId, birthDate, wishlist metafield values in the Admin API
+    try {
+        // TODO: update cartId, birthDate, wishlist metafield values in the Admin API
 
-		const { data, errors } = await storefrontAPIFetcher(UPDATE_CUSTOMER, { variables })
+        const { data, errors } = await storefrontAPIClient(UPDATE_CUSTOMER, { variables })
 
-		checkGraphQLErrors(errors)
-		checkUserErrors(data?.customerUpdate?.customerUserErrors, {
-			UNIDENTIFIED_CUSTOMER: 401,
-		})
+        checkGraphQLErrors(errors)
+        checkUserErrors(data?.customerUpdate?.customerUserErrors, {
+            UNIDENTIFIED_CUSTOMER: 401,
+        })
 
-		const updatedCustomer = toSafeCustomer(data?.customerUpdate?.customer)
-		const newAccessToken = data?.customerUpdate?.customerAccessToken
+        const updatedCustomer = toSafeCustomer(data?.customerUpdate?.customer)
+        const newAccessToken = data?.customerUpdate?.customerAccessToken
 
-		return { customer: updatedCustomer, newAccessToken }
-	} catch (error) {
-		throw error
-	}
+        return { customer: updatedCustomer, newAccessToken }
+    } catch (error) {
+        throw error
+    }
 }
 
 export const deleteCustomer = async (customerId: string) => {
-	const variables = {
-		id: customerId,
-	}
+    const variables = {
+        id: customerId,
+    }
 
-	try {
-		const { data, errors } = await adminAPIFetcher(DELETE_CUSTOMER, { variables })
+    try {
+        const { data, errors } = await adminAPIClient(DELETE_CUSTOMER, { variables })
 
-		checkGraphQLErrors(errors)
-		checkUserErrors(data?.customerDelete?.userErrors)
+        checkGraphQLErrors(errors)
+        checkUserErrors(data?.customerDelete?.userErrors)
 
-		const deletedCustomerId = data?.customerDelete?.deletedCustomerId
-		if (deletedCustomerId !== customerId) {
-			throw new Error('Incorrect customer deleted. Fix immediately')
-		}
-		return deletedCustomerId
-	} catch (error) {}
+        const deletedCustomerId = data?.customerDelete?.deletedCustomerId
+        if (deletedCustomerId !== customerId) {
+            throw new Error('Incorrect customer deleted. Fix immediately')
+        }
+        return deletedCustomerId
+    } catch (error) {}
 }

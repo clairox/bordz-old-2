@@ -1,11 +1,4 @@
-import { print } from 'graphql'
-import { fetcher } from '../fetcher'
-import { FetcherError, gqlStorefrontFetcher } from '../fetcher/fetcher'
-import { GET_CART } from '../storefrontAPI/queries'
-import { toSafeCart } from '../utils/gql'
-import { GetCartQuery } from '@/__generated__/storefront/graphql'
-import { ADD_CART_LINES } from '../storefrontAPI/mutations'
-import { Cart } from '@/types/store'
+import { RestClientError } from '@/lib/services/clients/restClient'
 
 type AuthResponse = {
     success: boolean
@@ -21,49 +14,49 @@ export const makeLoginRedirectURL = (redirect: string, reason: string): URL => {
     return url
 }
 
-const mergeCarts = async (sourceCartId: string, targetCartId: string): Promise<Cart | null> => {
-    const { data, error } = await gqlStorefrontFetcher({
-        query: print(GET_CART),
-        variables: {
-            id: sourceCartId,
-        },
-    })
-
-    if (error) {
-        throw new Error(error.message)
-    }
-
-    const sourceCart = toSafeCart(data?.cart as GetCartQuery['cart'])
-    if (sourceCart == undefined) {
-        throw new Error('Something went wrong.')
-    }
-
-    const cartLineInput = sourceCart.lines.map(line => {
-        return {
-            merchandiseId: line.merchandise.id,
-            quantity: line.quantity,
-        }
-    })
-
-    try {
-        const result = await gqlStorefrontFetcher({
-            query: print(ADD_CART_LINES),
-            variables: {
-                cartId: targetCartId,
-                lines: cartLineInput,
-            },
-        })
-
-        const targetCart = toSafeCart(result.data?.cartLinesAdd?.cart as GetCartQuery['cart'])
-        if (targetCart == undefined) {
-            throw new Error('targetCart is undefined')
-        }
-
-        return targetCart
-    } catch (error) {
-        throw error
-    }
-}
+// const mergeCarts = async (sourceCartId: string, targetCartId: string): Promise<Cart | null> => {
+//     const { data, error } = await gqlStorefrontFetcher({
+//         query: print(GET_CART),
+//         variables: {
+//             id: sourceCartId,
+//         },
+//     })
+//
+//     if (error) {
+//         throw new Error(error.message)
+//     }
+//
+//     const sourceCart = toSafeCart(data?.cart as GetCartQuery['cart'])
+//     if (sourceCart == undefined) {
+//         throw new Error('Something went wrong.')
+//     }
+//
+//     const cartLineInput = sourceCart.lines.map(line => {
+//         return {
+//             merchandiseId: line.merchandise.id,
+//             quantity: line.quantity,
+//         }
+//     })
+//
+//     try {
+//         const result = await gqlStorefrontFetcher({
+//             query: print(ADD_CART_LINES),
+//             variables: {
+//                 cartId: targetCartId,
+//                 lines: cartLineInput,
+//             },
+//         })
+//
+//         const targetCart = toSafeCart(result.data?.cartLinesAdd?.cart as GetCartQuery['cart'])
+//         if (targetCart == undefined) {
+//             throw new Error('targetCart is undefined')
+//         }
+//
+//         return targetCart
+//     } catch (error) {
+//         throw error
+//     }
+// }
 
 interface LoginResponse extends AuthResponse {}
 export const login = async (email: string, password: string): Promise<LoginResponse> => {
@@ -73,7 +66,7 @@ export const login = async (email: string, password: string): Promise<LoginRespo
             body: JSON.stringify({ email, password }),
             cache: 'no-cache' as RequestCache,
         }
-        const response = await fetcher('/login', config)
+        const response = await restClient('/login', config)
         const customer = response.data
 
         // Merge carts
@@ -99,7 +92,7 @@ export const login = async (email: string, password: string): Promise<LoginRespo
 
         return { success: true, data: response.data }
     } catch (error) {
-        if (error instanceof FetcherError) {
+        if (error instanceof RestClientError) {
             const { message, code } = error.response.data
             return { success: false, error: { message, code } }
         } else {
@@ -124,11 +117,11 @@ export const signup = async (
             body: JSON.stringify({ firstName, lastName, birthDate, email, password, wishlist }),
             cache: 'no-cache' as RequestCache,
         }
-        const response = await fetcher('/signup', config)
+        const response = await restClient('/signup', config)
 
         return { success: true, data: response.data }
     } catch (error) {
-        if (error instanceof FetcherError) {
+        if (error instanceof RestClientError) {
             const { message, code } = error.response.data
             return { success: false, error: { message, code } }
         } else {
@@ -144,7 +137,7 @@ export const logout = async (): Promise<LogoutResponse> => {
             method: 'POST',
             cache: 'no-cache' as RequestCache,
         }
-        const response = await fetcher('/logout', config)
+        const response = await restClient('/logout', config)
 
         if (response.ok) {
             localStorage.removeItem('cartId')
@@ -154,7 +147,7 @@ export const logout = async (): Promise<LogoutResponse> => {
 
         return { success: true }
     } catch (error) {
-        if (error instanceof FetcherError) {
+        if (error instanceof RestClientError) {
             const { message, code } = error.response.data
             return { success: false, error: { message, code } }
         } else {

@@ -1,1 +1,0 @@
-export { ApolloWrapper } from './apolloWrapper'

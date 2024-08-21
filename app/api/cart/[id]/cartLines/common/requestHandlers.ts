@@ -1,5 +1,13 @@
-import { checkGraphQLErrors, checkUserErrors, storefrontAPIFetcher } from '@/lib/fetcher/fetcher'
-import { ADD_CART_LINES, REMOVE_CART_LINES, UPDATE_CART_LINES } from '@/lib/storefrontAPI/mutations'
+import {
+    checkGraphQLErrors,
+    checkUserErrors,
+    storefrontAPIClient,
+} from '@/lib/services/clients/graphqlClient'
+import {
+    ADD_CART_LINES,
+    REMOVE_CART_LINES,
+    UPDATE_CART_LINES,
+} from '@/lib/graphql/shopify/storefront/mutations'
 import { toSafeCart } from './validators'
 import { CartLineInput, CartLineUpdateInput } from '@/__generated__/storefront/graphql'
 
@@ -10,7 +18,7 @@ export const addCartLine = async (id: string, lines: CartLineInput[]) => {
     }
 
     try {
-        const { data, errors } = await storefrontAPIFetcher(ADD_CART_LINES, { variables })
+        const { data, errors } = await storefrontAPIClient(ADD_CART_LINES, { variables })
 
         checkGraphQLErrors(errors)
         checkUserErrors(data?.cartLinesAdd?.userErrors)
@@ -31,7 +39,7 @@ export const updateCartLines = async (id: string, lines: CartLineUpdateInput[]) 
     }
 
     try {
-        const { data, errors } = await storefrontAPIFetcher(UPDATE_CART_LINES, { variables })
+        const { data, errors } = await storefrontAPIClient(UPDATE_CART_LINES, { variables })
 
         checkGraphQLErrors(errors)
         checkUserErrors(data?.cartLinesUpdate?.userErrors)
@@ -52,7 +60,7 @@ export const removeCartLines = async (id: string, lineIds: string[]) => {
     }
 
     try {
-        const { data, errors } = await storefrontAPIFetcher(REMOVE_CART_LINES, { variables })
+        const { data, errors } = await storefrontAPIClient(REMOVE_CART_LINES, { variables })
 
         checkGraphQLErrors(errors)
         checkUserErrors(data?.cartLinesRemove?.userErrors)

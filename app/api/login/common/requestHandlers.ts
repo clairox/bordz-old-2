@@ -1,24 +1,28 @@
-import { checkGraphQLErrors, checkUserErrors, storefrontAPIFetcher } from '@/lib/fetcher/fetcher'
-import { CREATE_ACCESS_TOKEN } from '@/lib/storefrontAPI/mutations'
+import {
+    checkGraphQLErrors,
+    checkUserErrors,
+    storefrontAPIClient,
+} from '@/lib/services/clients/graphqlClient'
+import { CREATE_ACCESS_TOKEN } from '@/lib/graphql/shopify/storefront/mutations'
 
 export const createAccessToken = async (email: string, password: string) => {
-	const variables = { email, password }
+    const variables = { email, password }
 
-	try {
-		const { data, errors } = await storefrontAPIFetcher(CREATE_ACCESS_TOKEN, { variables })
+    try {
+        const { data, errors } = await storefrontAPIClient(CREATE_ACCESS_TOKEN, { variables })
 
-		checkGraphQLErrors(errors)
-		checkUserErrors(data?.customerAccessTokenCreate?.customerUserErrors, {
-			UNIDENTIFIED_CUSTOMER: 401,
-		})
+        checkGraphQLErrors(errors)
+        checkUserErrors(data?.customerAccessTokenCreate?.customerUserErrors, {
+            UNIDENTIFIED_CUSTOMER: 401,
+        })
 
-		const customerAccessToken = data?.customerAccessTokenCreate?.customerAccessToken
-		if (customerAccessToken == undefined) {
-			throw new Error('An error occurred while creating access token')
-		}
+        const customerAccessToken = data?.customerAccessTokenCreate?.customerAccessToken
+        if (customerAccessToken == undefined) {
+            throw new Error('An error occurred while creating access token')
+        }
 
-		return customerAccessToken
-	} catch (error) {
-		throw error
-	}
+        return customerAccessToken
+    } catch (error) {
+        throw error
+    }
 }

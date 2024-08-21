@@ -1,6 +1,6 @@
-import { checkGraphQLErrors, storefrontAPIFetcher } from '@/lib/fetcher/fetcher'
+import { checkGraphQLErrors, storefrontAPIClient } from '@/lib/services/clients/graphqlClient'
 import { isSortByKey, makeProductFilters, makeSortInputs } from './utils'
-import { GET_COLLECTION, GET_COLLECTION_MAX_PRICE } from '@/lib/storefrontAPI/queries'
+import { GET_COLLECTION, GET_COLLECTION_MAX_PRICE } from '@/lib/graphql/shopify/storefront/queries'
 import { toSafeProductListItem } from './validators'
 import _ from 'lodash'
 
@@ -39,7 +39,7 @@ export const getCollection = async (
     }
 
     try {
-        const { data, errors } = await storefrontAPIFetcher(GET_COLLECTION, { variables })
+        const { data, errors } = await storefrontAPIClient(GET_COLLECTION, { variables })
 
         checkGraphQLErrors(errors)
 
@@ -107,7 +107,7 @@ export const getCollectionMaxPrice = async (
     }
 
     try {
-        const { data, errors } = await storefrontAPIFetcher(GET_COLLECTION_MAX_PRICE, { variables })
+        const { data, errors } = await storefrontAPIClient(GET_COLLECTION_MAX_PRICE, { variables })
 
         checkGraphQLErrors(errors)
 

@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { processPriceParam } from '../common/utils'
 import { getProductFilters } from './common/requestHandlers'
 import { handleErrorResponse } from '@/lib/utils/api'
-import { isValidPriceRange } from '@/lib/utils/collection'
+import { isValidPriceRange } from '@/lib/services/core/collections'
 
 export const GET = async (request: NextRequest) => {
     const searchParams = searchParamsToObject(request.nextUrl.searchParams)

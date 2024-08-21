@@ -1,12 +1,16 @@
-import { GET_VARIANTS } from '@/lib/adminAPI/query'
-import { adminAPIFetcher, checkGraphQLErrors, storefrontAPIFetcher } from '@/lib/fetcher/fetcher'
+import { GET_VARIANTS } from '@/lib/graphql/shopify/admin/queries'
+import {
+    adminAPIClient,
+    checkGraphQLErrors,
+    storefrontAPIClient,
+} from '@/lib/services/clients/graphqlClient'
 import { extractResourceId } from '@/lib/utils/ids'
 import { toSafeVariant } from './validators'
-import { GET_WISHLIST } from '@/lib/storefrontAPI/queries'
+import { GET_WISHLIST } from '@/lib/graphql/shopify/storefront/queries'
 
 export const getWishlist = async (customerAccessToken: string) => {
     try {
-        const { data, errors } = await storefrontAPIFetcher(GET_WISHLIST, {
+        const { data, errors } = await storefrontAPIClient(GET_WISHLIST, {
             variables: { customerAccessToken },
         })
 
@@ -31,7 +35,7 @@ export const populateWishlist = async (ids: string[], limit: number) => {
     }
 
     try {
-        const { data, errors } = await adminAPIFetcher(GET_VARIANTS, { variables })
+        const { data, errors } = await adminAPIClient(GET_VARIANTS, { variables })
 
         checkGraphQLErrors(errors)
 

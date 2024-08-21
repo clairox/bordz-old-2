@@ -2,7 +2,7 @@
 import { Button } from '@/components/UI/Button'
 import Wishlist from '@/components/Wishlist/Wishlist'
 import useWishlist from '@/hooks/useWishlist/useWishlist'
-import { getWishlist } from '@/lib/utils/wishlist'
+import { getWishlist } from '@/lib/services/core/wishlists'
 
 const Page = () => {
     const limit = 40
