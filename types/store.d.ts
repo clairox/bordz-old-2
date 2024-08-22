@@ -202,3 +202,35 @@ type WishlistItem = {
     selectedOptions: SelectedOption[]
     compareAtPrice?: number
 }
+
+type CollectionSortKeyAlias = 'recommended' | 'newest' | 'priceLowToHigh' | 'priceHighToLow'
+
+type CollectionFilterKey = 'brand' | 'size' | 'color' | 'price' | 'subcategory'
+
+type CollectionFilterValues = {
+    brands: string[]
+    sizes: string[]
+    colors: string[]
+    price: number[]
+    subcategory?: string
+}
+
+type CollectionFilterObject =
+    | { available: boolean }
+    | { productVendor: string }
+    | { variantOption: { name: 'size'; value: string } }
+    | { productMetafield: { key: 'color'; namespace: 'custom'; value: string } }
+    | { price: { min: number; max: number } }
+    | { productMetafield: { namespace: 'custom'; key: 'subcategory'; value: string } }
+
+type CollectionFilterArray = Partial<FilterObject[]>
+
+type SortByKey = 'recommended' | 'newest' | 'priceLowToHigh' | 'priceHighToLow'
+
+type AvailableFilter = {
+    label: string
+    values: Array<{
+        label: string
+        count: number
+    }>
+}

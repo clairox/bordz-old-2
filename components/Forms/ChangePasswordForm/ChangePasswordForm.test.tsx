@@ -1,7 +1,7 @@
 import { render } from '@testing-library/react'
 import ChangePasswordForm from './ChangePasswordForm'
 import userEvent from '@testing-library/user-event'
-import { RestClientError, RestClientResponse } from '@/lib/services/clients/restClient'
+import { RestClientError, RestClientResponse } from '@/lib/clients/restClient'
 
 const mocks = vi.hoisted(() => {
     return {

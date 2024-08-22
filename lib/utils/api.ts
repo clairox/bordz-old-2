@@ -1,7 +1,6 @@
-import { GraphQLError } from 'graphql'
 import { NextResponse } from 'next/server'
-import { RestClientError } from '@/lib/services/clients/restClient'
-import { GraphQLClientError, GraphQLUserError } from '@/lib/services/clients/graphqlClient'
+import { RestClientError } from '@/lib/clients/restClient'
+import { GraphQLClientError, GraphQLUserError } from '@/lib/clients/graphqlClient'
 
 export type UserError = { field?: string[] | null; message: string }
 
@@ -44,12 +43,14 @@ export const handleErrorResponse = (error: Error) => {
         const { message, code, status } = error
         return NextResponse.json({ message, code }, { status })
     } else {
-        return DEFAULT_ERROR_RESPONSE
+        switch (error.message) {
+            case 'Resource not found':
+                return NextResponse.json(
+                    { message: 'Resouce not found', code: 'Not Found' },
+                    { status: 404 },
+                )
+            default:
+                return DEFAULT_ERROR_RESPONSE
+        }
     }
-}
-
-export const makeGQLError = (errors: GraphQLError[]) => {
-    const { message, extensions } = errors[0]
-    const code = extensions.code as string
-    return new GenericAPIError(message, code, 400)
 }

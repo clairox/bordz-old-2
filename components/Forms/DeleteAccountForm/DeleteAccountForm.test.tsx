@@ -1,7 +1,7 @@
 import { render } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import DeleteAccountForm from './DeleteAccountForm'
-import { RestClientError, RestClientResponse } from '@/lib/services/clients/restClient'
+import { RestClientError, RestClientResponse } from '@/lib/clients/restClient'
 
 const mocks = vi.hoisted(() => {
     return {

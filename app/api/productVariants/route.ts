@@ -1,7 +1,7 @@
+import { getProductVariants } from '@/lib/services/shopify/requestHandlers/admin'
 import { handleErrorResponse } from '@/lib/utils/api'
 import { isNumeric } from '@/lib/utils/number'
 import { NextRequest, NextResponse } from 'next/server'
-import { getProductVariants } from './common/requestHandlers'
 
 export const POST = async (request: NextRequest) => {
     const { ids, start } = await request.json()

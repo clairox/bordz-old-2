@@ -1,7 +1,8 @@
 'use client'
 import { Button } from '@/components/UI/Button'
+import { useAuth } from '@/context/AuthContext/AuthContext'
 import { useCartContext } from '@/context/CartContext'
-import { removeWishlistItem } from '@/lib/services/core/wishlists'
+import { removeLocalWishlistItem, removeWishlistItem } from '@/lib/core/wishlists'
 import { WishlistItem } from '@/types/store'
 import { Trash } from '@phosphor-icons/react'
 import Image from 'next/image'
@@ -39,12 +40,19 @@ const WishlistListItem: React.FunctionComponent<WishlistItemProps> = ({
     const product = item.product
     const { addCartLine } = useCartContext()
 
+    const { customerId } = useAuth()
     // TODO: move wishlist item deletion to parent component
     const removeFromWishlist = async () => {
         dispatch({ type: 'FETCH_START' })
 
         try {
-            const data = await removeWishlistItem(item.id, limit)
+            let data
+            if (customerId) {
+                data = await removeWishlistItem(item.id, limit)
+            } else {
+                data = await removeLocalWishlistItem(item.id, limit)
+            }
+
             dispatch({ type: 'FETCH_SUCCESS', payload: data })
         } catch (error) {
             // TODO: handle error
@@ -70,7 +78,7 @@ const WishlistListItem: React.FunctionComponent<WishlistItemProps> = ({
 
     return (
         <article className="border-r border-b border-black">
-            <Link href={`/items/${product.handle}`}>
+            <Link href={`/products/${product.handle}`}>
                 <div className="relative border-b border-gray">
                     <Image
                         src={product.featuredImage.src}

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import type { Product } from '@/types/store'
-import { restClient } from '@/lib/services/clients/restClient'
+import { restClient } from '@/lib/clients/restClient'
 
 const useProduct = (handle: string) => {
     const [product, setProduct] = useState<Product | undefined>(undefined)

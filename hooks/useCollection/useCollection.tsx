@@ -1,5 +1,5 @@
 'use client'
-import { restClient } from '@/lib/services/clients/restClient'
+import { restClient } from '@/lib/clients/restClient'
 import { ProductListItem } from '@/types/store'
 import { useParams } from 'next/navigation'
 import { useRef, useEffect, useCallback, useState } from 'react'

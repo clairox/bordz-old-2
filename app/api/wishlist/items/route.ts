@@ -1,7 +1,11 @@
+import {
+    addWishlistItems,
+    getProductVariants,
+    removeWishlistItems,
+} from '@/lib/services/shopify/requestHandlers/admin'
 import { handleErrorResponse } from '@/lib/utils/api'
 import { isNumeric } from '@/lib/utils/number'
 import { NextRequest, NextResponse } from 'next/server'
-import { addWishlistItems, populateWishlist, removeWishlistItems } from './common/requestHandlers'
 
 export const POST = async (request: NextRequest) => {
     const customerAccessToken = request.cookies.get('customerAccessToken')
@@ -22,7 +26,10 @@ export const POST = async (request: NextRequest) => {
         }
 
         const limit = 40 + (start && isNumeric(start) ? Number(start) : 0)
-        const { wishlistItems, hasNextPage } = await populateWishlist(wishlistItemIds, limit)
+        const { productVariants: wishlistItems, hasNextPage } = await getProductVariants(
+            wishlistItemIds,
+            limit,
+        )
         return NextResponse.json({
             wishlist: wishlistItemIds,
             populatedWishlist: wishlistItems,
@@ -52,7 +59,10 @@ export const DELETE = async (request: NextRequest) => {
         }
 
         const limit = 40 + (start && isNumeric(start) ? Number(start) : 0)
-        const { wishlistItems, hasNextPage } = await populateWishlist(wishlistItemIds, limit)
+        const { productVariants: wishlistItems, hasNextPage } = await getProductVariants(
+            wishlistItemIds,
+            limit,
+        )
         return NextResponse.json({
             wishlist: wishlistItemIds,
             populatedWishlist: wishlistItems,

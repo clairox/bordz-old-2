@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getWishlist, populateWishlist } from './common/requestHandlers'
 import { isNumeric } from '@/lib/utils/number'
 import { handleErrorResponse } from '@/lib/utils/api'
+import { getWishlist } from '@/lib/services/shopify/requestHandlers/storefront'
+import { getProductVariants } from '@/lib/services/shopify/requestHandlers/admin'
 
 export const GET = async (request: NextRequest) => {
     const customerAccessToken = request.cookies.get('customerAccessToken')
@@ -24,7 +25,10 @@ export const GET = async (request: NextRequest) => {
         }
 
         const limit = 40 + (start && isNumeric(start) ? Number(start) : 0)
-        const { wishlistItems, hasNextPage } = await populateWishlist(wishlistItemIds, limit)
+        const { productVariants: wishlistItems, hasNextPage } = await getProductVariants(
+            wishlistItemIds,
+            limit,
+        )
         return NextResponse.json({
             wishlist: wishlistItemIds,
             populatedWishlist: wishlistItems,

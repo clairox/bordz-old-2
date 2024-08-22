@@ -25,6 +25,13 @@ export const middleware = (request: NextRequest) => {
         return response
     }
 
+    if (pathname.startsWith('/auth/check')) {
+        const customerAccessToken = request.cookies.get('customerAccessToken')
+        if (!customerAccessToken) {
+            return withCors(new NextResponse(null, { status: 204 }))
+        }
+    }
+
     if (pathname.startsWith('/api/customer') || pathname.startsWith('/api/wishlist')) {
         const customerAccessToken = request.cookies.get('customerAccessToken')
         if (!customerAccessToken) {

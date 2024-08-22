@@ -1,6 +1,6 @@
 'use client'
-import { restClient } from '@/lib/services/clients/restClient'
-import { RestClientError } from '@/lib/services/clients/restClient'
+import { restClient } from '@/lib/clients/restClient'
+import { RestClientError } from '@/lib/clients/restClient'
 import { Customer, UpdatePersonalInfoValues } from '@/types/store'
 import { usePathname, useRouter } from 'next/navigation'
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react'

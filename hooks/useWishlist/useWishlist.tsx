@@ -1,6 +1,8 @@
-import { getWishlist } from '@/lib/services/core/wishlists'
+import { useAuth } from '@/context/AuthContext/AuthContext'
+import { getLocalWishlist, getWishlist } from '@/lib/core/wishlists'
 import { WishlistItem } from '@/types/store'
 import { useCallback, useEffect, useReducer } from 'react'
+import { custom } from 'zod'
 
 type UseWishlistState = {
     data:
@@ -54,19 +56,20 @@ const initialState = {
 
 const useWishlist = (limit: number) => {
     const [state, dispatch] = useReducer(reducer, initialState)
+    const { customerId } = useAuth()
 
     const fetchWishlist = useCallback(async () => {
         dispatch({ type: 'FETCH_START' })
 
         try {
             // TODO: use consistent naming scheme for wishlist ids and populated wishlist
-            const data = await getWishlist(limit)
+            const data = await (customerId ? getWishlist(limit) : getLocalWishlist(limit))
 
             dispatch({ type: 'FETCH_SUCCESS', payload: data })
         } catch (error) {
             dispatch({ type: 'FETCH_FAILURE', payload: error as Error })
         }
-    }, [limit])
+    }, [limit, customerId])
 
     useEffect(() => {
         if (state.data == undefined) {

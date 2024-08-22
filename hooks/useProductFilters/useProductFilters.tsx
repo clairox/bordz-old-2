@@ -1,4 +1,4 @@
-import { restClient } from '@/lib/services/clients/restClient'
+import { restClient } from '@/lib/clients/restClient'
 import { ProductFilterMap } from '@/types'
 import { useParams, usePathname, useRouter } from 'next/navigation'
 import { useCallback, useEffect, useRef, useState } from 'react'

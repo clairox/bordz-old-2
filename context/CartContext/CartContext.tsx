@@ -1,8 +1,9 @@
 'use client'
 
-import { restClient, RestClientError } from '@/lib/services/clients/restClient'
+import { restClient, RestClientError } from '@/lib/clients/restClient'
 import { Cart } from '@/types/store'
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react'
+import { useAuth } from '../AuthContext/AuthContext'
 
 type CartContextType = {
     cart: Cart | undefined
@@ -31,6 +32,8 @@ const useProvideCart = () => {
     const [cart, setCart] = useState<Cart | undefined>(undefined)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<any | undefined>(undefined)
+
+    const { customerId } = useAuth()
 
     const getCartIdFromCustomer = async (): Promise<string | undefined> => {
         try {
@@ -94,7 +97,7 @@ const useProvideCart = () => {
 
     useEffect(() => {
         loadCart()
-    }, [loadCart])
+    }, [loadCart, customerId])
 
     const updateCartLine = useCallback(
         async (lineId: string, data: { quantity: number }): Promise<Cart | undefined> => {

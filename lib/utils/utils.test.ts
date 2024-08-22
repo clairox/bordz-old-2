@@ -10,7 +10,7 @@ import {
     isValidPriceRange,
     mergeProductFilterMaps,
     processPriceParams,
-} from '@/lib/services/core/collections'
+} from '@/lib/core/collections'
 import { ReadonlyURLSearchParams } from 'next/navigation'
 
 const mocks = vi.hoisted(() => {

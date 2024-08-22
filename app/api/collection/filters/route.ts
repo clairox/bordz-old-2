@@ -1,10 +1,10 @@
 import { searchParamsToObject } from '@/lib/utils/conversions'
 import { isNumeric } from '@/lib/utils/number'
 import { NextRequest, NextResponse } from 'next/server'
-import { processPriceParam } from '../common/utils'
-import { getProductFilters } from './common/requestHandlers'
 import { handleErrorResponse } from '@/lib/utils/api'
-import { isValidPriceRange } from '@/lib/services/core/collections'
+import { isValidPriceRange } from '@/lib/core/collections'
+import { getProductFilters } from '@/lib/services/shopify/requestHandlers/storefront/getProductFilters'
+import { processPriceParam } from '@/lib/utils/helpers'
 
 export const GET = async (request: NextRequest) => {
     const searchParams = searchParamsToObject(request.nextUrl.searchParams)

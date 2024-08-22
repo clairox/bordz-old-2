@@ -7,27 +7,30 @@ import { useCartContext } from '@/context/CartContext'
 import { HeartStraight } from '@phosphor-icons/react'
 import {
     addWishlistItem,
-    getLocalWishlist,
     removeWishlistItem,
-} from '@/lib/services/core/wishlists'
+    isItemInWishlist,
+    removeLocalWishlistItem,
+    addLocalWishlistItem,
+} from '@/lib/core/wishlists'
+import { useAuth } from '@/context/AuthContext/AuthContext'
 
 const ProductInfo: React.FunctionComponent<{
     id: string
     title: string
     description: string
     variants: Variant[]
-}> = ({ id, title, description, variants }) => {
+}> = ({ title, description, variants }) => {
     const [selectedVariant, setSelectedVariant] = useState(variants[0])
     const [quantity, setQuantity] = useState(1)
 
     const [isInWishlist, setIsInWishlist] = useState(false)
 
     useEffect(() => {
-        const wishlist = getLocalWishlist()
-        setIsInWishlist(wishlist.includes(selectedVariant.id))
+        setIsInWishlist(isItemInWishlist(selectedVariant.id))
     }, [selectedVariant])
 
     const { addCartLine } = useCartContext()
+    const { customerId } = useAuth()
 
     const handleSelectVariant = (id: string) => {
         const variant = variants.find(variant => variant.id === id)
@@ -49,11 +52,11 @@ const ProductInfo: React.FunctionComponent<{
     const handleWishlistToggle = async () => {
         const item = selectedVariant.id
         if (isInWishlist) {
-            const itemRemoved = await removeWishlistItem(item)
-            setIsInWishlist(!itemRemoved)
+            await (customerId ? removeWishlistItem(item) : removeLocalWishlistItem(item))
+            setIsInWishlist(false)
         } else {
-            const itemAdded = await addWishlistItem(item)
-            setIsInWishlist(itemAdded)
+            await (customerId ? addWishlistItem(item) : addLocalWishlistItem(item))
+            setIsInWishlist(true)
         }
     }
 

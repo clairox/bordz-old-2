@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createCart } from './common/requestHandler'
 import { handleErrorResponse } from '@/lib/utils/api'
+import { createCart } from '@/lib/services/shopify/requestHandlers/storefront'
 
 export const POST = async (request: NextRequest) => {
     try {
