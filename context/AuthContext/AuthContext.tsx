@@ -19,6 +19,7 @@ type AuthContextValue = {
     login: (email: string, password: string) => Promise<boolean>
     signup: (data: SignupData) => Promise<boolean>
     logout: () => Promise<boolean>
+    checkCredentials: (email: string, password: string) => Promise<boolean>
 }
 
 const AuthContext = createContext<AuthContextValue>({
@@ -28,6 +29,7 @@ const AuthContext = createContext<AuthContextValue>({
     login: async () => false,
     signup: async () => false,
     logout: async () => false,
+    checkCredentials: async () => false,
 })
 
 type AuthState = {
@@ -175,7 +177,24 @@ const AuthProvider: React.FunctionComponent<React.PropsWithChildren> = ({ childr
             return false
         }
     }, [])
+    const checkCredentials = useCallback(
+        async (email: string, password: string): Promise<boolean> => {
+            try {
+                const guestCartId = localStorage.getItem('cartId')
+                const guestWishlist = getLocalWishlistUnpopulated()
 
+                const response = await restClient('/login', {
+                    method: 'POST',
+                    body: JSON.stringify({ email, password, guestCartId, guestWishlist }),
+                })
+
+                return true
+            } catch (error) {
+                return false
+            }
+        },
+        [],
+    )
     return (
         <AuthContext.Provider
             value={{
@@ -183,6 +202,7 @@ const AuthProvider: React.FunctionComponent<React.PropsWithChildren> = ({ childr
                 login,
                 signup,
                 logout,
+                checkCredentials,
             }}
         >
             {children}

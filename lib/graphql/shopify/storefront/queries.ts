@@ -75,39 +75,41 @@ const GET_CART = gql(`
 const GET_COLLECTION = gql(`
 	query GetCollection(
 		$handle: String!
-		$limit: Int!
-		$sortKey: ProductCollectionSortKeys!
+		$first: Int!
+        $after: String
+		$sortKey: ProductCollectionSortKeys
 		$filters: [ProductFilter!]
 		$reverse: Boolean = false
 	) {
 		collection(handle: $handle) {
 			title
-			products(first: $limit, sortKey: $sortKey, reverse: $reverse, filters: $filters) {
-				nodes {
-					availableForSale
+			products(first: $first, after: $after, sortKey: $sortKey, reverse: $reverse, filters: $filters) {
+                nodes {
+				    availableForSale
 					handle
-					id
-					title
-					totalInventory
-					featuredImage {
+ 					id    					
+                    title
+    				totalInventory
+    				featuredImage {
 						src
-						width
-						height
-					}
-					compareAtPriceRange {
+ 						width    						
+                        height
+    				}
+    				compareAtPriceRange {
+    					maxVariantPrice {
+ 							amount    							
+                            currencyCode
+    					}
+    				}
+    				priceRange {
 						maxVariantPrice {
-							amount
-							currencyCode
-						}
-					}
-					priceRange {
-						maxVariantPrice {
-							amount
-							currencyCode
-						}
-					}
-				}
+ 							amount
+                            currencyCode
+    					}
+    				}
+    			} 
 				pageInfo {
+                    endCursor
 					hasNextPage
 				}
 				filters {
@@ -115,9 +117,25 @@ const GET_COLLECTION = gql(`
 					values {
 						label
 						count
+                        input 
 					}
 				}
 			}
+            metafields(identifiers: [
+                { key: "related_collections" namespace: "custom"} 
+                { key: "department" namespace: "custom" }
+            ]) {
+                key
+                value
+                references(first: 10) {
+                    nodes {
+                        ... on Collection {
+                            handle
+                            title
+                        }
+                    }
+                }
+            }
 		}
 	}
 `)
@@ -125,7 +143,7 @@ const GET_COLLECTION = gql(`
 const GET_PRODUCT_FILTERS = gql(`
 	query GetProductFilters(
 		$handle: String!
-		$limit: Int!
+        $limit: Int!
 		$filters: [ProductFilter!]
 	) {
 		collection(handle: $handle) {
@@ -146,11 +164,10 @@ const GET_PRODUCT_FILTERS = gql(`
 const GET_COLLECTION_MAX_PRICE = gql(`
 	query GetCollectionMaxPrice(
 		$handle: String!
-		$limit: Int!
 		$filters: [ProductFilter!]
 	) {
 		collection(handle: $handle) {
-			products(first: $limit, filters: $filters) {
+			products(first: 0, filters: $filters) {
 				nodes {
 					priceRange {
 						maxVariantPrice {
@@ -166,6 +183,7 @@ const GET_COLLECTION_MAX_PRICE = gql(`
 const GET_PRODUCT = gql(`
 	query GetProduct($handle: String!) {
 		productByHandle(handle: $handle) {
+            availableForSale
 			description
 			handle
 			id
@@ -198,6 +216,19 @@ const GET_PRODUCT = gql(`
 					}
 				}
 			}
+            metafields(identifiers: [
+                { key: "collection" namespace: "custom"} 
+                { key: "department" namespace: "custom" }
+            ]) {
+                key
+                value
+                reference {
+                    ... on Collection {
+                        handle
+                        title
+                    }
+                }
+            }
 		}
 	}
 `)

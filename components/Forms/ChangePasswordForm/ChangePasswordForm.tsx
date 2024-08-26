@@ -1,18 +1,18 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useEffect, useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/UI/Form'
-import PasswordInput from '@/components/UI/PasswordInput'
+import { Form } from '@/components/UI/Form'
 import { Button } from '@/components/UI/Button'
 import FormSuccessBox from '@/components/UI/FormResponseBox/FormSuccessBox'
 import FormErrorBox from '@/components/UI/FormResponseBox/FormErrorBox'
 import ChangePasswordFormSchema from './schema'
 import { useRouter } from 'next/navigation'
 import { usePathname } from 'next/navigation'
-import { useAccountContext } from '@/context/AccountContext/AccountContext'
+import { useAccount } from '@/context/AccountContext/AccountContext'
 import { makeLoginRedirectURL } from '@/lib/utils/helpers'
+import FormInputField from '@/components/UI/FormInputField'
 
 type FormData = z.infer<typeof ChangePasswordFormSchema>
 
@@ -20,7 +20,7 @@ const ChangePasswordForm = () => {
     const router = useRouter()
     const pathname = usePathname()
 
-    const { updatePassword } = useAccountContext()
+    const { updatePassword } = useAccount()
 
     const form = useForm<FormData>({
         resolver: zodResolver(ChangePasswordFormSchema),
@@ -29,24 +29,10 @@ const ChangePasswordForm = () => {
             confirmPassword: '',
         },
     })
-    const errors = form.formState.errors
 
-    const [formSuccessMessage, setFormSuccessMessage] = useState('')
-    const [formErrorMessage, setFormErrorMessage] = useState('')
-
-    const onSubmit = async (data: FormData) => {
-        setFormSuccessMessage('')
-        setFormErrorMessage('')
-
-        try {
-            await updatePassword(data.password)
-
-            setFormSuccessMessage('Password updated successfully!')
-
-            const activeElement = document.activeElement as HTMLElement
-            activeElement.blur()
-            form.reset()
-        } catch (error) {
+    const formErrorMessage = useMemo(() => {
+        const { isPending, error } = updatePassword!
+        if (error) {
             const { message } = error as Error
             if (message === 'Session expired') {
                 const url = makeLoginRedirectURL(pathname, 'session_expired')
@@ -54,8 +40,39 @@ const ChangePasswordForm = () => {
                 return
             }
 
-            setFormErrorMessage(message)
+            return message
         }
+
+        if (isPending) {
+            return ''
+        }
+
+        return ''
+    }, [updatePassword, pathname, router])
+
+    const formSuccessMessage = useMemo(() => {
+        const { isPending, isSuccess } = updatePassword!
+        if (isSuccess) {
+            return 'Personal info updated successfully!'
+        }
+
+        if (isPending) {
+            return ''
+        }
+
+        return ''
+    }, [updatePassword])
+
+    useEffect(() => {
+        if (updatePassword?.isSuccess) {
+            const activeElement = document.activeElement as HTMLElement
+            activeElement.blur()
+            form.reset()
+        }
+    }, [updatePassword, form])
+
+    const onSubmit = async (data: FormData) => {
+        updatePassword!.mutate(data.password)
     }
 
     return (
@@ -68,45 +85,18 @@ const ChangePasswordForm = () => {
                 <div className="w-full space-y-3">
                     {formSuccessMessage && <FormSuccessBox>{formSuccessMessage}</FormSuccessBox>}
                     {formErrorMessage && <FormErrorBox>{formErrorMessage}</FormErrorBox>}
-                    <FormField
+
+                    <FormInputField
                         control={form.control}
-                        name="password"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel className="text-black">Password</FormLabel>
-                                <FormControl>
-                                    <PasswordInput
-                                        className={`${errors.password && 'border-red-500 text-red-500'}`}
-                                        {...field}
-                                    />
-                                </FormControl>
-                                {errors.password && (
-                                    <p className="text-red-500 text-sm">
-                                        {errors.password.message}
-                                    </p>
-                                )}
-                            </FormItem>
-                        )}
+                        type={'password'}
+                        name={'password'}
+                        label={'Password'}
                     />
-                    <FormField
+                    <FormInputField
                         control={form.control}
-                        name="confirmPassword"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel className="text-black">Confirm Password</FormLabel>
-                                <FormControl>
-                                    <PasswordInput
-                                        className={`${errors.confirmPassword && 'border-red-500 text-red-500'}`}
-                                        {...field}
-                                    />
-                                </FormControl>
-                                {errors.confirmPassword && (
-                                    <p className="text-red-500 text-sm">
-                                        {errors.confirmPassword.message}
-                                    </p>
-                                )}
-                            </FormItem>
-                        )}
+                        type={'password'}
+                        name={'confirmPassword'}
+                        label={'Confirm Password'}
                     />
                 </div>
                 <Button type="submit">Submit</Button>

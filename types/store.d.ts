@@ -112,6 +112,9 @@ export type Variant = {
 }
 
 export type Product = {
+    availableForSale: boolean
+    collection: CollectionLink
+    department: Department
     description: string
     handle: string
     id: string
@@ -203,6 +206,41 @@ type WishlistItem = {
     compareAtPrice?: number
 }
 
+type WishlistData = {
+    wishlist: string[]
+    populatedWishlist: WishlistItem[]
+    hasNextPage: boolean
+}
+
+type FilterOption = {
+    name: string
+    isSelected: boolean
+}
+
+type FilterGroup = {
+    groupName: string
+    isActive: boolean
+    options: FilterOption[]
+}
+
+type Collection = {
+    filterGroups: FilterGroup[]
+    hasNextPage: boolean
+    maxPrice: number
+    priceFilter: number[]
+    products: ProductListItem[]
+    title: string
+    totalProductCount: number
+    department?: string
+    endCursor?: string
+    relatedCollections?: CollectionLink[]
+}
+
+type CollectionLink = {
+    handle: string
+    title: string
+}
+
 type CollectionSortKeyAlias = 'recommended' | 'newest' | 'priceLowToHigh' | 'priceHighToLow'
 
 type CollectionFilterKey = 'brand' | 'size' | 'color' | 'price' | 'subcategory'
@@ -234,3 +272,6 @@ type AvailableFilter = {
         count: number
     }>
 }
+
+type BreadcrumbTrailItem = { title: string; href: string | null; parent: string | null }
+type BreadcrumbTrail = Record<string, BreadcrumbTrailItem | null>

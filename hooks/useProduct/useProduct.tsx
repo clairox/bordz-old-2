@@ -1,34 +1,28 @@
-import { useState, useEffect, useCallback } from 'react'
-import type { Product } from '@/types/store'
+import { useCallback } from 'react'
 import { restClient } from '@/lib/clients/restClient'
+import { useQuery } from '@tanstack/react-query'
 
 const useProduct = (handle: string) => {
-    const [product, setProduct] = useState<Product | undefined>(undefined)
-    const [loading, setLoading] = useState(true)
-    const [error, setError] = useState<any | undefined>(undefined)
-
     const fetchProduct = useCallback(async () => {
         const url = '/products/' + handle
 
         try {
             const response = await restClient(url)
-            setProduct(response.data)
-            setLoading(false)
+            return response.data
         } catch (error) {
-            setError(error)
+            throw error as Error
         }
     }, [handle])
 
-    useEffect(() => {
-        if (product == undefined) {
-            fetchProduct()
-        }
-    }, [product, fetchProduct])
+    const { data, error, isPending } = useQuery({
+        queryKey: ['getProduct', handle],
+        queryFn: fetchProduct,
+    })
 
     return {
-        product,
-        loading,
+        data,
         error,
+        isPending,
     }
 }
 

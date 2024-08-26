@@ -12,7 +12,8 @@ A mock ecommerce app focused on selling skateboard and snowboard parts or someth
 -   [x] Convert all '../../../file.ts' imports to use alias
 -   [x] Set cart state after logging in
 -   [x] /lib/auth.ts
--   [ ] check login status before making requests to protected api routes
+-   [x] check login status before making requests to protected api routes
+-   [x] breadcrumb
 -   [ ] refactor
 -   [ ] rewrite tests
 -   [ ] Implement collection searching
@@ -20,3 +21,5 @@ A mock ecommerce app focused on selling skateboard and snowboard parts or someth
 -   [ ] Implement addresses
 -   [ ] Implement checkout and payments
 -   [ ] Remove prisma and delete database
+-   [ ] Recently visited carousel
+-   [ ] Footer

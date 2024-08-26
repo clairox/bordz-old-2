@@ -7,40 +7,40 @@ import {
     getCollectionMaxPrice,
 } from '@/lib/services/shopify/requestHandlers/storefront'
 import { processPriceParam } from '@/lib/utils/helpers'
+import { FILTER_GROUP_NAMES, DEFAULT_COLLECTION_LIMIT } from '@/lib/utils/constants'
 
 export const GET = async (request: NextRequest) => {
-    const searchParams = searchParamsToObject(request.nextUrl.searchParams)
-    const { handle, subcategory, brand, size, color, price, start, sortBy } = searchParams
+    const searchParams = request.nextUrl.searchParams
+    const searchParamsObject = searchParamsToObject(searchParams)
+    const { handle, price, sz, cursor, sortBy } = searchParamsObject
 
-    const limit = 40 + (start && isNumeric(start) ? Number(start) : 0)
-    const brands = brand?.split(',')
-    const sizes = size?.split(',')
-    const colors = color?.split(',')
     const priceRange = processPriceParam(price)
+    const size = Number(sz) || DEFAULT_COLLECTION_LIMIT
+
+    const filterGroups: Record<string, string[]> = {}
+    Array.from(searchParams.entries())
+        .filter(entry => {
+            const [key] = entry
+            return FILTER_GROUP_NAMES.includes(key)
+        })
+        .forEach(entry => {
+            const [key, value] = entry
+            filterGroups[key] = value.split(',')
+        })
 
     try {
         const collection = await getCollection(
             handle,
-            priceRange,
+            size,
+            cursor,
             sortBy,
-            subcategory,
-            limit,
-            brands,
-            sizes,
-            colors,
+            priceRange,
+            filterGroups,
         )
 
-        const maxPrice = await getCollectionMaxPrice(
-            handle,
-            subcategory,
-            limit,
-            brands,
-            sizes,
-            colors,
-        )
+        const maxPrice = await getCollectionMaxPrice(handle, filterGroups)
 
-        const response = NextResponse.json({ ...collection, maxPrice: roundUp(maxPrice) })
-        return response
+        return NextResponse.json({ ...collection, maxPrice: roundUp(maxPrice) })
     } catch (error) {
         return handleErrorResponse(error as Error)
     }

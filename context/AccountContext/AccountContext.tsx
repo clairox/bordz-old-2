@@ -1,82 +1,58 @@
 'use client'
+import { queryClient } from '@/lib/clients/queryClient'
 import { restClient } from '@/lib/clients/restClient'
 import { RestClientError } from '@/lib/clients/restClient'
-import { Customer, UpdatePersonalInfoValues } from '@/types/store'
-import { usePathname, useRouter } from 'next/navigation'
-import React, { createContext, useCallback, useContext, useEffect, useState } from 'react'
+import { UpdatePersonalInfoValues } from '@/types/store'
+import { UseMutationResult, useMutation, useQuery } from '@tanstack/react-query'
+import { useRouter } from 'next/navigation'
+import React, { createContext, useContext } from 'react'
 
 type AccountContextValue = {
-    customer: Customer
-    updatePersonalInfo: (values: UpdatePersonalInfoValues) => Promise<boolean>
-    updatePassword: (password: string) => Promise<boolean>
-    deleteCustomer: () => Promise<boolean>
-    loading: boolean
-}
-
-const defaultCustomer: Customer = {
-    acceptsMarketing: false,
-    addresses: [],
-    createdAt: new Date(0),
-    displayName: '',
-    email: '',
-    firstName: '',
-    id: '',
-    lastName: '',
-    numberOfOrders: 0,
-    orders: [],
-    tags: [],
-    updatedAt: new Date(0),
-    cartId: '',
-    birthDate: new Date(0),
-    wishlist: [],
+    data: any
+    error: any
+    updatePersonalDetails?: UseMutationResult<any, Error, UpdatePersonalInfoValues, unknown>
+    updatePassword?: UseMutationResult<any, Error, string, unknown>
+    deleteCustomer?: UseMutationResult<any, Error, void, unknown>
 }
 
 const AccountContext = createContext<AccountContextValue>({
-    customer: defaultCustomer,
-    updatePersonalInfo: async (values: UpdatePersonalInfoValues) => false,
-    updatePassword: async (password: string) => false,
-    deleteCustomer: async () => false,
-    loading: true,
+    data: undefined,
+    error: undefined,
+    updatePersonalDetails: undefined,
+    updatePassword: undefined,
+    deleteCustomer: undefined,
 })
 
-export const useAccountContext = () => useContext(AccountContext)
+export const useAccount = () => useContext(AccountContext)
 
-export const AccountProvider: React.FunctionComponent<React.PropsWithChildren> = ({ children }) => {
+export const AccountProvider: React.FunctionComponent<
+    React.PropsWithChildren<{ customerId: string }>
+> = ({ children, customerId }) => {
     const router = useRouter()
-    const pathname = usePathname()
 
-    const [customer, setCustomer] = useState<Customer | undefined>(undefined)
-    const [loading, setLoading] = useState(true)
+    const queryKey = ['getCustomer', customerId]
 
-    useEffect(() => {
-        if (customer == undefined) {
-            setLoading(true)
-            restClient('/customer')
-                .then(response => {
-                    const customer: Customer = response.data
-                    setCustomer(customer)
-                    setLoading(false)
-                })
-                .catch(error => {
-                    router.replace('/login')
-                })
-        }
-    }, [customer, router])
-
-    const updatePersonalInfo = useCallback(
-        async (values: UpdatePersonalInfoValues): Promise<boolean> => {
-            const config = {
-                method: 'PATCH',
-                body: JSON.stringify(values),
-            }
-
+    const { data, error, isPending } = useQuery({
+        queryKey,
+        queryFn: async () => {
             try {
-                const response = await restClient('/customer', config)
+                const response = await restClient('/customer')
+                return response.data
+            } catch (error) {
+                router.replace('/login')
+            }
+        },
+    })
 
-                const updatedCustomer: Customer = response.data
-                setCustomer(updatedCustomer)
+    const updatePersonalDetails = useMutation({
+        mutationFn: async (data: UpdatePersonalInfoValues) => {
+            try {
+                const response = await restClient('/customer', {
+                    method: 'PATCH',
+                    body: JSON.stringify(data),
+                })
 
-                return true
+                return response.data
             } catch (error) {
                 if (error instanceof RestClientError) {
                     if (error.response.status === 401) {
@@ -89,68 +65,78 @@ export const AccountProvider: React.FunctionComponent<React.PropsWithChildren> =
                 }
             }
         },
-        [],
-    )
+        onSuccess: () => queryClient.invalidateQueries({ queryKey }),
+        onError: error => console.error(error),
+    })
 
-    const updatePassword = useCallback(async (password: string): Promise<boolean> => {
-        const config = {
-            method: 'PATCH',
-            body: JSON.stringify({ password }),
-        }
+    const updatePassword = useMutation({
+        mutationFn: async (password: string) => {
+            try {
+                const response = await restClient('/customer', {
+                    method: 'PATCH',
+                    body: JSON.stringify({ password }),
+                })
 
-        try {
-            const response = await restClient('/customer', config)
-
-            const updatedCustomer: Customer = response.data
-            setCustomer(updatedCustomer)
-
-            return true
-        } catch (error) {
-            if (error instanceof RestClientError) {
-                if (error.response.status === 401) {
-                    throw new Error('Session expired')
+                return response.data
+            } catch (error) {
+                if (error instanceof RestClientError) {
+                    if (error.response.status === 401) {
+                        throw new Error('Session expired')
+                    } else {
+                        throw new Error(error.response.data.message)
+                    }
                 } else {
-                    throw new Error(error.response.data.message)
+                    throw error
                 }
-            } else {
-                throw error
             }
-        }
-    }, [])
+        },
+        onSuccess: () => queryClient.invalidateQueries({ queryKey }),
+    })
 
-    const deleteCustomer = useCallback(async (): Promise<boolean> => {
-        if (customer == undefined) {
-            return false
-        }
+    const deleteCustomer = useMutation({
+        mutationFn: async () => {
+            const customer = data.customer
+            if (customer == undefined) {
+                return false
+            }
 
-        const config = {
-            method: 'DELETE',
-            body: JSON.stringify({ id: customer.id }),
-        }
+            const config = {
+                method: 'DELETE',
+                body: JSON.stringify({ id: customer.id }),
+            }
 
-        try {
-            await restClient('/customer', config)
-            return true
-        } catch (error) {
-            if (error instanceof RestClientError) {
-                if (error.response.status === 401) {
-                    throw new Error('Session expired')
+            try {
+                await restClient('/customer', config)
+                return true
+            } catch (error) {
+                if (error instanceof RestClientError) {
+                    if (error.response.status === 401) {
+                        console.log('You are not allowed to do that!')
+                        throw new Error('Session expired')
+                    } else {
+                        throw new Error(error.response.data.message)
+                    }
                 } else {
-                    throw new Error(error.response.data.message)
+                    throw error
                 }
-            } else {
-                throw error
             }
-        }
-    }, [customer])
+        },
+        onSuccess: () => queryClient.invalidateQueries({ queryKey }),
+    })
 
-    if (customer == undefined) {
+    if (isPending) {
         return <>Loading...</>
     }
 
     return (
         <AccountContext.Provider
-            value={{ customer, updatePersonalInfo, updatePassword, deleteCustomer, loading }}
+            value={{
+                data,
+                error,
+                updatePersonalDetails,
+                updatePassword,
+                deleteCustomer,
+            }}
         >
             {children}
         </AccountContext.Provider>

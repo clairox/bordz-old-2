@@ -3,35 +3,30 @@ import { GET_COLLECTION } from '@/lib/graphql/shopify/storefront/queries'
 import { CollectionSortKeyAlias } from '@/types/store'
 import { storefrontClient } from './base'
 import _ from 'lodash'
-import { validateCollectionItem } from '@/lib/services/shopify/validators'
 import { makeProductFilters } from '@/lib/utils/helpers'
+import { validateCollection } from '@/lib/services/shopify/validators/collection'
+import { FILTER_GROUP_NAMES } from '@/lib/utils/constants'
 
 export const getCollection = async (
     handle: string,
-    priceRange: number[],
+    size: number,
+    cursor: string,
     sortBy: string,
-    subcategory?: string,
-    limit: number = 40,
-    brands: string[] = [],
-    sizes: string[] = [],
-    colors: string[] = [],
+    priceRange: number[],
+    filterGroups: Record<string, string[]>,
 ) => {
     if (!isValidSortKey(sortBy)) {
-        sortBy = 'recommended'
+        sortBy = 'newest'
     }
-
-    const filters = makeProductFilters({
-        subcategory,
-        brands,
-        sizes,
-        colors,
-        price: priceRange,
-    })
     const { sortKey, reverse } = makeSortInputs(sortBy)
+
+    const filters = makeProductFilters(filterGroups, priceRange)
+
     const config = {
         variables: {
             handle,
-            limit,
+            first: size,
+            after: cursor,
             sortKey,
             reverse,
             filters,
@@ -40,42 +35,84 @@ export const getCollection = async (
 
     try {
         const { collection } = await storefrontClient(GET_COLLECTION, 'collection', config)
+        console.log(collection)
 
-        const products = collection?.products.nodes
-        const hasNextPage = collection?.products.pageInfo.hasNextPage
-        let title = collection?.title
+        const safeCollection = validateCollection(collection)
 
-        if (typeof hasNextPage !== 'boolean') {
-            throw new Error('hasNextPage is not of boolean type')
-        }
+        // NOTE: Any selected filter options which are not returned from GET_COLLECTION
+        // query will be added to the filterGroups options as they are currently selected
+        // and should be returned alongside them
+        const unavailableSelectedOptions: Record<string, string[]> = {}
 
-        if (typeof title !== 'string') {
-            throw new Error('title is not of string type')
-        } else if (subcategory) {
-            title = convertParamStringToTitle(subcategory)
-        }
+        const allFilterGroups = collection?.products?.filters
+            ?.filter((filter: any) => {
+                return FILTER_GROUP_NAMES.includes(filter.label.toLowerCase())
+            })
+            ?.map((filter: any) => {
+                return {
+                    groupName: filter.label.toLowerCase(),
+                    options: filter.values.map((value: any) => value.label),
+                }
+            })
 
-        if (!Array.isArray(products)) {
-            throw new Error('Products are not of array type')
-        }
+        Object.keys(filterGroups)
+            .filter(key => key !== 'price')
+            .forEach(key => {
+                const values: string[] = []
+                filterGroups[key].forEach(value => {
+                    const isInCollectionFilters = safeCollection.filterGroups
+                        .find(group => group.groupName === key)
+                        ?.options.map(option => option.name)
+                        .includes(value)
 
-        const safeProducts = products?.map(product => validateCollectionItem(product))
+                    const isInAllFilters = allFilterGroups
+                        ?.find(group => group.groupName === key)
+                        ?.options.includes(value)
 
-        const productCount = collection?.products.filters
-            ?.find(filter => filter.label === 'Availability')
-            ?.values.find(value => value.label === 'In stock')?.count
+                    if (!isInCollectionFilters && isInAllFilters) {
+                        values.push(value)
+                    }
+                })
 
-        if (typeof productCount !== 'number') {
-            throw new Error('productCount is not of number type')
-        }
+                unavailableSelectedOptions[key] = values
+            })
 
-        const subcategoryTitles: string[] | undefined = subcategory
-            ? []
-            : collection?.products.filters
-                  ?.find(filter => filter.label === 'Subcollection')
-                  ?.values.map(value => convertParamStringToTitle(value.label))
+        // Select filter options that were queried and add the ones not
+        // returned by GET_COLLECTION query
+        safeCollection.filterGroups = safeCollection.filterGroups.map(group => {
+            let isActive = false
+            const options = group.options.map(option => {
+                if (filterGroups[group.groupName]?.includes(option.name)) {
+                    isActive = true
+                    // TODO: add group and name to a list or something and get all
+                    // the ones that aren't in that list and then check them against
+                    // allFilterGroups
+                    return {
+                        ...option,
+                        isSelected: true,
+                    }
+                }
+                return option
+            })
 
-        return { title, subcategoryTitles, products: safeProducts, hasNextPage, productCount }
+            const values = unavailableSelectedOptions[group.groupName]
+            if (values == undefined) {
+                return { ...group, isActive, options }
+            }
+
+            return {
+                ...group,
+                isActive: true,
+                options: options.concat(
+                    values.map(value => ({
+                        name: value,
+                        isSelected: true,
+                    })),
+                ),
+            }
+        })
+
+        return safeCollection
     } catch (error) {
         throw error
     }
@@ -95,10 +132,6 @@ const makeSortInputs = (sortBy: string | undefined) => {
         default:
             return { sortKey: BestSelling, reverse: true }
     }
-}
-
-const convertParamStringToTitle = (value: string) => {
-    return _.startCase(value.replace('-', ' '))
 }
 
 const isValidSortKey = (value: string | undefined): value is CollectionSortKeyAlias => {

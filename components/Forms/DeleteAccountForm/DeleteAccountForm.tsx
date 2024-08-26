@@ -1,23 +1,24 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import FormErrorBox from '@/components/UI/FormResponseBox/FormErrorBox'
-import PasswordInput from '@/components/UI/PasswordInput'
 import { Button } from '@/components/UI/Button'
-import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/UI/Form'
+import { Form } from '@/components/UI/Form'
 import DeleteAccountFormSchema from './schema'
 import { usePathname, useRouter } from 'next/navigation'
-import { useAccountContext } from '@/context/AccountContext/AccountContext'
+import { useAccount } from '@/context/AccountContext/AccountContext'
 import { makeLoginRedirectURL } from '@/lib/utils/helpers'
 import { useAuth } from '@/context/AuthContext/AuthContext'
+import FormInputField from '@/components/UI/FormInputField'
 
 type FormData = z.infer<typeof DeleteAccountFormSchema>
 
 const DeleteAccountForm = () => {
-    const { customer, deleteCustomer } = useAccountContext()
-    const { login, logout, error } = useAuth()
+    const { data: customer, deleteCustomer } = useAccount()
+    // TODO: change this after useAuth refactor
+    const { checkCredentials, logout } = useAuth()
 
     const router = useRouter()
     const pathname = usePathname()
@@ -28,12 +29,38 @@ const DeleteAccountForm = () => {
             confirmPassword: '',
         },
     })
-    const errors = form.formState.errors
 
+    // TODO: memoize formErrorMessage after useAuth is refactored with react-query
     const [formErrorMessage, setFormErrorMessage] = useState('')
 
+    useEffect(() => {
+        const { isPending, error } = deleteCustomer!
+        if (error) {
+            const { message } = error as Error
+            if (message === 'Session expired') {
+                const url = makeLoginRedirectURL(pathname, 'session_expired')
+                router.push(url.toString())
+                return
+            }
+
+            setFormErrorMessage(message)
+        }
+
+        if (isPending) {
+            setFormErrorMessage('')
+        }
+
+        setFormErrorMessage('')
+    }, [deleteCustomer, pathname, router])
+
+    useEffect(() => {
+        if (deleteCustomer?.isSuccess) {
+            logout().then(() => (window.location.href = '/'))
+        }
+    }, [deleteCustomer, logout])
+
     const isPasswordCorrect = async (password: string): Promise<boolean> => {
-        return await login(customer.email, password)
+        return await checkCredentials(customer.email, password)
     }
 
     const onSubmit = async (data: FormData) => {
@@ -44,23 +71,7 @@ const DeleteAccountForm = () => {
             return setFormErrorMessage('Password is incorrect.')
         }
 
-        try {
-            await deleteCustomer()
-
-            const success = await logout()
-            if (success) {
-                window.location.href = '/'
-            }
-        } catch (error) {
-            const { message } = error as Error
-            if (message === 'Session expired') {
-                const url = makeLoginRedirectURL(pathname, 'session_expired')
-                router.push(url.toString())
-                return
-            }
-
-            setFormErrorMessage(message)
-        }
+        deleteCustomer!.mutate()
     }
 
     return (
@@ -76,25 +87,11 @@ const DeleteAccountForm = () => {
                 </p>
                 <div className="w-full space-y-3">
                     {formErrorMessage && <FormErrorBox>{formErrorMessage}</FormErrorBox>}
-                    <FormField
+                    <FormInputField
                         control={form.control}
-                        name="confirmPassword"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel className="text-black">Confirm Password</FormLabel>
-                                <FormControl>
-                                    <PasswordInput
-                                        className={`${errors.confirmPassword && 'border-red-500 text-red-500'}`}
-                                        {...field}
-                                    />
-                                </FormControl>
-                                {errors.confirmPassword && (
-                                    <p className="text-red-500 text-sm">
-                                        {errors.confirmPassword.message}
-                                    </p>
-                                )}
-                            </FormItem>
-                        )}
+                        type={'password'}
+                        name={'confirmPassword'}
+                        label={'Confirm Password'}
                     />
                 </div>
                 <Button variant={'destructive'} type="submit">

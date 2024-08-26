@@ -123,9 +123,6 @@ const storefrontAPIClient = async <Q, V>(
         throw new Error('Missing Storefront API URL')
     }
 
-    console.log(print(query))
-    console.log(config?.variables)
-
     const fetchResponse = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-Shopify-Storefront-Access-Token': token },

@@ -1,86 +1,56 @@
 import { useAuth } from '@/context/AuthContext/AuthContext'
-import { getLocalWishlist, getWishlist } from '@/lib/core/wishlists'
-import { WishlistItem } from '@/types/store'
-import { useCallback, useEffect, useReducer } from 'react'
-import { custom } from 'zod'
+import { restClient } from '@/lib/clients/restClient'
+import {
+    getLocalWishlistUnpopulated,
+    populateWishlist,
+    setLocalWishlistUnpopulated,
+} from '@/lib/core/wishlists'
+import { DEFAULT_COLLECTION_LIMIT } from '@/lib/utils/constants'
+import { WishlistData } from '@/types/store'
+import { useQuery } from '@tanstack/react-query'
+import { useCallback } from 'react'
 
-type UseWishlistState = {
-    data:
-        | { wishlist: string[]; populatedWishlist: WishlistItem[]; hasNextPage: boolean }
-        | undefined
-    loading: boolean
-    error: any | undefined
-}
-
-type UseWishlistAction =
-    | { type: 'FETCH_START' }
-    | {
-          type: 'FETCH_SUCCESS'
-          payload: {
-              wishlist: string[]
-              populatedWishlist: WishlistItem[]
-              hasNextPage: boolean
-          }
-      }
-    | { type: 'FETCH_FAILURE'; payload: Error }
-
-const reducer = (state: UseWishlistState, action: UseWishlistAction) => {
-    switch (action.type) {
-        case 'FETCH_START':
-            return {
-                ...state,
-                loading: true,
-            }
-        case 'FETCH_SUCCESS':
-            return {
-                data: action.payload,
-                loading: false,
-                error: undefined,
-            }
-        case 'FETCH_FAILURE':
-            return {
-                data: undefined,
-                loading: false,
-                error: action.payload,
-            }
-        default:
-            throw new Error(`Unhandled action type: ${action}`)
-    }
-}
-
-const initialState = {
-    data: undefined,
-    loading: true,
-    error: undefined,
-}
-
-const useWishlist = (limit: number) => {
-    const [state, dispatch] = useReducer(reducer, initialState)
+const useWishlist = (limit: number = DEFAULT_COLLECTION_LIMIT) => {
     const { customerId } = useAuth()
 
+    const getLocalWishlist = useCallback(async (limit: number = DEFAULT_COLLECTION_LIMIT) => {
+        const wishlist = getLocalWishlistUnpopulated()
+        return populateWishlist(wishlist, limit)
+    }, [])
+
+    const getWishlist = useCallback(
+        async (limit: number = DEFAULT_COLLECTION_LIMIT): Promise<WishlistData> => {
+            const response = await restClient('/wishlist?populate=true&start=' + limit)
+
+            const wishlist = response.data.wishlist
+            setLocalWishlistUnpopulated(wishlist)
+
+            return response.data
+        },
+        [],
+    )
+
     const fetchWishlist = useCallback(async () => {
-        dispatch({ type: 'FETCH_START' })
-
         try {
-            // TODO: use consistent naming scheme for wishlist ids and populated wishlist
-            const data = await (customerId ? getWishlist(limit) : getLocalWishlist(limit))
+            let response
+            if (customerId) {
+                response = await getWishlist(limit)
+            } else {
+                response = await getLocalWishlist(limit)
+            }
 
-            dispatch({ type: 'FETCH_SUCCESS', payload: data })
+            return response
         } catch (error) {
-            dispatch({ type: 'FETCH_FAILURE', payload: error as Error })
+            throw error
         }
-    }, [limit, customerId])
+    }, [limit, customerId, getLocalWishlist, getWishlist])
 
-    useEffect(() => {
-        if (state.data == undefined) {
-            fetchWishlist()
-        }
-    }, [state.data, fetchWishlist])
+    const { data, error, isPending } = useQuery({
+        queryKey: ['getWishlist'],
+        queryFn: fetchWishlist,
+    })
 
-    return {
-        ...state,
-        dispatch,
-    }
+    return { data, error, isPending }
 }
 
 export default useWishlist

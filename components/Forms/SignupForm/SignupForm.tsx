@@ -14,7 +14,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/UI/Select'
-import PasswordInput from '@/components/UI/PasswordInput'
+import PasswordInput from '@/components/UI/FormPasswordInput'
 import SignupFormSchema from './schema'
 import { months, days, years } from './schema/values'
 import FormErrorBox from '@/components/UI/FormResponseBox/FormErrorBox'

@@ -5,6 +5,8 @@ import { cn } from '@/lib/utils/cn'
 import '@/styles/globals.css'
 import { CartProvider } from '@/context/CartContext'
 import { AuthProvider } from '@/context/AuthContext/AuthContext'
+import { QueryClientProvider } from '@tanstack/react-query'
+import { queryClient } from '@/lib/clients/queryClient'
 
 const fontSans = FontSans({ subsets: ['latin'], variable: '--font-sans' })
 
@@ -17,14 +19,17 @@ export default async function RootLayout({ children }: Readonly<React.PropsWithC
     return (
         <html lang="en">
             <body className={cn('', fontSans.className)}>
-                <AuthProvider>
-                    <CartProvider>
-                        <Header />
-                        <main className="flex justify-center mx-auto max-w-[1366px]">
-                            {children}
-                        </main>
-                    </CartProvider>
-                </AuthProvider>
+                <QueryClientProvider client={queryClient}>
+                    <AuthProvider>
+                        <CartProvider>
+                            <Header />
+                            <main className="flex justify-center mx-auto max-w-[1366px]">
+                                {children}
+                            </main>
+                            <div className="w-full h-96 border-t border-black bg-green-100"></div>
+                        </CartProvider>
+                    </AuthProvider>
+                </QueryClientProvider>
             </body>
         </html>
     )

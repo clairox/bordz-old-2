@@ -1,4 +1,4 @@
-import { Product, Variant } from '@/types/store'
+import { CollectionLink, Product, Variant } from '@/types/store'
 import {
     ensureArray,
     ensureBoolean,
@@ -18,6 +18,11 @@ const ensureVariant = (variant: any): Variant => ({
     title: ensureString(variant.title),
 })
 
+const ensureCollectionLink = (relatedCollection: any): CollectionLink => ({
+    handle: ensureString(relatedCollection.handle),
+    title: ensureString(relatedCollection.title),
+})
+
 export const validateProduct = (product: any): Product => {
     const error = new Error('Safe product conversion failed')
     if (!product) {
@@ -25,8 +30,21 @@ export const validateProduct = (product: any): Product => {
         throw error
     }
 
+    const collectionMetafield = product?.metafields?.find(
+        (metafield: any) => metafield.key === 'collection',
+    )
+
+    const departmentMetafield = product?.metafields?.find(
+        (metafield: any) => metafield.key === 'department',
+    )
+
+    console.log(collectionMetafield)
+
     try {
         const safeProduct: Product = {
+            availableForSale: ensureBoolean(product.availableForSale),
+            collection: ensureCollectionLink(collectionMetafield?.reference),
+            department: ensureString(departmentMetafield?.value),
             description: ensureString(product.description),
             handle: ensureString(product.handle),
             id: ensureString(product.id),

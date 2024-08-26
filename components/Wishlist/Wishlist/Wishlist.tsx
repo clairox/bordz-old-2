@@ -15,42 +15,18 @@ type WishlistProps = {
 }
 
 const Wishlist: React.FunctionComponent<WishlistProps> = ({ wishlist, dispatch, limit }) => {
-    return (
-        <main className="grid grid-cols-4 border-l border-black">
-            {wishlist.map(item => {
-                return (
-                    <WishlistListItem key={item.id} item={item} dispatch={dispatch} limit={limit} />
-                )
-            })}
-        </main>
-    )
-}
-
-type WishlistItemProps = {
-    item: WishlistItem
-    dispatch: React.Dispatch<any>
-    limit: number
-}
-
-const WishlistListItem: React.FunctionComponent<WishlistItemProps> = ({
-    item,
-    dispatch,
-    limit,
-}) => {
-    const product = item.product
+    const { customerId } = useAuth()
     const { addCartLine } = useCartContext()
 
-    const { customerId } = useAuth()
-    // TODO: move wishlist item deletion to parent component
-    const removeFromWishlist = async () => {
+    const deleteWishlistItem = async (id: string) => {
         dispatch({ type: 'FETCH_START' })
 
         try {
             let data
             if (customerId) {
-                data = await removeWishlistItem(item.id, limit)
+                data = await removeWishlistItem(id, limit)
             } else {
-                data = await removeLocalWishlistItem(item.id, limit)
+                data = await removeLocalWishlistItem(id, limit)
             }
 
             dispatch({ type: 'FETCH_SUCCESS', payload: data })
@@ -60,20 +36,54 @@ const WishlistListItem: React.FunctionComponent<WishlistItemProps> = ({
         }
     }
 
+    const addWishlistItemToCart = async (id: string) => {
+        dispatch({ type: 'FETCH_START' })
+
+        const cart = await addCartLine(id, 1)
+
+        if (cart != undefined) {
+            deleteWishlistItem(id)
+        }
+    }
+    return (
+        <main className="grid grid-cols-4 border-l border-black">
+            {wishlist.map(item => {
+                return (
+                    <WishlistListItem
+                        key={item.id}
+                        item={item}
+                        deleteWishlistItem={deleteWishlistItem}
+                        addWishlistItemToCart={addWishlistItemToCart}
+                    />
+                )
+            })}
+        </main>
+    )
+}
+
+type WishlistItemProps = {
+    item: WishlistItem
+    deleteWishlistItem: (id: string) => Promise<void>
+    addWishlistItemToCart: (id: string) => Promise<void>
+}
+
+const WishlistListItem: React.FunctionComponent<WishlistItemProps> = ({
+    item,
+    deleteWishlistItem,
+    addWishlistItemToCart,
+}) => {
+    const product = item.product
+
     const handleAddCartLine = async (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         event.preventDefault()
-
-        const value = await addCartLine(item.id, 1)
-        if (value != undefined) {
-            removeFromWishlist()
-        }
+        addWishlistItemToCart(item.id)
     }
 
     const handleRemoveWishlistItem = async (
         event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
     ) => {
         event.preventDefault()
-        removeFromWishlist()
+        deleteWishlistItem(item.id)
     }
 
     return (

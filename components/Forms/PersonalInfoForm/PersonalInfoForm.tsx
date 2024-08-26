@@ -1,132 +1,99 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { z } from 'zod'
 import PersonalInfoFormSchema from './schema'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/UI/Form'
+import { Form } from '@/components/UI/Form'
 import FormSuccessBox from '@/components/UI/FormResponseBox/FormSuccessBox'
 import FormErrorBox from '@/components/UI/FormResponseBox/FormErrorBox'
-import { Input } from '@/components/UI/Input'
 import { Button } from '@/components/UI/Button'
-import { useAccountContext } from '@/context/AccountContext/AccountContext'
+import { useAccount } from '@/context/AccountContext/AccountContext'
 import { useRouter, usePathname } from 'next/navigation'
+import FormInputField from '@/components/UI/FormInputField/FormInputField'
 
 type FormData = z.infer<typeof PersonalInfoFormSchema>
 
 const PersonalInfoForm = () => {
-	const router = useRouter()
-	const pathname = usePathname()
+    const router = useRouter()
+    const pathname = usePathname()
 
-	const { customer, updatePersonalInfo } = useAccountContext()
-	const { email, firstName, lastName } = customer
+    const { data: customer, updatePersonalDetails } = useAccount()
 
-	const form = useForm<FormData>({
-		resolver: zodResolver(PersonalInfoFormSchema),
-		defaultValues: {
-			email,
-			firstName,
-			lastName,
-		},
-	})
-	const errors = form.formState.errors
+    const form = useForm<FormData>({
+        resolver: zodResolver(PersonalInfoFormSchema),
+        defaultValues: {
+            email: customer.email,
+            firstName: customer.firstName,
+            lastName: customer.lastName,
+        },
+    })
 
-	const [formSuccessMessage, setFormSuccessMessage] = useState('')
-	const [formErrorMessage, setFormErrorMessage] = useState('')
+    const formErrorMessage = useMemo(() => {
+        const { isPending, error } = updatePersonalDetails!
+        if (error) {
+            const { message } = error as Error
+            if (message === 'Session expired') {
+                const url = new URL('/login', window.location.origin)
+                url.searchParams.set('redirect', encodeURIComponent(pathname))
+                url.searchParams.set('reason', 'session_expired')
 
-	const onSubmit = async (data: FormData) => {
-		setFormSuccessMessage('')
-		setFormErrorMessage('')
+                router.push(url.toString())
+                return
+            }
 
-		try {
-			await updatePersonalInfo(data)
+            return message
+        }
 
-			setFormSuccessMessage('Personal info updated successfully!')
+        if (isPending) {
+            return ''
+        }
 
-			const activeElement = document.activeElement as HTMLElement
-			activeElement.blur()
-		} catch (error) {
-			const { message } = error as Error
-			if (message === 'Session expired') {
-				const url = new URL('/login', window.location.origin)
-				url.searchParams.set('redirect', encodeURIComponent(pathname))
-				url.searchParams.set('reason', 'session_expired')
+        return ''
+    }, [updatePersonalDetails, pathname, router])
 
-				router.push(url.toString())
-				return
-			}
+    const formSuccessMessage = useMemo(() => {
+        const { isPending, isSuccess } = updatePersonalDetails!
+        if (isSuccess) {
+            const activeElement = document.activeElement as HTMLElement
+            activeElement.blur()
 
-			setFormErrorMessage(message)
-		}
-	}
+            return 'Personal info updated successfully!'
+        }
 
-	return (
-		<Form {...form}>
-			<form
-				onSubmit={form.handleSubmit(onSubmit)}
-				className="w-full max-w-[350px] space-y-4"
-				noValidate
-			>
-				<div className="w-full space-y-3">
-					{formSuccessMessage && <FormSuccessBox>{formSuccessMessage}</FormSuccessBox>}
-					{formErrorMessage && <FormErrorBox>{formErrorMessage}</FormErrorBox>}
-					<FormField
-						control={form.control}
-						name="email"
-						render={({ field }) => (
-							<FormItem>
-								<FormLabel className="text-black">Email</FormLabel>
-								<FormControl>
-									<Input
-										className={`${errors.email && 'border-red-500 text-red-500'}`}
-										{...field}
-									/>
-								</FormControl>
-								{errors.email && <p className="text-red-500 text-sm">{errors.email.message}</p>}
-							</FormItem>
-						)}
-					/>
-					<FormField
-						control={form.control}
-						name="firstName"
-						render={({ field }) => (
-							<FormItem>
-								<FormLabel className="text-black">First Name</FormLabel>
-								<FormControl>
-									<Input
-										className={`${errors.firstName && 'border-red-500 text-red-500'}`}
-										{...field}
-									/>
-								</FormControl>
-								{errors.firstName && (
-									<p className="text-red-500 text-sm">{errors.firstName.message}</p>
-								)}
-							</FormItem>
-						)}
-					/>
-					<FormField
-						control={form.control}
-						name="lastName"
-						render={({ field }) => (
-							<FormItem>
-								<FormLabel className="text-black">Last Name</FormLabel>
-								<FormControl>
-									<Input
-										className={`${errors.lastName && 'border-red-500 text-red-500'}`}
-										{...field}
-									/>
-								</FormControl>
-								{errors.lastName && (
-									<p className="text-red-500 text-sm">{errors.lastName.message}</p>
-								)}
-							</FormItem>
-						)}
-					/>
-				</div>
-				<Button type="submit">Submit</Button>
-			</form>
-		</Form>
-	)
+        if (isPending) {
+            return ''
+        }
+
+        return ''
+    }, [updatePersonalDetails])
+
+    const onSubmit = async (data: FormData) => {
+        updatePersonalDetails!.mutate(data)
+    }
+
+    return (
+        <Form {...form}>
+            <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="w-full max-w-[350px] space-y-4"
+                noValidate
+            >
+                <div className="w-full space-y-3">
+                    {formSuccessMessage && <FormSuccessBox>{formSuccessMessage}</FormSuccessBox>}
+                    {formErrorMessage && <FormErrorBox>{formErrorMessage}</FormErrorBox>}
+                    <FormInputField control={form.control} name={'email'} label={'Email'} />
+                    <FormInputField
+                        control={form.control}
+                        name={'firstName'}
+                        label={'First Name'}
+                    />
+                    <FormInputField control={form.control} name={'lastName'} label={'Last Name'} />
+                </div>
+                <Button type="submit">Submit</Button>
+            </form>
+        </Form>
+    )
 }
 
 export default PersonalInfoForm

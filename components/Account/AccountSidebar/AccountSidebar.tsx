@@ -1,21 +1,23 @@
 'use client'
-import { useAccountContext } from '@/context/AccountContext/AccountContext'
+import { useAccount } from '@/context/AccountContext/AccountContext'
 import { useAuth } from '@/context/AuthContext/AuthContext'
+import { Customer } from '@/types/store'
 import { HeartStraight, House, Lock, Package, SignOut, Gear, User } from '@phosphor-icons/react'
 import Link from 'next/link'
 import React from 'react'
 
 const AccountSidebar = () => {
-    const { customer } = useAccountContext()
-    const { logout, error } = useAuth()
+    const { data: customer } = useAccount()
+    const { logout, error: authError } = useAuth()
 
     const handleLogout = async () => {
-        const success = await logout()
-        if (success) {
+        if (await logout()) {
             window.location.href = '/'
-        } else {
-            console.error(error)
         }
+    }
+    if (authError) {
+        console.error(authError)
+        return <></>
     }
 
     return (
@@ -43,10 +45,10 @@ const AccountSidebar = () => {
             </Link>
             <Link
                 className="flex items-center gap-3 px-5 h-16 border border-t-0 border-black hover:bg-gray-100"
-                href="/account/personal-info"
+                href="/account/personal-details"
             >
                 <User size={28} weight="light" />
-                Personal Info
+                Personal Details
             </Link>
             <Link
                 className="flex items-center gap-3 px-5 h-16 border border-t-0 border-black hover:bg-gray-100"

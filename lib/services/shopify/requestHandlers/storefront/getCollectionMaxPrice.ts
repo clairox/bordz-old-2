@@ -4,24 +4,13 @@ import { GET_COLLECTION_MAX_PRICE } from '@/lib/graphql/shopify/storefront/queri
 
 export const getCollectionMaxPrice = async (
     handle: string,
-    subcategory?: string,
-    limit: number = 40,
-    brands: string[] = [],
-    sizes: string[] = [],
-    colors: string[] = [],
+    filterGroups: Record<string, string[]>,
 ) => {
-    const filters = makeProductFilters({
-        subcategory,
-        brands,
-        sizes,
-        colors,
-        price: [], // NOTE price filter should not influence max price
-    })
+    const filters = makeProductFilters(filterGroups)
 
     const config = {
         variables: {
             handle,
-            limit,
             filters,
         },
     }

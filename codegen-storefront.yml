@@ -2,7 +2,7 @@ schema:
   - ${NEXT_PUBLIC_SHOPIFY_BASE_URL}:
       headers:
         X-Shopify-Storefront-Access-Token: ${NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN}
-documents: "./graphql/shopify/storefront/**/*.{ts,tsx}"
+documents: "./lib/graphql/shopify/storefront/**/*.{ts,tsx}"
 generates:
   "./__generated__/storefront/":
     preset: "client"
