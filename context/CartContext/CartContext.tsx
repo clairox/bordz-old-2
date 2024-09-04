@@ -2,21 +2,19 @@
 
 import { restClient, RestClientError } from '@/lib/clients/restClient'
 import { Cart } from '@/types/store'
-import React, { createContext, useCallback, useContext, useEffect, useState } from 'react'
-import { useAuth } from '../AuthContext/AuthContext'
+import React, { createContext, useCallback, useContext } from 'react'
+import { useQuery } from '@tanstack/react-query'
 
 type CartContextType = {
-    cart: Cart | undefined
-    addCartLine: (variantId: string, quantity: number) => Promise<Cart | undefined> // TODO: let quantity be optional
-    updateCartLine: (lineId: string, data: { quantity: number }) => Promise<Cart | undefined>
-    deleteCartLine: (lineId: string) => Promise<Cart | undefined>
+    data: Cart | undefined
+    error: Error | null
+    isPending: boolean
 }
 
 const defaultCartContextValue = {
-    cart: undefined,
-    addCartLine: async () => undefined,
-    updateCartLine: async () => undefined,
-    deleteCartLine: async () => undefined,
+    data: undefined,
+    error: null,
+    isPending: true,
 }
 
 const CartContext = createContext<CartContextType>(defaultCartContextValue)
@@ -29,12 +27,6 @@ export const CartProvider: React.FunctionComponent<React.PropsWithChildren> = ({
 export const useCartContext = () => useContext(CartContext)
 
 const useProvideCart = () => {
-    const [cart, setCart] = useState<Cart | undefined>(undefined)
-    const [loading, setLoading] = useState(true)
-    const [error, setError] = useState<any | undefined>(undefined)
-
-    const { customerId } = useAuth()
-
     const getCartIdFromCustomer = async (): Promise<string | undefined> => {
         try {
             const response = await restClient('/customer')
@@ -59,12 +51,17 @@ const useProvideCart = () => {
             const response = await restClient('/cart', { method: 'POST' })
             return response.data
         } catch (error) {
-            setError(error)
             return undefined
         }
     }, [])
 
-    const loadCartId = useCallback(async () => {
+    const getCartId = useCallback(async () => {
+        const cartIdFromLocal = localStorage.getItem('cartId')
+
+        if (cartIdFromLocal) {
+            return cartIdFromLocal
+        }
+
         const cartIdFromCustomer = await getCartIdFromCustomer()
         if (cartIdFromCustomer) {
             localStorage.setItem('cartId', cartIdFromCustomer)
@@ -82,99 +79,22 @@ const useProvideCart = () => {
         return newCartId
     }, [createCart])
 
-    const loadCart = useCallback(async () => {
-        let id = localStorage.getItem('cartId') || (await loadCartId())
+    const getCart = useCallback(async () => {
+        let id = await getCartId()
 
         try {
             const response = await restClient(`/cart/${encodeURIComponent(id)}`)
 
-            setCart(response.data)
             return response.data
         } catch (error) {
-            setError(error)
+            throw error
         }
-    }, [loadCartId])
+    }, [getCartId])
 
-    useEffect(() => {
-        loadCart()
-    }, [loadCart, customerId])
+    const { data, error, isPending } = useQuery({
+        queryKey: ['getCart'],
+        queryFn: getCart,
+    })
 
-    const updateCartLine = useCallback(
-        async (lineId: string, data: { quantity: number }): Promise<Cart | undefined> => {
-            let id = localStorage.getItem('cartId') || (await loadCartId())
-
-            try {
-                const response = await restClient(`/cart/${encodeURIComponent(id)}/cartLines`, {
-                    method: 'PATCH',
-                    body: JSON.stringify({
-                        lines: [
-                            {
-                                id: lineId,
-                                quantity: data.quantity,
-                            },
-                        ],
-                    }),
-                })
-
-                setCart(response.data)
-                return response.data
-            } catch (error) {
-                setError(error)
-                return undefined
-            }
-        },
-        [loadCartId],
-    )
-
-    const addCartLine = useCallback(
-        // TODO: default quantity to 1
-        async (variantId: string, quantity: number): Promise<Cart | undefined> => {
-            let id = localStorage.getItem('cartId') || (await loadCartId())
-
-            try {
-                const response = await restClient(`/cart/${encodeURIComponent(id)}/cartLines`, {
-                    method: 'POST',
-                    body: JSON.stringify({
-                        lines: [
-                            {
-                                merchandiseId: variantId,
-                                quantity,
-                            },
-                        ],
-                    }),
-                })
-
-                setCart(response.data)
-                return response.data
-            } catch (error) {
-                setError(error)
-                return undefined
-            }
-        },
-        [loadCartId],
-    )
-
-    const deleteCartLine = useCallback(
-        async (lineId: string): Promise<Cart | undefined> => {
-            let id = localStorage.getItem('cartId') || (await loadCartId())
-
-            try {
-                const response = await restClient(`/cart/${encodeURIComponent(id)}/cartLines`, {
-                    method: 'DELETE',
-                    body: JSON.stringify({
-                        lineIds: [lineId],
-                    }),
-                })
-
-                setCart(response.data)
-                return response.data
-            } catch (error) {
-                setError(error)
-                return undefined
-            }
-        },
-        [loadCartId],
-    )
-
-    return { cart, addCartLine, updateCartLine, deleteCartLine }
+    return { data, error, isPending }
 }

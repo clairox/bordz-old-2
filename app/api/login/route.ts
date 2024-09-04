@@ -8,6 +8,7 @@ import {
     getCustomer,
 } from '@/lib/services/shopify/requestHandlers/storefront'
 import { addWishlistItems } from '@/lib/services/shopify/requestHandlers/admin'
+import { extractCustomerAuthData } from '@/lib/utils/helpers'
 
 export const POST = async (request: NextRequest) => {
     const { email, password, guestCartId, guestWishlist } = await request.json()
@@ -19,6 +20,7 @@ export const POST = async (request: NextRequest) => {
         // Merge guest cart into customer cart and wishlist
         // into customer wishlist
         const customer = await getCustomer(accessToken)
+
         const guestCart = await getCart(guestCartId)
         const { id: cartId } = await addCartLines(
             customer.cartId,
@@ -39,7 +41,11 @@ export const POST = async (request: NextRequest) => {
             path: '/',
         })
 
-        const response = NextResponse.json({ customerId: customer.id, cartId, wishlist })
+        const response = NextResponse.json({
+            data: extractCustomerAuthData(customer),
+            cartId,
+            wishlist,
+        })
         response.headers.append('Set-Cookie', cookie)
         return response
     } catch (error) {

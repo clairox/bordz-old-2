@@ -1,6 +1,6 @@
 'use client'
 import useProduct from '@/hooks/useProduct'
-import ProductDetails from '@/components/Product/ProductDetails'
+import ProductDetails from '@/components/ProductDetails'
 import { BreadcrumbTrail, Product } from '@/types/store'
 import Image from 'next/image'
 import { Breadcrumb, BreadcrumbList } from '@/components/UI/Breadcrumb'

@@ -7,6 +7,7 @@ import {
     createCustomer,
     getCart,
 } from '@/lib/services/shopify/requestHandlers/storefront'
+import { extractCustomerAuthData } from '@/lib/utils/helpers'
 
 export const POST = async (request: NextRequest) => {
     const {
@@ -55,7 +56,7 @@ export const POST = async (request: NextRequest) => {
         })
 
         const response = NextResponse.json({
-            customerId: customer.id,
+            data: extractCustomerAuthData(customer),
             cartId,
             wishlist: customer.wishlist,
         })

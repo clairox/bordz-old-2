@@ -1,6 +1,6 @@
 'use client'
 import { useState } from 'react'
-import CollectionHeader from '@/components/Collection/CollectionHeader'
+import CollectionHeader from '@/components/CollectionHeader'
 import { useSearchParams } from 'next/navigation'
 import { useCollection } from '@/hooks/useCollection'
 import Heading from '@/components/UI/Heading'

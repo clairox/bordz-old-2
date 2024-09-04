@@ -23,11 +23,11 @@ export default async function RootLayout({ children }: Readonly<React.PropsWithC
                     <AuthProvider>
                         <CartProvider>
                             <Header />
-                            <main className="flex justify-center mx-auto max-w-[1366px]">
-                                {children}
-                            </main>
-                            <div className="w-full h-96 border-t border-black bg-green-100"></div>
                         </CartProvider>
+                        <main className="flex justify-center mx-auto max-w-[1366px]">
+                            {children}
+                        </main>
+                        <div className="w-full h-96 border-t border-black bg-green-100"></div>
                     </AuthProvider>
                 </QueryClientProvider>
             </body>

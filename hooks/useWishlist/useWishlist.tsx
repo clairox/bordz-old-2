@@ -11,7 +11,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useCallback } from 'react'
 
 const useWishlist = (limit: number = DEFAULT_COLLECTION_LIMIT) => {
-    const { customerId } = useAuth()
+    const { isLoggedIn } = useAuth()
 
     const getLocalWishlist = useCallback(async (limit: number = DEFAULT_COLLECTION_LIMIT) => {
         const wishlist = getLocalWishlistUnpopulated()
@@ -33,7 +33,7 @@ const useWishlist = (limit: number = DEFAULT_COLLECTION_LIMIT) => {
     const fetchWishlist = useCallback(async () => {
         try {
             let response
-            if (customerId) {
+            if (isLoggedIn) {
                 response = await getWishlist(limit)
             } else {
                 response = await getLocalWishlist(limit)
@@ -43,7 +43,7 @@ const useWishlist = (limit: number = DEFAULT_COLLECTION_LIMIT) => {
         } catch (error) {
             throw error
         }
-    }, [limit, customerId, getLocalWishlist, getWishlist])
+    }, [limit, isLoggedIn, getLocalWishlist, getWishlist])
 
     const { data, error, isPending } = useQuery({
         queryKey: ['getWishlist'],

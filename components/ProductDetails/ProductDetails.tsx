@@ -1,24 +1,19 @@
 import { Button } from '@/components/UI/Button'
-import { useCartContext } from '@/context/CartContext'
+import { CartProvider, useCartContext } from '@/context/CartContext'
+import { useCartMutations } from '@/hooks/useCartMutations'
 import { useWishlistMutations } from '@/hooks/useWishlistMutations'
 import { isItemInWishlist } from '@/lib/core/wishlists'
 import { Product, Variant } from '@/types/store'
 import { HeartStraight } from '@phosphor-icons/react'
-import {
-    PropsWithChildren,
-    createContext,
-    useCallback,
-    useContext,
-    useEffect,
-    useState,
-} from 'react'
+import { PropsWithChildren, createContext, useCallback, useContext, useState } from 'react'
 
 const ProductDetailsContext = createContext<Product | undefined>(undefined)
 
 const useProductDetails = () => {
     const product = useContext(ProductDetailsContext)
 
-    const { addCartLine } = useCartContext()
+    const { data: cart } = useCartContext()
+    const { addCartLine } = useCartMutations(cart?.id || '')
 
     const [selectedVariant, setSelectedVariant] = useState<Variant>(product!.variants[0])
     const [isInWishlist, setIsInWishlist] = useState(isItemInWishlist(selectedVariant.id))
@@ -33,34 +28,20 @@ const useProductDetails = () => {
         [product?.variants],
     )
 
-    const { addWishlistItemMutation, removeWishlistItemMutation } = useWishlistMutations()
+    const { addWishlistItem, removeWishlistItem } = useWishlistMutations()
 
     const handleCartButton = useCallback(async () => {
-        await addCartLine(selectedVariant.id, 1)
+        addCartLine.mutate({ variantId: selectedVariant.id, quantity: 1 })
     }, [addCartLine, selectedVariant])
 
     const handleWishlistButton = useCallback(async () => {
         const item = selectedVariant.id
         if (item && isInWishlist) {
-            removeWishlistItemMutation.mutate(item)
+            removeWishlistItem.mutate(item, { onSuccess: () => setIsInWishlist(false) })
         } else if (item) {
-            addWishlistItemMutation.mutate(item)
+            addWishlistItem.mutate(item, { onSuccess: () => setIsInWishlist(true) })
         }
-    }, [isInWishlist, selectedVariant, removeWishlistItemMutation, addWishlistItemMutation])
-
-    useEffect(() => {
-        const { isSuccess } = removeWishlistItemMutation
-        if (isSuccess) {
-            setIsInWishlist(false)
-        }
-    }, [removeWishlistItemMutation])
-
-    useEffect(() => {
-        const { isSuccess } = addWishlistItemMutation
-        if (isSuccess) {
-            setIsInWishlist(true)
-        }
-    }, [addWishlistItemMutation])
+    }, [isInWishlist, selectedVariant, removeWishlistItem, addWishlistItem])
 
     if (product == undefined) {
         throw new Error('Cannot be used outside of context')
@@ -86,7 +67,9 @@ type ProductDetailsProps = PropsWithChildren<{
 const ProductDetails = ({ children, product }: ProductDetailsProps) => {
     return (
         <ProductDetailsContext.Provider value={product}>
-            <div className="sticky top-0 flex flex-col gap-2 pt-8 pb-32">{children}</div>
+            <CartProvider>
+                <div className="sticky top-0 flex flex-col gap-2 pt-8 pb-32">{children}</div>
+            </CartProvider>
         </ProductDetailsContext.Provider>
     )
 }

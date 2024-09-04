@@ -1,6 +1,7 @@
 'use client'
 import { Button } from '@/components/UI/Button'
 import { ProductGrid } from '@/components/UI/ProductGrid'
+import { useCartMutations } from '@/hooks/useCartMutations'
 import useWishlist from '@/hooks/useWishlist/useWishlist'
 import { useWishlistMutations } from '@/hooks/useWishlistMutations'
 import { WishlistData } from '@/types/store'
@@ -9,7 +10,8 @@ import { Trash } from '@phosphor-icons/react'
 const Page = () => {
     const limit = 40
     const { data, error, isPending } = useWishlist(limit)
-    const { removeWishlistItemMutation, fetchMore } = useWishlistMutations(limit)
+    const { removeWishlistItem, fetchMore } = useWishlistMutations(limit)
+    const { addCartLine } = useCartMutations(localStorage.getItem('cartId') || '')
 
     if (error) {
         // TODO: handle error
@@ -23,11 +25,23 @@ const Page = () => {
 
     const { populatedWishlist: wishlist, hasNextPage } = data as WishlistData
 
+    const handleAddToCart = (
+        event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+        item: string,
+    ) => {
+        event.preventDefault()
+        addCartLine.mutate(
+            { variantId: item, quantity: 1 },
+            { onSuccess: () => removeWishlistItem.mutate(item) },
+        )
+    }
+
     const handleRemoveWishlistItem = (
         event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
         item: string,
     ) => {
-        removeWishlistItemMutation.mutate(item)
+        event.preventDefault()
+        removeWishlistItem.mutate(item)
     }
 
     return (
@@ -68,7 +82,7 @@ const Page = () => {
                                 <div className="w-full h-14">
                                     <Button
                                         className="w-full h-full rounded-none border-t border-black bg-white text-lg text-black hover:bg-gray-100"
-                                        onClick={() => {}}
+                                        onClick={event => handleAddToCart(event, item.id)}
                                     >
                                         Add to Bag
                                     </Button>

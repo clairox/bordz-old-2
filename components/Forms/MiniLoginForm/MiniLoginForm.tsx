@@ -1,23 +1,23 @@
 'use client'
-import React, { useEffect, useState } from 'react'
+import React, { useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/UI/Form'
-import { Input } from '@/components/UI/Input'
+import { Form } from '@/components/UI/Form'
 import { Button } from '@/components/UI/Button'
 import MiniLoginFormSchema from './schema'
 import Link from 'next/link'
-import PasswordInput from '@/components/UI/FormPasswordInput'
 import FormErrorBox from '@/components/UI/FormResponseBox/FormErrorBox'
-import { useAuth } from '@/context/AuthContext/AuthContext'
+import { useAuthMutations } from '@/hooks/useAuthMutations/useAuthMutations'
+import { RestClientError } from '@/lib/clients/restClient'
+import FormInputField from '@/components/UI/FormInputField'
 
 type FormData = z.infer<typeof MiniLoginFormSchema>
 
 const MiniLoginForm: React.FunctionComponent<{
     closePopover: () => void
 }> = ({ closePopover }) => {
-    const { login, error } = useAuth()
+    const { login } = useAuthMutations()
 
     const form = useForm<FormData>({
         resolver: zodResolver(MiniLoginFormSchema),
@@ -26,31 +26,29 @@ const MiniLoginForm: React.FunctionComponent<{
             password: '',
         },
     })
-    const errors = form.formState.errors
 
-    const [formErrorMessage, setFormErrorMessage] = useState('')
-
-    useEffect(() => {
-        if (!form.formState.isSubmitted || error == undefined) {
-            return
+    const formErrorMessage = useMemo(() => {
+        if (login.isPending) {
+            return ''
         }
 
-        switch (error?.status) {
-            case 401:
-                return setFormErrorMessage('Login failed. Please verify your email and password.')
-            default:
-                return setFormErrorMessage('Something went wrong, please try again.')
+        if (login.isError) {
+            const error = login.error as RestClientError
+            if (!form.formState.isSubmitted || error == undefined) {
+                return
+            }
+            switch (error?.status) {
+                case 401:
+                    return 'Login failed. Please verify your email and password.'
+                default:
+                    return 'Something went wrong, please try again.'
+            }
         }
-    }, [error, form.formState.isSubmitted])
+    }, [login, form.formState.isSubmitted])
 
     const onSubmit = async (data: FormData) => {
-        setFormErrorMessage('')
-
         const { email, password } = data
-
-        if (await login(email, password)) {
-            return window.location.reload()
-        }
+        login.mutate({ email, password }, { onSuccess: () => window.location.reload() })
     }
 
     return (
@@ -59,44 +57,12 @@ const MiniLoginForm: React.FunctionComponent<{
                 <h1 className="mb-2 text-xl font-semibold">Login</h1>
                 <div className="space-y-3">
                     {formErrorMessage && <FormErrorBox>{formErrorMessage}</FormErrorBox>}
-                    <FormField
+                    <FormInputField control={form.control} name={'email'} label={'Email'} />
+                    <FormInputField
                         control={form.control}
-                        name="email"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel className="text-black">Email</FormLabel>
-                                <FormControl>
-                                    <Input
-                                        className={`${errors.email && 'border-red-500 text-red-500'}`}
-                                        {...field}
-                                        type="email"
-                                    />
-                                </FormControl>
-                                {errors.email && (
-                                    <p className="text-red-500 text-sm">{errors.email.message}</p>
-                                )}
-                            </FormItem>
-                        )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name="password"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel className="text-black">Password</FormLabel>
-                                <FormControl>
-                                    <PasswordInput
-                                        className={`${errors.password && 'border-red-500 text-red-500'}`}
-                                        {...field}
-                                    />
-                                </FormControl>
-                                {errors.password && (
-                                    <p className="text-red-500 text-sm">
-                                        {errors.password.message}
-                                    </p>
-                                )}
-                            </FormItem>
-                        )}
+                        type={'password'}
+                        name={'password'}
+                        label={'Password'}
                     />
                 </div>
                 <div>

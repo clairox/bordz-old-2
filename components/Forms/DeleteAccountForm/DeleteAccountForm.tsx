@@ -1,5 +1,5 @@
 'use client'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -10,15 +10,17 @@ import DeleteAccountFormSchema from './schema'
 import { usePathname, useRouter } from 'next/navigation'
 import { useAccount } from '@/context/AccountContext/AccountContext'
 import { makeLoginRedirectURL } from '@/lib/utils/helpers'
-import { useAuth } from '@/context/AuthContext/AuthContext'
 import FormInputField from '@/components/UI/FormInputField'
+import { useAuthMutations } from '@/hooks/useAuthMutations/useAuthMutations'
+import { useAccountMutations } from '@/hooks/useAccountMutations'
+import Redirect from '@/components/Redirect'
 
 type FormData = z.infer<typeof DeleteAccountFormSchema>
 
 const DeleteAccountForm = () => {
-    const { data: customer, deleteCustomer } = useAccount()
-    // TODO: change this after useAuth refactor
-    const { checkCredentials, logout } = useAuth()
+    const { data: customer } = useAccount()
+    const { deleteCustomer } = useAccountMutations()
+    const { logout, confirmCredentials } = useAuthMutations()
 
     const router = useRouter()
     const pathname = usePathname()
@@ -30,48 +32,52 @@ const DeleteAccountForm = () => {
         },
     })
 
-    // TODO: memoize formErrorMessage after useAuth is refactored with react-query
-    const [formErrorMessage, setFormErrorMessage] = useState('')
+    const formErrorMessage = useMemo(() => {
+        if (confirmCredentials.isPending) {
+            return ''
+        }
 
-    useEffect(() => {
-        const { isPending, error } = deleteCustomer!
-        if (error) {
-            const { message } = error as Error
+        if (confirmCredentials.isError) {
+            return 'Password is incorrect.'
+        }
+
+        if (deleteCustomer.isError) {
+            const { message } = deleteCustomer.error as Error
             if (message === 'Session expired') {
                 const url = makeLoginRedirectURL(pathname, 'session_expired')
                 router.push(url.toString())
                 return
             }
 
-            setFormErrorMessage(message)
+            return message
         }
 
-        if (isPending) {
-            setFormErrorMessage('')
-        }
-
-        setFormErrorMessage('')
-    }, [deleteCustomer, pathname, router])
-
-    useEffect(() => {
-        if (deleteCustomer?.isSuccess) {
-            logout().then(() => (window.location.href = '/'))
-        }
-    }, [deleteCustomer, logout])
-
-    const isPasswordCorrect = async (password: string): Promise<boolean> => {
-        return await checkCredentials(customer.email, password)
-    }
+        return ''
+    }, [confirmCredentials, deleteCustomer, pathname, router])
 
     const onSubmit = async (data: FormData) => {
-        setFormErrorMessage('')
-
-        const isCorrectPassword = await isPasswordCorrect(data.confirmPassword)
-        if (!isCorrectPassword) {
-            return setFormErrorMessage('Password is incorrect.')
+        if (customer == undefined) {
+            return
         }
 
-        deleteCustomer!.mutate()
+        confirmCredentials.mutate(
+            { email: customer.email, password: data.confirmPassword },
+            {
+                onSuccess: () => handleConfirmCredentialsSuccess(),
+            },
+        )
+
+        const handleConfirmCredentialsSuccess = () => {
+            deleteCustomer.mutate(undefined as void, {
+                onSuccess: () => handleDeleteCustomerSuccess(),
+            })
+        }
+
+        const handleDeleteCustomerSuccess = () => {
+            logout.mutate(undefined as void, {
+                onSuccess: () => (window.location.href = '/'),
+            })
+        }
     }
 
     return (

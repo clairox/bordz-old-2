@@ -1,11 +1,10 @@
 'use client'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/UI/Form'
-import { Input } from '@/components/UI/Input'
 import { Button } from '@/components/UI/Button'
 import {
     Select,
@@ -14,16 +13,17 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/UI/Select'
-import PasswordInput from '@/components/UI/FormPasswordInput'
 import SignupFormSchema from './schema'
 import { months, days, years } from './schema/values'
 import FormErrorBox from '@/components/UI/FormResponseBox/FormErrorBox'
-import { useAuth } from '@/context/AuthContext/AuthContext'
+import FormInputField from '@/components/UI/FormInputField'
+import { useAuthMutations } from '@/hooks/useAuthMutations/useAuthMutations'
+import { RestClientError } from '@/lib/clients/restClient'
 
 type FormData = z.infer<typeof SignupFormSchema>
 
 const SignupForm = () => {
-    const { signup, error } = useAuth()
+    const { signup } = useAuthMutations()
 
     const form = useForm<FormData>({
         resolver: zodResolver(SignupFormSchema),
@@ -41,10 +41,10 @@ const SignupForm = () => {
 
     const [submitAttempted, setSubmitAttempted] = useState(false)
     const [monthSelectWidth, setMonthSelectWidth] = useState('var(--radix-select-trigger-width)')
-    const [formErrorMessage, setFormErrorMessage] = useState('')
 
     // Fixes the month SelectContent element not being wide enough on first render
     const monthSelectTriggerRef = useRef<HTMLButtonElement | null>(null)
+
     useEffect(() => {
         if (monthSelectTriggerRef.current) {
             const width = String(monthSelectTriggerRef.current.clientWidth + 2) + 'px'
@@ -52,30 +52,34 @@ const SignupForm = () => {
         }
     }, [])
 
-    useEffect(() => {
-        if (!form.formState.isSubmitted || error == undefined) {
-            return
+    const formErrorMessage = useMemo(() => {
+        if (signup.isPending) {
+            return ''
         }
 
-        switch (error?.status) {
-            case 409:
-                return setFormErrorMessage(
-                    'Registration failed. An account with this email already exists.',
-                )
-            default:
-                return setFormErrorMessage('Something went wrong, please try again.')
+        if (signup.isError) {
+            const error = signup.error as RestClientError
+            if (!form.formState.isSubmitted || error == undefined) {
+                return
+            }
+
+            switch (error?.status) {
+                case 409:
+                    return 'Registration failed. An account with this email already exists.'
+                default:
+                    return 'Something went wrong, please try again.'
+            }
         }
-    }, [error, form.formState.isSubmitted])
+    }, [signup, form.formState.isSubmitted])
 
     const onSubmit = async (data: FormData) => {
-        setFormErrorMessage('')
-
         const { firstName, lastName, month, day, year, email, password } = data
         const birthDate = new Date(`${month} ${day}, ${year}`)
 
-        if (await signup({ email, password, firstName, lastName, birthDate })) {
-            return window.location.reload()
-        }
+        signup.mutate(
+            { email, password, firstName, lastName, birthDate },
+            { onSuccess: () => window.location.reload() },
+        )
     }
 
     return (
@@ -91,48 +95,13 @@ const SignupForm = () => {
                 <h1 className="mb-2 text-xl font-semibold">Sign Up</h1>
                 <div className="w-full space-y-3">
                     {formErrorMessage && <FormErrorBox>{formErrorMessage}</FormErrorBox>}
-                    <FormField
+                    <FormInputField
                         control={form.control}
-                        name="firstName"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel className="text-black">First Name</FormLabel>
-                                <FormControl>
-                                    <Input
-                                        className={`${errors.firstName && 'border-red-500 text-red-500'}`}
-                                        {...field}
-                                        type="text"
-                                    />
-                                </FormControl>
-                                {errors.firstName && (
-                                    <p className="text-red-500 text-sm">
-                                        {errors.firstName.message}
-                                    </p>
-                                )}
-                            </FormItem>
-                        )}
+                        name={'firstName'}
+                        label={'First Name'}
                     />
-                    <FormField
-                        control={form.control}
-                        name="lastName"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel className="text-black">Last Name</FormLabel>
-                                <FormControl>
-                                    <Input
-                                        className={`${errors.lastName && 'border-red-500 text-red-500'}`}
-                                        {...field}
-                                        type="text"
-                                    />
-                                </FormControl>
-                                {errors.lastName && (
-                                    <p className="text-red-500 text-sm">
-                                        {errors.lastName.message}
-                                    </p>
-                                )}
-                            </FormItem>
-                        )}
-                    />
+                    <FormInputField control={form.control} name={'lastName'} label={'Last Name'} />
+
                     <FormLabel className="text-black">
                         Date of Birth
                         <div className="flex flex-row w-full">
@@ -254,46 +223,12 @@ const SignupForm = () => {
                             <p className="text-red-500 text-sm">{errors.birthDate!.message}</p>
                         )}
                     </FormLabel>
-                    <FormField
+                    <FormInputField control={form.control} name={'email'} label={'Email'} />
+                    <FormInputField
                         control={form.control}
-                        name="email"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel className="text-black">Email</FormLabel>
-                                <FormControl>
-                                    <Input
-                                        className={`
-											${errors.email && 'border-red-500 text-red-500'}`}
-                                        {...field}
-                                        onChange={field.onChange}
-                                        type="email"
-                                    />
-                                </FormControl>
-                                {errors.email && (
-                                    <p className="text-red-500 text-sm">{errors.email?.message}</p>
-                                )}
-                            </FormItem>
-                        )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name="password"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel className="text-black">Password</FormLabel>
-                                <FormControl>
-                                    <PasswordInput
-                                        className={`${errors.password && 'border-red-500 text-red-500'}`}
-                                        {...field}
-                                    />
-                                </FormControl>
-                                {errors.password && (
-                                    <p className="text-red-500 text-sm">
-                                        {errors.password.message}
-                                    </p>
-                                )}
-                            </FormItem>
-                        )}
+                        type={'password'}
+                        name={'password'}
+                        label={'Password'}
                     />
                 </div>
                 <Button type="submit">Submit</Button>

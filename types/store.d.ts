@@ -111,6 +111,7 @@ export type Variant = {
     title: string
 }
 
+// TODO: add featuredImage
 export type Product = {
     availableForSale: boolean
     collection: CollectionLink

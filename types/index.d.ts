@@ -55,3 +55,25 @@ type FilterTag = {
     key: string
     value: string | string[]
 }
+
+type LoginData = {
+    email: string
+    password: string
+}
+
+type SignupData = {
+    email: string
+    password: string
+    firstName: string
+    lastName: string
+    birthDate: Date
+    phone?: string
+}
+
+type CustomerAuthData = {
+    id: string
+    email: string
+    firstName: string
+    lastName: string
+    displayName: string
+}

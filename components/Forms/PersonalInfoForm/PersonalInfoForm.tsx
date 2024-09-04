@@ -11,6 +11,7 @@ import { Button } from '@/components/UI/Button'
 import { useAccount } from '@/context/AccountContext/AccountContext'
 import { useRouter, usePathname } from 'next/navigation'
 import FormInputField from '@/components/UI/FormInputField/FormInputField'
+import { useAccountMutations } from '@/hooks/useAccountMutations'
 
 type FormData = z.infer<typeof PersonalInfoFormSchema>
 
@@ -18,21 +19,21 @@ const PersonalInfoForm = () => {
     const router = useRouter()
     const pathname = usePathname()
 
-    const { data: customer, updatePersonalDetails } = useAccount()
+    const { data: customer } = useAccount()
+    const { updatePersonalDetails } = useAccountMutations()
 
     const form = useForm<FormData>({
         resolver: zodResolver(PersonalInfoFormSchema),
         defaultValues: {
-            email: customer.email,
-            firstName: customer.firstName,
-            lastName: customer.lastName,
+            email: customer?.email,
+            firstName: customer?.firstName,
+            lastName: customer?.lastName,
         },
     })
 
     const formErrorMessage = useMemo(() => {
-        const { isPending, error } = updatePersonalDetails!
-        if (error) {
-            const { message } = error as Error
+        if (updatePersonalDetails.isError) {
+            const { message } = updatePersonalDetails.error as Error
             if (message === 'Session expired') {
                 const url = new URL('/login', window.location.origin)
                 url.searchParams.set('redirect', encodeURIComponent(pathname))
@@ -45,7 +46,7 @@ const PersonalInfoForm = () => {
             return message
         }
 
-        if (isPending) {
+        if (updatePersonalDetails.isPending) {
             return ''
         }
 
@@ -53,15 +54,14 @@ const PersonalInfoForm = () => {
     }, [updatePersonalDetails, pathname, router])
 
     const formSuccessMessage = useMemo(() => {
-        const { isPending, isSuccess } = updatePersonalDetails!
-        if (isSuccess) {
+        if (updatePersonalDetails.isSuccess) {
             const activeElement = document.activeElement as HTMLElement
             activeElement.blur()
 
             return 'Personal info updated successfully!'
         }
 
-        if (isPending) {
+        if (updatePersonalDetails.isPending) {
             return ''
         }
 
@@ -69,7 +69,7 @@ const PersonalInfoForm = () => {
     }, [updatePersonalDetails])
 
     const onSubmit = async (data: FormData) => {
-        updatePersonalDetails!.mutate(data)
+        updatePersonalDetails.mutate(data)
     }
 
     return (

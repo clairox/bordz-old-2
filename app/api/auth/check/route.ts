@@ -1,5 +1,6 @@
-import { getCustomerId } from '@/lib/services/shopify/requestHandlers/storefront'
+import { getCustomer } from '@/lib/services/shopify/requestHandlers/storefront'
 import { handleErrorResponse } from '@/lib/utils/api'
+import { extractCustomerAuthData } from '@/lib/utils/helpers'
 import { NextRequest, NextResponse } from 'next/server'
 
 export const GET = async (request: NextRequest) => {
@@ -9,8 +10,8 @@ export const GET = async (request: NextRequest) => {
     }
 
     try {
-        const id = await getCustomerId(customerAccessToken.value)
-        return NextResponse.json({ id })
+        const customer = await getCustomer(customerAccessToken.value)
+        return NextResponse.json(extractCustomerAuthData(customer))
     } catch (error) {
         return handleErrorResponse(error as Error)
     }

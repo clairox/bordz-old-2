@@ -1,13 +1,12 @@
 import { queryClient } from '@/lib/clients/queryClient'
 import { restClient } from '@/lib/clients/restClient'
-import { loadCartId } from '@/lib/core/carts'
 import { useMutation } from '@tanstack/react-query'
 import { useCallback } from 'react'
 
-const useCartMutations = (cartId: string) => {
-    const addCartLine = useCallback(
+export const useCartMutations = (cartId: string) => {
+    const addCartLine = useMutation({
         // TODO: default quantity to 1
-        async (args: { variantId: string; quantity: number }) => {
+        mutationFn: async (args: { variantId: string; quantity: number }) => {
             const { variantId, quantity } = args
             try {
                 const response = await restClient(`/cart/${encodeURIComponent(cartId)}/cartLines`, {
@@ -27,11 +26,11 @@ const useCartMutations = (cartId: string) => {
                 throw error
             }
         },
-        [cartId],
-    )
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['getCart'] }),
+    })
 
-    const updateCartLine = useCallback(
-        async (args: { lineId: string; quantity: number }) => {
+    const updateCartLine = useMutation({
+        mutationFn: async (args: { lineId: string; quantity: number }) => {
             const { lineId, quantity } = args
             try {
                 const response = await restClient(`/cart/${encodeURIComponent(cartId)}/cartLines`, {
@@ -51,11 +50,11 @@ const useCartMutations = (cartId: string) => {
                 throw error
             }
         },
-        [cartId],
-    )
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['getCart'] }),
+    })
 
-    const deleteCartLine = useCallback(
-        async (lineId: string) => {
+    const deleteCartLine = useMutation({
+        mutationFn: async (lineId: string) => {
             try {
                 const response = await restClient(`/cart/${encodeURIComponent(cartId)}/cartLines`, {
                     method: 'DELETE',
@@ -69,27 +68,12 @@ const useCartMutations = (cartId: string) => {
                 throw error
             }
         },
-        [cartId],
-    )
-
-    const addCartLineMutation = useMutation({
-        mutationFn: addCartLine,
-        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['getCart', cartId] }),
-    })
-
-    const updateCartLineMutation = useMutation({
-        mutationFn: updateCartLine,
-        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['getCart', cartId] }),
-    })
-
-    const deleteCartLineMutation = useMutation({
-        mutationFn: deleteCartLine,
-        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['getCart', cartId] }),
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['getCart'] }),
     })
 
     return {
-        addCartLineMutation,
-        updateCartLineMutation,
-        deleteCartLineMutation,
+        addCartLine,
+        updateCartLine,
+        deleteCartLine,
     }
 }
