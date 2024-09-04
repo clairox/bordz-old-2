@@ -17,18 +17,20 @@ export const mergeWishlists = (sourceWishlist: string[], targetWislist: string[]
 export const populateWishlist = async (
     wishlist: string[],
     limit: number = DEFAULT_LIMIT,
+    cursor?: string,
 ): Promise<WishlistData> => {
     try {
         const response = await restClient('/productVariants', {
             method: 'POST',
             body: JSON.stringify({
                 ids: wishlist,
-                start: limit,
+                sz: limit,
+                cursor,
             }),
         })
 
-        const { productVariants: populatedWishlist, hasNextPage } = response.data
-        return { wishlist, populatedWishlist, hasNextPage }
+        const { productVariants: populatedWishlist, hasNextPage, endCursor } = response.data
+        return { wishlist, populatedWishlist, hasNextPage, endCursor }
     } catch (error) {
         throw error
     }

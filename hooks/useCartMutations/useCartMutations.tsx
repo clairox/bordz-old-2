@@ -1,7 +1,6 @@
 import { queryClient } from '@/lib/clients/queryClient'
 import { restClient } from '@/lib/clients/restClient'
 import { useMutation } from '@tanstack/react-query'
-import { useCallback } from 'react'
 
 export const useCartMutations = (cartId: string) => {
     const addCartLine = useMutation({

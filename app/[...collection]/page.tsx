@@ -8,9 +8,9 @@ import { Breadcrumb, BreadcrumbList } from '@/components/UI/Breadcrumb'
 import { Checkbox } from '@/components/UI/Checkbox'
 import _ from 'lodash'
 import { Button } from '@/components/UI/Button'
-import { useCollectionMutations } from '@/hooks/useCollectionMutations'
+import { useCollectionActions } from '@/hooks/useCollectionActions'
 import { Sidebar } from '@/components/UI/Sidebar'
-import { BreadcrumbTrail, Collection } from '@/types/store'
+import { BreadcrumbTrail, Collection, ProductListItem } from '@/types/store'
 import { CheckedState } from '@radix-ui/react-checkbox'
 import { ProductGrid } from '@/components/UI/ProductGrid'
 import PriceRangeSlider from '@/components/UI/PriceRangeSlider'
@@ -18,11 +18,11 @@ import FilterChips from '@/components/UI/FilterChips'
 import useMakeBreadcrumbItems from '@/hooks/useMakeBreadcrumbItems'
 
 const Page = () => {
-    // TODO: add breadcrumb to top of collection page
     const searchParams = useSearchParams()
-    const { data, error, isFetching, isSuccess } = useCollection(searchParams)
-    const { selectFilterOption, deselectFilterOption, resetFilters, setPriceFilter, fetchMore } =
-        useCollectionMutations(searchParams)
+    const { data, error, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage, status } =
+        useCollection(searchParams)
+    const { selectFilterOption, deselectFilterOption, resetFilters, setPriceFilter } =
+        useCollectionActions(searchParams)
 
     const makeBreadcrumbItems = useMakeBreadcrumbItems()
 
@@ -33,21 +33,19 @@ const Page = () => {
         return <></>
     }
 
-    if (isFetching && !isSuccess) {
+    if (isFetching && status !== 'success') {
         return <>Loading...</>
     }
 
     const {
         title,
-        products,
         totalProductCount,
-        hasNextPage,
         filterGroups,
         priceFilter,
         maxPrice,
         relatedCollections,
         department,
-    }: Collection = data
+    }: Collection = data!.pages[data!.pages.length - 1]
 
     const trail: BreadcrumbTrail = {
         home: { title: 'Home', href: '/', parent: null },
@@ -73,7 +71,34 @@ const Page = () => {
         }
     }
 
+    const filterGroupsWithPriceFilter =
+        priceFilter[0] !== 0 || priceFilter[1] !== maxPrice
+            ? [
+                  ...filterGroups,
+                  {
+                      groupName: 'price',
+                      isActive: true,
+                      options: [
+                          { name: `$${priceFilter[0]} - $${priceFilter[1]}`, isSelected: true },
+                      ],
+                  },
+              ]
+            : filterGroups
+
+    const deselectFilterOptionOrPriceFilter = (groupName: string, optionName: string) => {
+        if (groupName === 'price') {
+            setPriceFilter([0, maxPrice])
+            return
+        }
+
+        deselectFilterOption(groupName, optionName)
+    }
+
+    const products: ProductListItem[] = []
+    data!.pages.forEach(item => item.products.forEach(product => products.push(product)))
+
     // TODO: add sort select on bottom right of CollectionHeader
+    // TODO: Make only title and image link to product
     return (
         <div className="w-full h-full">
             <CollectionHeader>
@@ -103,9 +128,9 @@ const Page = () => {
             <div className="grid grid-cols-5 w-full h-full">
                 <Sidebar>
                     <FilterChips
-                        filterGroups={filterGroups}
+                        filterGroups={filterGroupsWithPriceFilter}
                         totalProductCount={totalProductCount}
-                        deselectFilter={deselectFilterOption}
+                        deselectFilter={deselectFilterOptionOrPriceFilter}
                         reset={resetFilters}
                     />
                     <Sidebar.Menu value={openRefinements} onValueChange={setOpenRefinements}>
@@ -187,8 +212,8 @@ const Page = () => {
                     </ProductGrid>
                     <div className="flex flex-col gap-4 items-center py-10">
                         Showing {products.length} of {totalProductCount} products
-                        {hasNextPage && !isFetching && (
-                            <Button onClick={fetchMore}>Load More</Button>
+                        {hasNextPage && !isFetchingNextPage && (
+                            <Button onClick={() => fetchNextPage()}>Load More</Button>
                         )}
                     </div>
                 </div>

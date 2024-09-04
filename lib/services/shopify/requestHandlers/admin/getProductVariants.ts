@@ -3,7 +3,7 @@ import { extractResourceId } from '@/lib/utils/ids'
 import { adminClient } from './base'
 import { validateProductVariantItem } from '@/lib/services/shopify/validators'
 
-export const getProductVariants = async (ids: string[], limit: number) => {
+export const getProductVariants = async (ids: string[], size: number, cursor: string) => {
     if (ids.length === 0) {
         return { productVariants: [], hasNextPage: false }
     }
@@ -12,7 +12,8 @@ export const getProductVariants = async (ids: string[], limit: number) => {
     const config = {
         variables: {
             query: variantQueryString,
-            limit,
+            first: size,
+            after: cursor,
         },
     }
 
@@ -31,7 +32,9 @@ export const getProductVariants = async (ids: string[], limit: number) => {
             throw new Error('hasNextPage is not of boolean type')
         }
 
-        return { productVariants: safeVariants, hasNextPage }
+        const endCursor = productVariants.pageInfo.endCursor
+
+        return { productVariants: safeVariants, hasNextPage, endCursor }
     } catch (error) {
         throw error
     }

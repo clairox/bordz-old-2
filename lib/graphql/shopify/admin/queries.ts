@@ -36,10 +36,11 @@ const GET_WISHLIST_ITEMS = gql(`
 `)
 const GET_VARIANTS = gql(`
 	query GetProductVariants(
-		$limit: Int!
+		$first: Int!
+        $after: String
 		$query: String!
 	) {
-	productVariants(first: $limit, query: $query) {
+	productVariants(first: $first, after: $after, query: $query) {
         nodes {
             availableForSale
             compareAtPrice
@@ -63,6 +64,7 @@ const GET_VARIANTS = gql(`
             }
         }
         pageInfo {
+            endCursor
             hasNextPage
         }
     }	

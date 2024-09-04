@@ -11,7 +11,6 @@ import { WishlistData } from '@/types/store'
 import { useMutation } from '@tanstack/react-query'
 import { useCallback } from 'react'
 
-// TODO: make sure this works
 const useWishlistMutations = (limit: number = DEFAULT_COLLECTION_LIMIT) => {
     const { isLoggedIn } = useAuth()
 
@@ -111,15 +110,9 @@ const useWishlistMutations = (limit: number = DEFAULT_COLLECTION_LIMIT) => {
         onSuccess: () => queryClient.invalidateQueries({ queryKey: ['getWishlist'] }),
     })
 
-    // TODO: write this
-    const fetchMore = useMutation({
-        mutationFn: async () => {},
-    })
-
     return {
         addWishlistItem: addWishlistItemMutation,
         removeWishlistItem: removeWishlistItemMutation,
-        fetchMore,
     }
 }
 

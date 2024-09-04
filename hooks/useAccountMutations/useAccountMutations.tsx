@@ -75,7 +75,7 @@ export const useAccountMutations = () => {
             } catch (error) {
                 if (error instanceof RestClientError) {
                     if (error.response.status === 401) {
-                        console.log('You are not allowed to do that!')
+                        console.error('You are not allowed to do that!')
                         throw new Error('Session expired')
                     } else {
                         throw new Error(error.response.data.message)

@@ -38,8 +38,6 @@ export const validateProduct = (product: any): Product => {
         (metafield: any) => metafield.key === 'department',
     )
 
-    console.log(collectionMetafield)
-
     try {
         const safeProduct: Product = {
             availableForSale: ensureBoolean(product.availableForSale),

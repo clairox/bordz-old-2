@@ -1,16 +1,18 @@
+import { queryClient } from '@/lib/clients/queryClient'
 import { isValidPriceRange } from '@/lib/core/collections'
 import { SEARCH_PARAM_SEPARATOR } from '@/lib/utils/constants'
 import _ from 'lodash'
 import { useParams, useRouter } from 'next/navigation'
 import { useCallback } from 'react'
 
-// TODO: change name to useCollectionActions
-export const useCollectionMutations = (searchParams: URLSearchParams) => {
+export const useCollectionActions = (searchParams: URLSearchParams) => {
     const params = useParams()
     const router = useRouter()
 
     const refine = useCallback(
         (newSearchParams: URLSearchParams) => {
+            queryClient.resetQueries({ queryKey: ['getCollection'] })
+
             const [handle] = params.collection as string[]
 
             const url = '/' + handle + '?' + newSearchParams.toString()
@@ -95,14 +97,10 @@ export const useCollectionMutations = (searchParams: URLSearchParams) => {
         refine(newSearchParams)
     }, [searchParams, refine])
 
-    // TODO: make this a mutation
-    const fetchMore = useCallback((cursor: string) => {}, [])
-
     return {
         selectFilterOption,
         deselectFilterOption,
         setPriceFilter,
         resetFilters,
-        fetchMore,
     }
 }

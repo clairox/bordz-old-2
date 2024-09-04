@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { isNumeric, roundUp } from '@/lib/utils/number'
 import { handleErrorResponse } from '@/lib/utils/api'
 import { searchParamsToObject } from '@/lib/utils/conversions'
 import {
@@ -38,9 +37,9 @@ export const GET = async (request: NextRequest) => {
             filterGroups,
         )
 
-        const maxPrice = await getCollectionMaxPrice(handle, filterGroups)
+        const maxPrice = await getCollectionMaxPrice(handle)
 
-        return NextResponse.json({ ...collection, maxPrice: roundUp(maxPrice) })
+        return NextResponse.json({ ...collection, maxPrice })
     } catch (error) {
         return handleErrorResponse(error as Error)
     }

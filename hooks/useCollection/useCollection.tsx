@@ -1,16 +1,16 @@
 'use client'
 import { restClient } from '@/lib/clients/restClient'
 import { useParams } from 'next/navigation'
-import _ from 'lodash'
-import { useQuery } from '@tanstack/react-query'
+import { QueryFunctionContext, useInfiniteQuery } from '@tanstack/react-query'
+import { useCallback } from 'react'
+import { Collection } from '@/types/store'
 
 const useCollection = (searchParams: URLSearchParams) => {
     const params = useParams()
+    const queryKey = ['getCollection', searchParams.toString()]
 
-    // TODO: use infinite query
-    const { data, error, isFetching, isSuccess } = useQuery({
-        queryKey: ['collection', searchParams.toString()],
-        queryFn: async () => {
+    const fetchCollection = useCallback(
+        async (context: QueryFunctionContext) => {
             const [handle] = params.collection as string[]
             const url = new URL(process.env.NEXT_PUBLIC_API_URL + '/collection')
             url.searchParams.set('handle', handle)
@@ -20,7 +20,10 @@ const useCollection = (searchParams: URLSearchParams) => {
                 url.searchParams.set(key, value)
             })
 
-            url.searchParams.delete('cursor')
+            const { pageParam } = context
+            if (typeof pageParam === 'string') {
+                url.searchParams.set('cursor', pageParam)
+            }
 
             try {
                 const response = await restClient(url.toString())
@@ -29,14 +32,25 @@ const useCollection = (searchParams: URLSearchParams) => {
                 throw error
             }
         },
-        placeholderData: prevData => prevData,
-    })
+        [searchParams, params],
+    )
+
+    const { data, error, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage, status } =
+        useInfiniteQuery<Collection>({
+            queryKey,
+            queryFn: fetchCollection,
+            initialPageParam: undefined,
+            getNextPageParam: lastPage => (lastPage.hasNextPage ? lastPage.endCursor : undefined),
+        })
 
     return {
         data,
         error,
+        fetchNextPage,
+        hasNextPage,
         isFetching,
-        isSuccess,
+        isFetchingNextPage,
+        status,
     }
 }
 

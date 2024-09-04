@@ -35,7 +35,6 @@ export const getCollection = async (
 
     try {
         const { collection } = await storefrontClient(GET_COLLECTION, 'collection', config)
-        console.log(collection)
 
         const safeCollection = validateCollection(collection)
 

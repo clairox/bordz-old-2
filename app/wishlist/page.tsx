@@ -4,14 +4,23 @@ import { ProductGrid } from '@/components/UI/ProductGrid'
 import { useCartMutations } from '@/hooks/useCartMutations'
 import useWishlist from '@/hooks/useWishlist/useWishlist'
 import { useWishlistMutations } from '@/hooks/useWishlistMutations'
-import { WishlistData } from '@/types/store'
+import { WishlistItem } from '@/types/store'
 import { Trash } from '@phosphor-icons/react'
+import { useMemo } from 'react'
 
 const Page = () => {
     const limit = 40
-    const { data, error, isPending } = useWishlist(limit)
-    const { removeWishlistItem, fetchMore } = useWishlistMutations(limit)
-    const { addCartLine } = useCartMutations(localStorage.getItem('cartId') || '')
+    const cartId = useMemo(() => {
+        if (typeof localStorage !== 'undefined') {
+            return localStorage.getItem('cartId') || ''
+        }
+
+        return ''
+    }, [])
+    const { data, error, fetchNextPage, hasNextPage, isFetchingNextPage, status } =
+        useWishlist(limit)
+    const { removeWishlistItem } = useWishlistMutations(limit)
+    const { addCartLine } = useCartMutations(cartId)
 
     if (error) {
         // TODO: handle error
@@ -19,11 +28,14 @@ const Page = () => {
         return <></>
     }
 
-    if (isPending) {
+    if (status === 'pending') {
         return <div>Loading...</div>
     }
 
-    const { populatedWishlist: wishlist, hasNextPage } = data as WishlistData
+    const wishlist: WishlistItem[] = []
+    data!.pages.forEach(item =>
+        item.populatedWishlist.forEach(wishlistItem => wishlist.push(wishlistItem)),
+    )
 
     const handleAddToCart = (
         event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
@@ -44,6 +56,8 @@ const Page = () => {
         removeWishlistItem.mutate(item)
     }
 
+    // TODO: Don't nest clickables within clickables
+    // TODO: Make only title and image link to product
     return (
         <div>
             <h1>Wishlist</h1>
@@ -92,7 +106,9 @@ const Page = () => {
                     )
                 })}
             </ProductGrid>
-            {hasNextPage && <Button onClick={fetchMore}>Load More</Button>}
+            {hasNextPage && !isFetchingNextPage && (
+                <Button onClick={() => fetchNextPage()}>Load More</Button>
+            )}
         </div>
     )
 }

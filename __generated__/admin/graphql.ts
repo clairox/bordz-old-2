@@ -10605,11 +10605,11 @@ export enum DeliveryMethodDefinitionType {
 export enum DeliveryMethodType {
   /** The order is delivered using a local delivery service. */
   Local = 'LOCAL',
-  /** No delivery is needed. */
+  /** Non-physical items, no delivery needed. */
   None = 'NONE',
   /** The order is picked up by the customer. */
   PickUp = 'PICK_UP',
-  /** The order is delivered to a retail store. */
+  /** In-store sale, no delivery needed. */
   Retail = 'RETAIL',
   /** The order is shipped. */
   Shipping = 'SHIPPING'
@@ -23516,7 +23516,7 @@ export enum MetafieldOwnerType {
 }
 
 /** The resource referenced by the metafield value. */
-export type MetafieldReference = Collection | GenericFile | MediaImage | Metaobject | Model3d | OnlineStorePage | Product | ProductVariant | Video;
+export type MetafieldReference = Collection | Company | Customer | GenericFile | MediaImage | Metaobject | Model3d | OnlineStorePage | Order | Product | ProductVariant | TaxonomyValue | Video;
 
 /** An auto-generated type for paginating through multiple MetafieldReferences. */
 export type MetafieldReferenceConnection = {
@@ -24654,7 +24654,7 @@ export type Mutation = {
   /**
    * Creates and runs a bulk operation query.
    *
-   * See the [bulk operations guide](https://shopify.dev/api/usage/bulk-operations/imports) for more details.
+   * See the [bulk operations guide](https://shopify.dev/api/usage/bulk-operations/queries) for more details.
    */
   bulkOperationRunQuery?: Maybe<BulkOperationRunQueryPayload>;
   /** Creates product feedback for multiple products. */
@@ -37144,7 +37144,10 @@ export type QueryRoot = {
   customerMergePreview: CustomerMergePreview;
   /** Returns a CustomerPaymentMethod resource by its ID. */
   customerPaymentMethod?: Maybe<CustomerPaymentMethod>;
-  /** The list of members, such as customers, that's associated with an individual segment. */
+  /**
+   * The list of members, such as customers, that's associated with an individual segment.
+   * The maximum page size is 1000.
+   */
   customerSegmentMembers: CustomerSegmentMemberConnection;
   /** Returns a segment members query resource by ID. */
   customerSegmentMembersQuery?: Maybe<CustomerSegmentMembersQuery>;
@@ -40431,7 +40434,10 @@ export type ReverseFulfillmentOrderLineItem = Node & {
   __typename?: 'ReverseFulfillmentOrderLineItem';
   /** The dispositions of the item. */
   dispositions: Array<ReverseFulfillmentOrderDisposition>;
-  /** The corresponding fulfillment line item for a reverse fulfillment order line item. */
+  /**
+   * The corresponding fulfillment line item for a reverse fulfillment order line item.
+   * @deprecated FulfillmentLineItem will be nullable as of API version 2024-10. Older version will return error when FulfillmentLineItem is null.
+   */
   fulfillmentLineItem: FulfillmentLineItem;
   /** A globally-unique ID. */
   id: Scalars['ID']['output'];
@@ -42900,7 +42906,10 @@ export type Shop = HasMetafields & HasPublishedTranslations & Node & {
   shipsToCountries: Array<CountryCode>;
   /** The list of all legal policies associated with a shop. */
   shopPolicies: Array<ShopPolicy>;
-  /** The paginated list of the shop's staff members. */
+  /**
+   * The paginated list of the shop's staff members.
+   * @deprecated Use `QueryRoot.staffMembers` instead.
+   */
   staffMembers: StaffMemberConnection;
   /** The storefront access token of a private application. These are scoped per-application. */
   storefrontAccessTokens: StorefrontAccessTokenConnection;
@@ -43450,13 +43459,22 @@ export enum ShopCustomerAccountsSetting {
  */
 export type ShopFeatures = {
   __typename?: 'ShopFeatures';
-  /** Whether a shop has access to Avalara AvaTax. */
+  /**
+   * Whether a shop has access to Avalara AvaTax.
+   * @deprecated This field is no longer supported.
+   */
   avalaraAvatax: Scalars['Boolean']['output'];
-  /** The branding of the shop, which influences its look and feel in the Shopify admin. */
+  /**
+   * The branding of the shop, which influences its look and feel in the Shopify admin.
+   * @deprecated Use Shop.plan.shopifyPlus instead.
+   */
   branding: ShopBranding;
   /** Represents the Bundles feature configuration for the shop. */
   bundles: BundlesFeature;
-  /** Whether a shop's online store can have CAPTCHA protection. */
+  /**
+   * Whether a shop's online store can have CAPTCHA protection.
+   * @deprecated This field is no longer supported.
+   */
   captcha: Scalars['Boolean']['output'];
   /**
    * Whether a shop's online store can have CAPTCHA protection for domains not managed by Shopify.
@@ -43470,7 +43488,10 @@ export type ShopFeatures = {
    * @deprecated Delivery profiles are now 100% enabled across Shopify.
    */
   deliveryProfiles: Scalars['Boolean']['output'];
-  /** Whether a shop has access to the Google Analytics dynamic remarketing feature. */
+  /**
+   * Whether a shop has access to the Google Analytics dynamic remarketing feature.
+   * @deprecated This field is no longer supported.
+   */
   dynamicRemarketing: Scalars['Boolean']['output'];
   /** Whether a shop can be migrated to use Shopify subscriptions. */
   eligibleForSubscriptionMigration: Scalars['Boolean']['output'];
@@ -43481,6 +43502,7 @@ export type ShopFeatures = {
   /**
    * Whether a shop displays Harmonized System codes on products. This is used for customs when shipping
    * internationally.
+   * @deprecated This field is no longer supported.
    */
   harmonizedSystemCode: Scalars['Boolean']['output'];
   /**
@@ -43488,15 +43510,22 @@ export type ShopFeatures = {
    * @deprecated All shops have international domains through Shopify Markets.
    */
   internationalDomains: Scalars['Boolean']['output'];
-  /** Whether a shop can enable international price overrides. */
+  /**
+   * Whether a shop can enable international price overrides.
+   * @deprecated No longer supported. Use Shopify Markets.
+   */
   internationalPriceOverrides: Scalars['Boolean']['output'];
-  /** Whether a shop can enable international price rules. */
+  /**
+   * Whether a shop can enable international price rules.
+   * @deprecated No longer supported. Use Shopify Markets.
+   */
   internationalPriceRules: Scalars['Boolean']['output'];
   /** Whether a shop has enabled a legacy subscription gateway to handle older subscriptions. */
   legacySubscriptionGatewayEnabled: Scalars['Boolean']['output'];
   /**
    * Whether to show the Live View metrics in the Shopify admin. Live view is hidden from merchants that are on a trial
    * or don't have a storefront.
+   * @deprecated This field is no longer supported.
    */
   liveView: Scalars['Boolean']['output'];
   /**
@@ -43505,11 +43534,17 @@ export type ShopFeatures = {
    *
    */
   multiLocation: Scalars['Boolean']['output'];
-  /** Whether a shop has access to the onboarding visual. */
+  /**
+   * Whether a shop has access to the onboarding visual.
+   * @deprecated This field is no longer supported.
+   */
   onboardingVisual: Scalars['Boolean']['output'];
   /** Whether a shop is configured to sell subscriptions with PayPal Express. */
   paypalExpressSubscriptionGatewayStatus: PaypalExpressSubscriptionsGatewayStatus;
-  /** Whether a shop has access to all reporting features. */
+  /**
+   * Whether a shop has access to all reporting features.
+   * @deprecated This field is no longer supported.
+   */
   reports: Scalars['Boolean']['output'];
   /** Whether a shop has ever had subscription products. */
   sellsSubscriptions: Scalars['Boolean']['output'];
@@ -43518,7 +43553,10 @@ export type ShopFeatures = {
    * @deprecated Use Shop.plan.shopifyPlus instead.
    */
   shopifyPlus: Scalars['Boolean']['output'];
-  /** Whether to show metrics in the Shopify admin. Metrics are hidden for new merchants until they become meaningful. */
+  /**
+   * Whether to show metrics in the Shopify admin. Metrics are hidden for new merchants until they become meaningful.
+   * @deprecated This field is no longer supported.
+   */
   showMetrics: Scalars['Boolean']['output'];
   /** Whether a shop has an online store. */
   storefront: Scalars['Boolean']['output'];
@@ -49510,16 +49548,17 @@ export type GetWishlistItemsQueryVariables = Exact<{
 export type GetWishlistItemsQuery = { __typename?: 'QueryRoot', productVariants: { __typename?: 'ProductVariantConnection', nodes: Array<{ __typename?: 'ProductVariant', availableForSale: boolean, compareAtPrice?: any | null, id: string, price: any, title: string, product: { __typename?: 'Product', handle: string, id: string, title: string, featuredImage?: { __typename?: 'Image', altText?: string | null, height?: number | null, src: any, width?: number | null } | null }, selectedOptions: Array<{ __typename?: 'SelectedOption', name: string, value: string }> }>, pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean } } };
 
 export type GetProductVariantsQueryVariables = Exact<{
-  limit: Scalars['Int']['input'];
+  first: Scalars['Int']['input'];
+  after?: InputMaybe<Scalars['String']['input']>;
   query: Scalars['String']['input'];
 }>;
 
 
-export type GetProductVariantsQuery = { __typename?: 'QueryRoot', productVariants: { __typename?: 'ProductVariantConnection', nodes: Array<{ __typename?: 'ProductVariant', availableForSale: boolean, compareAtPrice?: any | null, id: string, price: any, title: string, product: { __typename?: 'Product', handle: string, id: string, title: string, featuredImage?: { __typename?: 'Image', altText?: string | null, height?: number | null, src: any, width?: number | null } | null }, selectedOptions: Array<{ __typename?: 'SelectedOption', name: string, value: string }> }>, pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean } } };
+export type GetProductVariantsQuery = { __typename?: 'QueryRoot', productVariants: { __typename?: 'ProductVariantConnection', nodes: Array<{ __typename?: 'ProductVariant', availableForSale: boolean, compareAtPrice?: any | null, id: string, price: any, title: string, product: { __typename?: 'Product', handle: string, id: string, title: string, featuredImage?: { __typename?: 'Image', altText?: string | null, height?: number | null, src: any, width?: number | null } | null }, selectedOptions: Array<{ __typename?: 'SelectedOption', name: string, value: string }> }>, pageInfo: { __typename?: 'PageInfo', endCursor?: string | null, hasNextPage: boolean } } };
 
 
 export const CreateCustomerMetafieldsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateCustomerMetafields"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"birthDate"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"cartId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"wishlist"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"customerUpdate"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}},{"kind":"ObjectField","name":{"kind":"Name","value":"metafields"},"value":{"kind":"ListValue","values":[{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"key"},"value":{"kind":"StringValue","value":"birthdate","block":false}},{"kind":"ObjectField","name":{"kind":"Name","value":"namespace"},"value":{"kind":"StringValue","value":"custom","block":false}},{"kind":"ObjectField","name":{"kind":"Name","value":"type"},"value":{"kind":"StringValue","value":"single_line_text_field","block":false}},{"kind":"ObjectField","name":{"kind":"Name","value":"value"},"value":{"kind":"Variable","name":{"kind":"Name","value":"birthDate"}}}]},{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"key"},"value":{"kind":"StringValue","value":"cartid","block":false}},{"kind":"ObjectField","name":{"kind":"Name","value":"namespace"},"value":{"kind":"StringValue","value":"custom","block":false}},{"kind":"ObjectField","name":{"kind":"Name","value":"type"},"value":{"kind":"StringValue","value":"single_line_text_field","block":false}},{"kind":"ObjectField","name":{"kind":"Name","value":"value"},"value":{"kind":"Variable","name":{"kind":"Name","value":"cartId"}}}]},{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"key"},"value":{"kind":"StringValue","value":"wishlist","block":false}},{"kind":"ObjectField","name":{"kind":"Name","value":"namespace"},"value":{"kind":"StringValue","value":"custom","block":false}},{"kind":"ObjectField","name":{"kind":"Name","value":"type"},"value":{"kind":"StringValue","value":"json","block":false}},{"kind":"ObjectField","name":{"kind":"Name","value":"value"},"value":{"kind":"Variable","name":{"kind":"Name","value":"wishlist"}}}]}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"customer"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}},{"kind":"Field","name":{"kind":"Name","value":"userErrors"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"field"}},{"kind":"Field","name":{"kind":"Name","value":"message"}}]}}]}}]}}]} as unknown as DocumentNode<CreateCustomerMetafieldsMutation, CreateCustomerMetafieldsMutationVariables>;
 export const UpdateWishlistDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateWishlist"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"customerId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"wishlist"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"metafieldsSet"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"metafields"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"ownerId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"customerId"}}},{"kind":"ObjectField","name":{"kind":"Name","value":"key"},"value":{"kind":"StringValue","value":"wishlist","block":false}},{"kind":"ObjectField","name":{"kind":"Name","value":"namespace"},"value":{"kind":"StringValue","value":"custom","block":false}},{"kind":"ObjectField","name":{"kind":"Name","value":"type"},"value":{"kind":"StringValue","value":"json","block":false}},{"kind":"ObjectField","name":{"kind":"Name","value":"value"},"value":{"kind":"Variable","name":{"kind":"Name","value":"wishlist"}}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"metafields"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"value"}}]}},{"kind":"Field","name":{"kind":"Name","value":"userErrors"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"field"}},{"kind":"Field","name":{"kind":"Name","value":"message"}}]}}]}}]}}]} as unknown as DocumentNode<UpdateWishlistMutation, UpdateWishlistMutationVariables>;
 export const DeleteCustomerDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"DeleteCustomer"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"customerDelete"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"deletedCustomerId"}},{"kind":"Field","name":{"kind":"Name","value":"userErrors"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"field"}},{"kind":"Field","name":{"kind":"Name","value":"message"}}]}}]}}]}}]} as unknown as DocumentNode<DeleteCustomerMutation, DeleteCustomerMutationVariables>;
 export const GetWishlistItemsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetWishlistItems"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"limit"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"query"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"productVariants"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"first"},"value":{"kind":"Variable","name":{"kind":"Name","value":"limit"}}},{"kind":"Argument","name":{"kind":"Name","value":"query"},"value":{"kind":"Variable","name":{"kind":"Name","value":"query"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"nodes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"availableForSale"}},{"kind":"Field","name":{"kind":"Name","value":"compareAtPrice"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"price"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"product"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"handle"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"featuredImage"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"altText"}},{"kind":"Field","name":{"kind":"Name","value":"height"}},{"kind":"Field","name":{"kind":"Name","value":"src"}},{"kind":"Field","name":{"kind":"Name","value":"width"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"selectedOptions"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"value"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"pageInfo"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"hasNextPage"}}]}}]}}]}}]} as unknown as DocumentNode<GetWishlistItemsQuery, GetWishlistItemsQueryVariables>;
-export const GetProductVariantsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetProductVariants"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"limit"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"query"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"productVariants"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"first"},"value":{"kind":"Variable","name":{"kind":"Name","value":"limit"}}},{"kind":"Argument","name":{"kind":"Name","value":"query"},"value":{"kind":"Variable","name":{"kind":"Name","value":"query"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"nodes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"availableForSale"}},{"kind":"Field","name":{"kind":"Name","value":"compareAtPrice"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"price"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"product"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"handle"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"featuredImage"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"altText"}},{"kind":"Field","name":{"kind":"Name","value":"height"}},{"kind":"Field","name":{"kind":"Name","value":"src"}},{"kind":"Field","name":{"kind":"Name","value":"width"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"selectedOptions"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"value"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"pageInfo"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"hasNextPage"}}]}}]}}]}}]} as unknown as DocumentNode<GetProductVariantsQuery, GetProductVariantsQueryVariables>;
+export const GetProductVariantsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetProductVariants"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"first"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"after"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"query"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"productVariants"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"first"},"value":{"kind":"Variable","name":{"kind":"Name","value":"first"}}},{"kind":"Argument","name":{"kind":"Name","value":"after"},"value":{"kind":"Variable","name":{"kind":"Name","value":"after"}}},{"kind":"Argument","name":{"kind":"Name","value":"query"},"value":{"kind":"Variable","name":{"kind":"Name","value":"query"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"nodes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"availableForSale"}},{"kind":"Field","name":{"kind":"Name","value":"compareAtPrice"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"price"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"product"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"handle"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"featuredImage"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"altText"}},{"kind":"Field","name":{"kind":"Name","value":"height"}},{"kind":"Field","name":{"kind":"Name","value":"src"}},{"kind":"Field","name":{"kind":"Name","value":"width"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"selectedOptions"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"value"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"pageInfo"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"endCursor"}},{"kind":"Field","name":{"kind":"Name","value":"hasNextPage"}}]}}]}}]}}]} as unknown as DocumentNode<GetProductVariantsQuery, GetProductVariantsQueryVariables>;

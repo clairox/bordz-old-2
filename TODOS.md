@@ -16,6 +16,8 @@ A mock ecommerce app focused on selling skateboard and snowboard parts or someth
 -   [x] breadcrumb
 -   [ ] refactor
 -   [ ] rewrite tests
+-   [ ] handle errors properly
+-   [ ] implement loading UI
 -   [ ] Implement collection searching
 -   [ ] Implement ordering and orders
 -   [ ] Implement addresses

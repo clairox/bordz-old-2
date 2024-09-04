@@ -211,6 +211,7 @@ type WishlistData = {
     wishlist: string[]
     populatedWishlist: WishlistItem[]
     hasNextPage: boolean
+    endCursor?: string
 }
 
 type FilterOption = {

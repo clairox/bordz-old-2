@@ -17,6 +17,7 @@ import {
     ensureString,
 } from './typeGuards'
 import { FILTER_GROUP_NAMES } from '@/lib/utils/constants'
+import { roundUp } from '@/lib/utils/number'
 
 const ensureProduct = (product: any): ProductListItem => ({
     availableForSale: ensureBoolean(product.availableForSale),
@@ -75,7 +76,7 @@ export const validateCollection = (collection: any): Omit<Collection, 'maxPrice'
             ?.values.find((value: any) => value.label === 'Price')?.input,
     )
 
-    const priceFilter = [priceInput?.price.min, priceInput?.price.max]
+    const priceFilter = [roundUp(priceInput?.price.min), roundUp(priceInput?.price.max)]
 
     const totalProductCount = collection?.products?.filters
         ?.find((filter: any) => filter.label === 'Availability')
