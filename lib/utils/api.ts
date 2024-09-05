@@ -4,8 +4,7 @@ import { GraphQLClientError, GraphQLUserError } from '@/lib/clients/graphqlClien
 
 export type UserError = { field?: string[] | null; message: string }
 
-// TODO: make this function private
-export const DEFAULT_ERROR_RESPONSE = NextResponse.json(
+const defaultErrorResponse = NextResponse.json(
     {
         message: 'Something went wrong on our end. Please try again later.',
         code: 'Internal Server Error',
@@ -50,7 +49,7 @@ export const handleErrorResponse = (error: Error) => {
                     { status: 404 },
                 )
             default:
-                return DEFAULT_ERROR_RESPONSE
+                return defaultErrorResponse
         }
     }
 }

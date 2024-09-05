@@ -17,7 +17,7 @@ const ensureCartLineMerchandise = (merchandise: any): CartLineMerchandise => ({
     product: {
         handle: ensureString(merchandise.product.handle),
         id: ensureString(merchandise.product.id),
-        images: ensureArray(merchandise.product.images.nodes, ensureImage),
+        featuredImage: ensureImage(merchandise.product.featuredImage),
         title: ensureString(merchandise.product.title),
     },
     quantityAvailable: ensureNumber(merchandise.quantityAvailable),

@@ -26,14 +26,13 @@ const GET_CART = gql(`
 								handle
 								id
 								title
-								images(first: 1) {
-									nodes {
-										altText
-										height
-										src
-										width
-									}
-								}
+								featuredImage {
+                                    altText
+                                    height
+                                    id
+                                    src
+                                    width
+                                }
 							}
 							quantityAvailable
 						}

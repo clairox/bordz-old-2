@@ -38,7 +38,6 @@ export const createCustomer = async (
         }
 
         await createCustomerMetafields(id, birthDate, cartId, wishlist)
-        // TODO: move access token creation to POST /signup route
         const customerAccessToken = await createCustomerAccessToken(email, password)
         const customer = await getCustomer(customerAccessToken.accessToken)
 

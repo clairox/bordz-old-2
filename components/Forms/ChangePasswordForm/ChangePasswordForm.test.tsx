@@ -40,7 +40,7 @@ describe('ChangePasswordForm', () => {
                 } as Response,
                 {},
             )
-            throw new RestClientError('error', response.status, response)
+            throw new RestClientError('error', response)
         })
         const { getByRole, getByLabelText } = render(<ChangePasswordForm />)
 

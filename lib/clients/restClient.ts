@@ -1,12 +1,10 @@
 class RestClientError extends Error {
-    public status: number // TODO: remove status property. We will get status from response
     public response: RestClientResponse
     public code: string = 'Rest Client Error'
 
-    constructor(message: string, status: number, response: RestClientResponse) {
+    constructor(message: string, response: RestClientResponse) {
         super(message)
 
-        this.status = status
         this.response = response
     }
 }
@@ -49,7 +47,7 @@ const restClient = async (path: string, config?: RequestInit) => {
         const data = await response.json()
         const errorResponse = new RestClientResponse(response, data)
 
-        throw new RestClientError(message, response.status, errorResponse)
+        throw new RestClientError(message, errorResponse)
     }
 
     if (response.status === 204) {

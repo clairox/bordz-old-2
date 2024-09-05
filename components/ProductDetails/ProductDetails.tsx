@@ -1,5 +1,5 @@
 import { Button } from '@/components/UI/Button'
-import { CartProvider, useCartContext } from '@/context/CartContext'
+import { CartProvider, useCart } from '@/context/CartContext'
 import { useCartMutations } from '@/hooks/useCartMutations'
 import { useWishlistMutations } from '@/hooks/useWishlistMutations'
 import { isItemInWishlist } from '@/lib/core/wishlists'
@@ -12,7 +12,7 @@ const ProductDetailsContext = createContext<Product | undefined>(undefined)
 const useProductDetails = () => {
     const product = useContext(ProductDetailsContext)
 
-    const { data: cart } = useCartContext()
+    const { data: cart } = useCart()
     const { addCartLine } = useCartMutations(cart?.id || '')
 
     const [selectedVariant, setSelectedVariant] = useState<Variant>(product!.variants[0])
@@ -31,7 +31,7 @@ const useProductDetails = () => {
     const { addWishlistItem, removeWishlistItem } = useWishlistMutations()
 
     const handleCartButton = useCallback(async () => {
-        addCartLine.mutate({ variantId: selectedVariant.id, quantity: 1 })
+        addCartLine.mutate({ variantId: selectedVariant.id })
     }, [addCartLine, selectedVariant])
 
     const handleWishlistButton = useCallback(async () => {

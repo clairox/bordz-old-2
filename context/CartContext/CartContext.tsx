@@ -24,7 +24,7 @@ export const CartProvider: React.FunctionComponent<React.PropsWithChildren> = ({
     return <CartContext.Provider value={providedCart}>{children}</CartContext.Provider>
 }
 
-export const useCartContext = () => useContext(CartContext)
+export const useCart = () => useContext(CartContext)
 
 const useProvideCart = () => {
     const getCartIdFromCustomer = async (): Promise<string | undefined> => {

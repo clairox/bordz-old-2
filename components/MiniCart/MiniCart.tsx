@@ -1,12 +1,11 @@
 'use client'
 import Cart from '@/components/CartBase'
-import { useCartContext } from '@/context/CartContext'
+import { useCart } from '@/context/CartContext'
 import { useCartMutations } from '@/hooks/useCartMutations'
 import { CartLine } from '@/types/store'
 import { Trash } from '@phosphor-icons/react'
 
 const MiniCart = () => {
-    // TODO: use featuredImage instead of image[0]
     return (
         <Cart>
             <div className="flex flex-col gap-[1px]">
@@ -42,7 +41,7 @@ type MiniCartLineProps = {
 }
 
 const MiniCartLine: React.FunctionComponent<MiniCartLineProps> = ({ cartLine }) => {
-    const { data: cart } = useCartContext()
+    const { data: cart } = useCart()
     const { deleteCartLine } = useCartMutations(cart?.id || '')
 
     const merchandise = cartLine.merchandise
@@ -55,7 +54,10 @@ const MiniCartLine: React.FunctionComponent<MiniCartLineProps> = ({ cartLine }) 
     return (
         <Cart.LineItem cartLine={cartLine} key={cartLine.id}>
             <div className="basis-1/3">
-                <Cart.LineImage image={merchandise.product.images[0]} productHref={productHref} />
+                <Cart.LineImage
+                    image={merchandise.product.featuredImage}
+                    productHref={productHref}
+                />
             </div>
             <div className="basis-2/3 flex flex-col justify-between pr-4 pt-3 pb-4">
                 <div className="flex justify-between items-start gap-10">

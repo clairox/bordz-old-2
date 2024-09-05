@@ -139,7 +139,7 @@ const storefrontAPIClient = async <Q, V>(
         const message = `Request failed with status code ${fetchResponse.status}`
         const errorResponse = new RestClientResponse(fetchResponse, data)
 
-        throw new RestClientError(message, fetchResponse.status, errorResponse)
+        throw new RestClientError(message, errorResponse)
     }
 
     return data as GraphQLClientResponse<Q>
@@ -175,7 +175,7 @@ const adminAPIClient = async <Q, V>(
         const message = `Request failed with status code ${fetchResponse.status}`
         const errorResponse = new RestClientResponse(fetchResponse, data)
 
-        throw new RestClientError(message, fetchResponse.status, errorResponse)
+        throw new RestClientError(message, errorResponse)
     }
 
     return data as GraphQLClientResponse<Q>

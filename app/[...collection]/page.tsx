@@ -16,6 +16,7 @@ import { ProductGrid } from '@/components/UI/ProductGrid'
 import PriceRangeSlider from '@/components/UI/PriceRangeSlider'
 import FilterChips from '@/components/UI/FilterChips'
 import useMakeBreadcrumbItems from '@/hooks/useMakeBreadcrumbItems'
+import Link from 'next/link'
 
 const Page = () => {
     const searchParams = useSearchParams()
@@ -98,7 +99,6 @@ const Page = () => {
     data!.pages.forEach(item => item.products.forEach(product => products.push(product)))
 
     // TODO: add sort select on bottom right of CollectionHeader
-    // TODO: Make only title and image link to product
     return (
         <div className="w-full h-full">
             <CollectionHeader>
@@ -186,15 +186,19 @@ const Page = () => {
                     <ProductGrid>
                         {products.map(product => {
                             return (
-                                <ProductGrid.Item handle={product.handle} key={product.title}>
-                                    <ProductGrid.Image
-                                        src={product.featuredImage.src}
-                                        alt={product.featuredImage.altText || 'product image'}
-                                        width={product.featuredImage.width}
-                                        height={product.featuredImage.height}
-                                    />
+                                <ProductGrid.Item key={product.title}>
+                                    <Link href={'/products/' + product.handle}>
+                                        <ProductGrid.Image
+                                            src={product.featuredImage.src}
+                                            alt={product.featuredImage.altText || 'product image'}
+                                            width={product.featuredImage.width}
+                                            height={product.featuredImage.height}
+                                        />
+                                    </Link>
                                     <ProductGrid.Details>
-                                        <ProductGrid.Title>{product.title}</ProductGrid.Title>
+                                        <Link href={'/products/' + product.handle}>
+                                            <ProductGrid.Title>{product.title}</ProductGrid.Title>
+                                        </Link>
                                         {product.compareAtPrice ? (
                                             <div>
                                                 <span className="text-red line-through">

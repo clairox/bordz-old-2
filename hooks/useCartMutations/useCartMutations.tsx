@@ -4,8 +4,7 @@ import { useMutation } from '@tanstack/react-query'
 
 export const useCartMutations = (cartId: string) => {
     const addCartLine = useMutation({
-        // TODO: default quantity to 1
-        mutationFn: async (args: { variantId: string; quantity: number }) => {
+        mutationFn: async (args: { variantId: string; quantity?: number }) => {
             const { variantId, quantity } = args
             try {
                 const response = await restClient(`/cart/${encodeURIComponent(cartId)}/cartLines`, {
@@ -14,7 +13,7 @@ export const useCartMutations = (cartId: string) => {
                         lines: [
                             {
                                 merchandiseId: variantId,
-                                quantity,
+                                quantity: quantity || 1,
                             },
                         ],
                     }),

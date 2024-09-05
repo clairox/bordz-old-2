@@ -23,7 +23,7 @@ vi.mock('@/lib/auth', () => ({
 }))
 
 vi.mock('@/context/AccountContext/AccountContext', () => ({
-    useAccountContext: vi.fn().mockReturnValue({
+    useAccount: vi.fn().mockReturnValue({
         customer: {
             email: 'test@ema.il',
             firstName: 'Tess',
@@ -57,7 +57,7 @@ describe('DeleteAccountForm', () => {
                 } as Response,
                 {},
             )
-            throw new RestClientError('error', response.status, response)
+            throw new RestClientError('error', response)
         })
         const { getByRole, getByLabelText } = render(<DeleteAccountForm />)
 

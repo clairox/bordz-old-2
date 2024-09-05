@@ -6,13 +6,8 @@ function ProductGrid({ children }: PropsWithChildren) {
     return <div className="grid grid-cols-4">{children}</div>
 }
 
-type ProductGridItemProps = PropsWithChildren<{ handle: string }>
-function ProductGridItem({ children, handle }: ProductGridItemProps) {
-    return (
-        <div className="flex flex-col border-r border-b border-black">
-            <Link href={'/products/' + handle}>{children}</Link>
-        </div>
-    )
+function ProductGridItem({ children }: PropsWithChildren) {
+    return <div className="flex flex-col border-r border-b border-black">{children}</div>
 }
 
 function ProductGridImage({ src, alt, width, height }: ImageProps) {

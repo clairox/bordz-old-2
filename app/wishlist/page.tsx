@@ -6,6 +6,7 @@ import useWishlist from '@/hooks/useWishlist/useWishlist'
 import { useWishlistMutations } from '@/hooks/useWishlistMutations'
 import { WishlistItem } from '@/types/store'
 import { Trash } from '@phosphor-icons/react'
+import Link from 'next/link'
 import { useMemo } from 'react'
 
 const Page = () => {
@@ -43,7 +44,7 @@ const Page = () => {
     ) => {
         event.preventDefault()
         addCartLine.mutate(
-            { variantId: item, quantity: 1 },
+            { variantId: item },
             { onSuccess: () => removeWishlistItem.mutate(item) },
         )
     }
@@ -56,8 +57,6 @@ const Page = () => {
         removeWishlistItem.mutate(item)
     }
 
-    // TODO: Don't nest clickables within clickables
-    // TODO: Make only title and image link to product
     return (
         <div>
             <h1>Wishlist</h1>
@@ -65,14 +64,16 @@ const Page = () => {
                 {wishlist.map(item => {
                     const { product } = item
                     return (
-                        <ProductGrid.Item handle={product.handle} key={item.id}>
+                        <ProductGrid.Item key={item.id}>
                             <div className="relative">
-                                <ProductGrid.Image
-                                    src={product.featuredImage.src}
-                                    alt={product.featuredImage.altText || 'product image'}
-                                    width={product.featuredImage.width}
-                                    height={product.featuredImage.height}
-                                />
+                                <Link href={'/products/' + product.handle}>
+                                    <ProductGrid.Image
+                                        src={product.featuredImage.src}
+                                        alt={product.featuredImage.altText || 'product image'}
+                                        width={product.featuredImage.width}
+                                        height={product.featuredImage.height}
+                                    />
+                                </Link>
                                 <button
                                     className="absolute top-0 right-0 flex justify-center items-center m-3 w-10 h-10 rounded-full bg-white"
                                     onClick={event => handleRemoveWishlistItem(event, item.id)}
@@ -81,7 +82,9 @@ const Page = () => {
                                 </button>
                             </div>
                             <ProductGrid.Details>
-                                <ProductGrid.Title>{product.title}</ProductGrid.Title>
+                                <Link href={'/products/' + product.handle}>
+                                    <ProductGrid.Title>{product.title}</ProductGrid.Title>
+                                </Link>
                                 <div className="mb-1 text-gray-600">
                                     {item.selectedOptions[0].name}: {item.selectedOptions[0].value}
                                 </div>{' '}

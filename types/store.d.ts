@@ -111,7 +111,6 @@ export type Variant = {
     title: string
 }
 
-// TODO: add featuredImage
 export type Product = {
     availableForSale: boolean
     collection: CollectionLink
@@ -127,7 +126,19 @@ export type Product = {
 }
 
 export type CartLineMerchandise = Variant & {
-    product: Omit<Product, 'description' | 'productType' | 'variants' | 'vendor'>
+    product: Omit<
+        Product,
+        | 'availableForSale'
+        | 'collection'
+        | 'department'
+        | 'description'
+        | 'images'
+        | 'productType'
+        | 'variants'
+        | 'vendor'
+    > & {
+        featuredImage: Image
+    }
 }
 
 export type CartLine = {

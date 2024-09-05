@@ -1,16 +1,17 @@
 'use client'
 import React, { PropsWithChildren } from 'react'
 import { CartLine, Image as ImageType } from '@/types/store'
-import { useCartContext } from '@/context/CartContext'
+import { useCart } from '@/context/CartContext'
 import { Button } from '@/components/UI/Button'
 import Counter from '@/components/UI/Counter'
 import { MIN_CART_LINE_ITEM_QUANTITY } from '@/lib/utils/constants'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useCartMutations } from '@/hooks/useCartMutations'
+import eventEmitter from '@/lib/utils/eventEmitter'
 
 const Cart = ({ children }: PropsWithChildren) => {
-    const { data: cart, error, isPending } = useCartContext()
+    const { data: cart, error, isPending } = useCart()
 
     if (error) {
         console.error(error)
@@ -33,7 +34,7 @@ type CartLineItemsProps = {
 }
 
 const CartLineItems = ({ children }: CartLineItemsProps) => {
-    const { data: cart } = useCartContext()
+    const { data: cart } = useCart()
 
     return <div className="flex flex-col gap-[1px] bg-black">{children(cart!.lines)}</div>
 }
@@ -51,10 +52,13 @@ type CartLineTitleProps = {
     productHref: string
 }
 
-// TODO: clicking link might need event emitter to trigger modal closing
 const CartLineTitle = ({ title, productHref }: CartLineTitleProps) => {
+    const handleClick = () => {
+        eventEmitter.emit('linkClick')
+    }
+
     return (
-        <Link href={productHref} className="hover:underline">
+        <Link href={productHref} onClick={handleClick} className="hover:underline">
             <span className="font-semibold line-clamp-2">{title}</span>
         </Link>
     )
@@ -86,7 +90,7 @@ const CartLineSizeAttr = ({ size }: CartLineSizeAttrProps) => {
 }
 
 const CartLineCounter = ({ quantity, availableQuantity, lineId }: CartLineCounterProps) => {
-    const { data: cart } = useCartContext()
+    const { data: cart } = useCart()
     const { updateCartLine } = useCartMutations(cart!.id)
     return (
         <Counter
@@ -105,8 +109,12 @@ type CartLineImageProps = {
 }
 
 const CartLineImage = ({ image, productHref }: CartLineImageProps) => {
+    const handleClick = () => {
+        eventEmitter.emit('linkClick')
+    }
+
     return (
-        <Link href={productHref}>
+        <Link href={productHref} onClick={handleClick}>
             <Image
                 src={image.src}
                 alt={image.altText || 'product image'}
@@ -117,9 +125,8 @@ const CartLineImage = ({ image, productHref }: CartLineImageProps) => {
     )
 }
 
-// TODO: const { data } = useCart()
 const CartSubtotal = () => {
-    const { data: cart } = useCartContext()
+    const { data: cart } = useCart()
 
     return <p>${cart!.cost.subtotalAmount.amount.toFixed(2)}</p>
 }
