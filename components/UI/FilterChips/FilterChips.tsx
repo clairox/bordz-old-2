@@ -1,19 +1,49 @@
+import { useDeselectFilterOption, useRefineCollectionSearchParams } from '@/hooks'
+import useSetPriceFilter from '@/hooks/useSetPriceFilter'
 import { FilterGroup } from '@/types/store'
 import { X } from '@phosphor-icons/react/dist/ssr'
-import { FunctionComponent, PropsWithChildren } from 'react'
+import { useSearchParams } from 'next/navigation'
+import { FunctionComponent, PropsWithChildren, useCallback } from 'react'
 
 type FilterChipsProps = {
     filterGroups: FilterGroup[]
     totalProductCount: number
-    deselectFilter: (groupName: string, optionName: string) => void
-    reset: () => void
+    maxPrice: number
 }
 const FilterChips: FunctionComponent<FilterChipsProps> = ({
     filterGroups,
     totalProductCount,
-    deselectFilter,
-    reset,
+    maxPrice,
 }) => {
+    const searchParams = useSearchParams()
+    const deselectFilterOption = useDeselectFilterOption(searchParams)
+    const setPriceFilter = useSetPriceFilter(searchParams)
+
+    const deselectFilter = useCallback(
+        (groupName: string, optionName: string) => {
+            if (groupName === 'price') {
+                setPriceFilter([0, maxPrice])
+                return
+            }
+
+            deselectFilterOption(groupName, optionName)
+        },
+        [deselectFilterOption, maxPrice, setPriceFilter],
+    )
+
+    const refineSearchParams = useRefineCollectionSearchParams()
+    const reset = useCallback(() => {
+        const keys = Array.from(searchParams.keys())
+        const newSearchParams = new URLSearchParams(searchParams)
+        keys.forEach(key => {
+            if (key !== 'sortBy') {
+                newSearchParams.delete(key)
+            }
+        })
+
+        refineSearchParams(newSearchParams)
+    }, [searchParams, refineSearchParams])
+
     // TODO: Sort chips
     const chipsGroups: React.ReactNode[] = []
     const makeChips = () => {

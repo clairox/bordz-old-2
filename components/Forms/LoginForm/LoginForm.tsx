@@ -9,9 +9,9 @@ import LoginFormSchema from './schema'
 import Link from 'next/link'
 import FormErrorBox from '@/components/UI/FormResponseBox/FormErrorBox'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useAuthMutations } from '@/hooks/useAuthMutations/useAuthMutations'
 import { RestClientError } from '@/lib/clients/restClient'
 import FormInputField from '@/components/UI/FormInputField'
+import { useLoginMutation } from '@/hooks'
 
 type FormData = z.infer<typeof LoginFormSchema>
 
@@ -22,7 +22,7 @@ const redirectMessages: RedirectMessage = {
 }
 
 const LoginForm = () => {
-    const { login } = useAuthMutations()
+    const { mutate: login, status: loginStatus, error: loginError } = useLoginMutation()
 
     const router = useRouter()
     const searchParams = useSearchParams()
@@ -43,30 +43,30 @@ const LoginForm = () => {
     }
 
     const formErrorMessage = useMemo(() => {
-        if (login.isPending) {
+        if (loginStatus === 'pending') {
             return ''
         }
 
-        if (login.isError) {
-            const error = login.error as RestClientError
+        if (loginStatus === 'error') {
+            const error = loginError as RestClientError
             if (!form.formState.isSubmitted || error == undefined) {
                 return
             }
-            switch (error?.status) {
+            switch (error.response.status) {
                 case 401:
                     return 'Login failed. Please verify your email and password.'
                 default:
                     return 'Something went wrong, please try again.'
             }
         }
-    }, [login, form.formState.isSubmitted])
+    }, [loginStatus, loginError, form.formState.isSubmitted])
 
     const onSubmit = async (data: FormData) => {
-        const { email, password } = data
-        login.mutate(
-            { email, password },
-            { onSuccess: () => (redirect ? router.push(redirect) : window.location.reload()) },
-        )
+        const options = {
+            onSuccess: () => (redirect ? router.push(redirect) : window.location.reload()),
+        }
+
+        login(data, options)
     }
 
     return (

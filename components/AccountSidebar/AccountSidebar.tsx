@@ -1,19 +1,21 @@
 'use client'
 import { useAccount } from '@/context/AccountContext/AccountContext'
-import { useAuthMutations } from '@/hooks/useAuthMutations/useAuthMutations'
+import { useLogoutMutation } from '@/hooks'
 import { HeartStraight, House, Lock, Package, SignOut, Gear, User } from '@phosphor-icons/react'
 import Link from 'next/link'
 import React from 'react'
 
 const AccountSidebar = () => {
     const { data: customer } = useAccount()
-    const { logout } = useAuthMutations()
+    const { mutate: logout } = useLogoutMutation()
 
     const handleLogout = async () => {
-        logout.mutate(undefined as void, {
+        const options = {
             onSuccess: () => (window.location.href = '/'),
-            onError: error => console.error(error),
-        })
+            onError: (error: Error) => console.error(error),
+        }
+
+        logout(undefined as void, options)
     }
 
     return (
@@ -22,7 +24,7 @@ const AccountSidebar = () => {
                 <h1>
                     Hey,
                     <br />
-                    {customer.firstName}!
+                    {customer?.firstName}!
                 </h1>
             </div>
             <Link

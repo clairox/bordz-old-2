@@ -10,7 +10,7 @@ import { WishlistData } from '@/types/store'
 import { QueryFunctionContext, useInfiniteQuery } from '@tanstack/react-query'
 import { useCallback } from 'react'
 
-const useWishlist = (limit: number = DEFAULT_COLLECTION_LIMIT) => {
+const useWishlistQuery = (limit: number = DEFAULT_COLLECTION_LIMIT) => {
     const { isLoggedIn } = useAuth()
 
     const getLocalWishlist = useCallback(
@@ -37,19 +37,19 @@ const useWishlist = (limit: number = DEFAULT_COLLECTION_LIMIT) => {
         [],
     )
 
-    const fetchWishlist = useCallback(
+    const queryFn = useCallback(
         async (context: QueryFunctionContext) => {
             try {
                 let response
                 if (isLoggedIn) {
                     response = await getWishlist(
                         limit,
-                        context.pageParam ? context.pageParam : undefined,
+                        context.pageParam ? (context.pageParam as string) : undefined,
                     )
                 } else {
                     response = await getLocalWishlist(
                         limit,
-                        context.pageParam ? context.pageParam : undefined,
+                        context.pageParam ? (context.pageParam as string) : undefined,
                     )
                 }
 
@@ -61,15 +61,12 @@ const useWishlist = (limit: number = DEFAULT_COLLECTION_LIMIT) => {
         [limit, isLoggedIn, getLocalWishlist, getWishlist],
     )
 
-    const { data, error, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage, status } =
-        useInfiniteQuery<WishlistData>({
-            queryKey: ['getWishlist'],
-            queryFn: fetchWishlist,
-            initialPageParam: undefined,
-            getNextPageParam: lastPage => (lastPage.hasNextPage ? lastPage.endCursor : undefined),
-        })
-
-    return { data, error, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage, status }
+    return useInfiniteQuery<WishlistData>({
+        queryKey: ['getWishlist'],
+        queryFn,
+        initialPageParam: undefined,
+        getNextPageParam: lastPage => (lastPage.hasNextPage ? lastPage.endCursor : undefined),
+    })
 }
 
-export default useWishlist
+export default useWishlistQuery

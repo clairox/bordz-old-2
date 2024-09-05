@@ -79,7 +79,7 @@ const useProvideCart = () => {
         return newCartId
     }, [createCart])
 
-    const getCart = useCallback(async () => {
+    const fetchCart = useCallback(async () => {
         let id = await getCartId()
 
         try {
@@ -91,10 +91,10 @@ const useProvideCart = () => {
         }
     }, [getCartId])
 
-    const { data, error, isPending } = useQuery({
+    const cartQuery = useQuery({
         queryKey: ['getCart'],
-        queryFn: getCart,
+        queryFn: fetchCart,
     })
 
-    return { data, error, isPending }
+    return cartQuery
 }

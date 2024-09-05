@@ -1,7 +1,5 @@
 'use client'
 import Cart from '@/components/CartBase'
-import { useCart } from '@/context/CartContext'
-import { useCartMutations } from '@/hooks/useCartMutations'
 import { CartLine } from '@/types/store'
 import { Trash } from '@phosphor-icons/react'
 
@@ -41,15 +39,8 @@ type MiniCartLineProps = {
 }
 
 const MiniCartLine: React.FunctionComponent<MiniCartLineProps> = ({ cartLine }) => {
-    const { data: cart } = useCart()
-    const { deleteCartLine } = useCartMutations(cart?.id || '')
-
     const merchandise = cartLine.merchandise
     const productHref = '/products/' + merchandise.product.handle
-
-    const handleDeleteButton = () => {
-        deleteCartLine.mutate(cartLine.id)
-    }
 
     return (
         <Cart.LineItem cartLine={cartLine} key={cartLine.id}>
@@ -62,9 +53,9 @@ const MiniCartLine: React.FunctionComponent<MiniCartLineProps> = ({ cartLine }) 
             <div className="basis-2/3 flex flex-col justify-between pr-4 pt-3 pb-4">
                 <div className="flex justify-between items-start gap-10">
                     <Cart.LineTitle title={merchandise.product.title} productHref={productHref} />
-                    <button data-testid="deleteButton" onClick={handleDeleteButton}>
+                    <Cart.LineDeleteButton lineId={cartLine.id}>
                         <Trash size={20} weight="regular" />
-                    </button>
+                    </Cart.LineDeleteButton>
                 </div>
                 <div className="flex justify-between items-center">
                     <Cart.LineSizeAttr size={merchandise.title} />

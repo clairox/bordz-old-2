@@ -285,14 +285,13 @@ const CREATE_CART = gql(`
     								handle
     								id
     								title
-    								images(first: 1) {
-    									nodes {
-    										altText
-    										height
-    										src
-    										width
-    									}
-    								}
+    								featuredImage {
+                                        altText
+                                        height
+                                        id
+                                        src
+                                        width
+                                    }
     							}
     							quantityAvailable
     						}
@@ -367,14 +366,13 @@ const ADD_CART_LINES = gql(`
 									handle
 									id
 									title
-									images(first: 1) {
-										nodes {
-											altText
-											height
-											src
-											width
-										}
-									}
+									featuredImage {
+                                        altText
+                                        height
+                                        id
+                                        src
+                                        width
+                                    }
 								}
 								quantityAvailable
 							}
@@ -450,14 +448,13 @@ const ADD_CART_LINE = gql(`
 									handle
 									id
 									title
-									images(first: 1) {
-										nodes {
-											altText
-											height
-											src
-											width
-										}
-									}
+									featuredImage {
+                                        altText
+                                        height
+                                        id
+                                        src
+                                        width
+                                    }
 								}
 								quantityAvailable
 							}
@@ -532,14 +529,13 @@ const UPDATE_CART_LINES = gql(`
 									handle
 									id
 									title
-									images(first: 1) {
-										nodes {
-											altText
-											height
-											src
-											width
-										}
-									}
+									featuredImage {
+                                        altText
+                                        height
+                                        id
+                                        src
+                                        width
+                                    }
 								}
 								quantityAvailable
 							}
@@ -614,14 +610,13 @@ const REMOVE_CART_LINES = gql(`
 									handle
 									id
 									title
-									images(first: 1) {
-										nodes {
-											altText
-											height
-											src
-											width
-										}
-									}
+									featuredImage {
+                                        altText
+                                        height
+                                        id
+                                        src
+                                        width
+                                    }
 								}
 								quantityAvailable
 							}

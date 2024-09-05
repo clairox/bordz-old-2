@@ -12,7 +12,7 @@ import { useRouter } from 'next/navigation'
 import { usePathname } from 'next/navigation'
 import { makeLoginRedirectURL } from '@/lib/utils/helpers'
 import FormInputField from '@/components/UI/FormInputField'
-import { useAccountMutations } from '@/hooks/useAccountMutations'
+import { useUpdatePassword } from '@/hooks'
 
 type FormData = z.infer<typeof ChangePasswordFormSchema>
 
@@ -20,7 +20,7 @@ const ChangePasswordForm = () => {
     const router = useRouter()
     const pathname = usePathname()
 
-    const { updatePassword } = useAccountMutations()
+    const { mutate: updatePassword, status: updateStatus, error: updateError } = useUpdatePassword()
 
     const form = useForm<FormData>({
         resolver: zodResolver(ChangePasswordFormSchema),
@@ -31,8 +31,8 @@ const ChangePasswordForm = () => {
     })
 
     const formErrorMessage = useMemo(() => {
-        if (updatePassword.isError) {
-            const { message } = updatePassword.error as Error
+        if (updateStatus === 'error') {
+            const { message } = updateError as Error
             if (message === 'Session expired') {
                 const url = makeLoginRedirectURL(pathname, 'session_expired')
                 router.push(url.toString())
@@ -42,33 +42,35 @@ const ChangePasswordForm = () => {
             return message
         }
 
-        if (updatePassword.isPending) {
+        if (updateStatus === 'pending') {
             return ''
         }
 
         return ''
-    }, [updatePassword, pathname, router])
+    }, [updateStatus, updateError, pathname, router])
 
     const formSuccessMessage = useMemo(() => {
-        if (updatePassword.isSuccess) {
+        if (updateStatus === 'success') {
             return 'Personal info updated successfully!'
         }
 
-        if (updatePassword.isPending) {
+        if (updateStatus === 'pending') {
             return ''
         }
 
         return ''
-    }, [updatePassword])
+    }, [updateStatus])
 
     const onSubmit = async (data: FormData) => {
-        updatePassword.mutate(data.password, {
+        const options = {
             onSuccess: () => {
                 const activeElement = document.activeElement as HTMLElement
                 activeElement.blur()
                 form.reset()
             },
-        })
+        }
+
+        updatePassword({ password: data.password }, options)
     }
 
     return (

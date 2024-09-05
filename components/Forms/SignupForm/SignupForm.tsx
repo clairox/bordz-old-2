@@ -17,13 +17,13 @@ import SignupFormSchema from './schema'
 import { months, days, years } from './schema/values'
 import FormErrorBox from '@/components/UI/FormResponseBox/FormErrorBox'
 import FormInputField from '@/components/UI/FormInputField'
-import { useAuthMutations } from '@/hooks/useAuthMutations/useAuthMutations'
 import { RestClientError } from '@/lib/clients/restClient'
+import { useSignupMutation } from '@/hooks'
 
 type FormData = z.infer<typeof SignupFormSchema>
 
 const SignupForm = () => {
-    const { signup } = useAuthMutations()
+    const { mutate: signup, status: signupStatus, error: signupError } = useSignupMutation()
 
     const form = useForm<FormData>({
         resolver: zodResolver(SignupFormSchema),
@@ -53,33 +53,41 @@ const SignupForm = () => {
     }, [])
 
     const formErrorMessage = useMemo(() => {
-        if (signup.isPending) {
+        if (signupStatus === 'pending') {
             return ''
         }
 
-        if (signup.isError) {
-            const error = signup.error as RestClientError
+        if (signupStatus === 'error') {
+            const error = signupError as RestClientError
             if (!form.formState.isSubmitted || error == undefined) {
                 return
             }
 
-            switch (error?.status) {
+            switch (error.response.status) {
                 case 409:
                     return 'Registration failed. An account with this email already exists.'
                 default:
                     return 'Something went wrong, please try again.'
             }
         }
-    }, [signup, form.formState.isSubmitted])
+    }, [signupError, signupStatus, form.formState.isSubmitted])
 
     const onSubmit = async (data: FormData) => {
         const { firstName, lastName, month, day, year, email, password } = data
         const birthDate = new Date(`${month} ${day}, ${year}`)
 
-        signup.mutate(
-            { email, password, firstName, lastName, birthDate },
-            { onSuccess: () => window.location.reload() },
-        )
+        const variables = {
+            email,
+            password,
+            firstName,
+            lastName,
+            birthDate,
+        }
+        const options = {
+            onSuccess: () => window.location.reload(),
+        }
+
+        signup(variables, options)
     }
 
     return (

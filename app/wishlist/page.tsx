@@ -1,27 +1,19 @@
 'use client'
 import { Button } from '@/components/UI/Button'
 import { ProductGrid } from '@/components/UI/ProductGrid'
-import { useCartMutations } from '@/hooks/useCartMutations'
-import useWishlist from '@/hooks/useWishlist/useWishlist'
-import { useWishlistMutations } from '@/hooks/useWishlistMutations'
+import { useCart } from '@/context/CartContext'
+import { useAddCartLineMutation, useRemoveWishlistItemMutation, useWishlistQuery } from '@/hooks'
 import { WishlistItem } from '@/types/store'
 import { Trash } from '@phosphor-icons/react'
 import Link from 'next/link'
-import { useMemo } from 'react'
 
 const Page = () => {
     const limit = 40
-    const cartId = useMemo(() => {
-        if (typeof localStorage !== 'undefined') {
-            return localStorage.getItem('cartId') || ''
-        }
-
-        return ''
-    }, [])
+    const { data: cart } = useCart()
     const { data, error, fetchNextPage, hasNextPage, isFetchingNextPage, status } =
-        useWishlist(limit)
-    const { removeWishlistItem } = useWishlistMutations(limit)
-    const { addCartLine } = useCartMutations(cartId)
+        useWishlistQuery(limit)
+    const { mutate: removeWishlistItem } = useRemoveWishlistItemMutation()
+    const { mutate: addCartLine } = useAddCartLineMutation()
 
     if (error) {
         // TODO: handle error
@@ -38,25 +30,27 @@ const Page = () => {
         item.populatedWishlist.forEach(wishlistItem => wishlist.push(wishlistItem)),
     )
 
-    const handleAddToCart = (
-        event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
-        item: string,
-    ) => {
-        event.preventDefault()
-        addCartLine.mutate(
-            { variantId: item },
-            { onSuccess: () => removeWishlistItem.mutate(item) },
-        )
+    const handleAddToCart = (item: string) => {
+        if (cart == undefined) {
+            return
+        }
+
+        const variables = {
+            cartId: cart.id,
+            variantId: item,
+        }
+        const options = {
+            onSuccess: () => removeWishlistItem({ item }),
+        }
+
+        addCartLine(variables, options)
     }
 
-    const handleRemoveWishlistItem = (
-        event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
-        item: string,
-    ) => {
-        event.preventDefault()
-        removeWishlistItem.mutate(item)
+    const handleRemoveWishlistItem = (item: string) => {
+        removeWishlistItem({ item })
     }
 
+    // TODO: wrap in CartProvider and move add to cart logic to CartButton
     return (
         <div>
             <h1>Wishlist</h1>
@@ -76,7 +70,7 @@ const Page = () => {
                                 </Link>
                                 <button
                                     className="absolute top-0 right-0 flex justify-center items-center m-3 w-10 h-10 rounded-full bg-white"
-                                    onClick={event => handleRemoveWishlistItem(event, item.id)}
+                                    onClick={() => handleRemoveWishlistItem(item.id)}
                                 >
                                     <Trash size={30} weight={'light'} />
                                 </button>
@@ -99,7 +93,7 @@ const Page = () => {
                                 <div className="w-full h-14">
                                     <Button
                                         className="w-full h-full rounded-none border-t border-black bg-white text-lg text-black hover:bg-gray-100"
-                                        onClick={event => handleAddToCart(event, item.id)}
+                                        onClick={() => handleAddToCart(item.id)}
                                     >
                                         Add to Bag
                                     </Button>

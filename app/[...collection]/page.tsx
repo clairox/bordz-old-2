@@ -2,30 +2,23 @@
 import { useState } from 'react'
 import CollectionHeader from '@/components/CollectionHeader'
 import { useSearchParams } from 'next/navigation'
-import { useCollection } from '@/hooks/useCollection'
 import Heading from '@/components/UI/Heading'
-import { Breadcrumb, BreadcrumbList } from '@/components/UI/Breadcrumb'
-import { Checkbox } from '@/components/UI/Checkbox'
 import _ from 'lodash'
 import { Button } from '@/components/UI/Button'
-import { useCollectionActions } from '@/hooks/useCollectionActions'
 import { Sidebar } from '@/components/UI/Sidebar'
 import { BreadcrumbTrail, Collection, ProductListItem } from '@/types/store'
-import { CheckedState } from '@radix-ui/react-checkbox'
 import { ProductGrid } from '@/components/UI/ProductGrid'
 import PriceRangeSlider from '@/components/UI/PriceRangeSlider'
 import FilterChips from '@/components/UI/FilterChips'
-import useMakeBreadcrumbItems from '@/hooks/useMakeBreadcrumbItems'
-import Link from 'next/link'
+import { useCollectionQuery } from '@/hooks'
+import FilterGroupOptionsList from '@/components/FilterGroupOptionsList'
+import CollectionProductListItem from '@/components/CollectionProductListItem/CollectionProductListItem'
+import Breadcrumb from '@/components/Breadcrumb'
 
 const Page = () => {
     const searchParams = useSearchParams()
     const { data, error, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage, status } =
-        useCollection(searchParams)
-    const { selectFilterOption, deselectFilterOption, resetFilters, setPriceFilter } =
-        useCollectionActions(searchParams)
-
-    const makeBreadcrumbItems = useMakeBreadcrumbItems()
+        useCollectionQuery(searchParams)
 
     const [openRefinements, setOpenRefinements] = useState<string[]>([])
 
@@ -60,18 +53,6 @@ const Page = () => {
         collection: { title, href: null, parent: department ? 'department' : 'home' },
     }
 
-    const handleFilterOptionToggle = (
-        newCheckedState: CheckedState,
-        groupName: string,
-        optionName: string,
-    ) => {
-        if (newCheckedState === true) {
-            selectFilterOption(groupName, optionName)
-        } else {
-            deselectFilterOption(groupName, optionName)
-        }
-    }
-
     const filterGroupsWithPriceFilter =
         priceFilter[0] !== 0 || priceFilter[1] !== maxPrice
             ? [
@@ -86,15 +67,6 @@ const Page = () => {
               ]
             : filterGroups
 
-    const deselectFilterOptionOrPriceFilter = (groupName: string, optionName: string) => {
-        if (groupName === 'price') {
-            setPriceFilter([0, maxPrice])
-            return
-        }
-
-        deselectFilterOption(groupName, optionName)
-    }
-
     const products: ProductListItem[] = []
     data!.pages.forEach(item => item.products.forEach(product => products.push(product)))
 
@@ -103,11 +75,9 @@ const Page = () => {
         <div className="w-full h-full">
             <CollectionHeader>
                 <div className="flex flex-col gap-5 pl-5 py-5">
-                    <Breadcrumb className="pl-1">
-                        <BreadcrumbList>
-                            {makeBreadcrumbItems(trail.collection!, trail)}
-                        </BreadcrumbList>
-                    </Breadcrumb>
+                    <div className="pl-1">
+                        <Breadcrumb endNode={trail.collection!} trail={trail} />
+                    </div>
                     <Heading>{title}</Heading>
                     {relatedCollections && (
                         <div className="flex gap-6">
@@ -130,8 +100,7 @@ const Page = () => {
                     <FilterChips
                         filterGroups={filterGroupsWithPriceFilter}
                         totalProductCount={totalProductCount}
-                        deselectFilter={deselectFilterOptionOrPriceFilter}
-                        reset={resetFilters}
+                        maxPrice={maxPrice}
                     />
                     <Sidebar.Menu value={openRefinements} onValueChange={setOpenRefinements}>
                         {filterGroups.map(filterGroup => {
@@ -143,29 +112,7 @@ const Page = () => {
                                     value={groupName}
                                 >
                                     <Sidebar.MenuContent>
-                                        <div className="flex flex-col gap-3">
-                                            {filterGroup.options.map(option => {
-                                                const id = groupName + '-' + option.name
-                                                return (
-                                                    <div className="flex gap-2" key={id}>
-                                                        <Checkbox
-                                                            id={id}
-                                                            checked={option.isSelected}
-                                                            onCheckedChange={state =>
-                                                                handleFilterOptionToggle(
-                                                                    state,
-                                                                    groupName,
-                                                                    option.name,
-                                                                )
-                                                            }
-                                                        />
-                                                        <label className="leading-4" htmlFor={id}>
-                                                            {option.name}
-                                                        </label>
-                                                    </div>
-                                                )
-                                            })}
-                                        </div>
+                                        <FilterGroupOptionsList filterGroup={filterGroup} />
                                     </Sidebar.MenuContent>
                                 </Sidebar.MenuItem>
                             )
@@ -173,7 +120,6 @@ const Page = () => {
                         <Sidebar.MenuItem title={'Price'} value={'price'}>
                             <Sidebar.MenuContent>
                                 <PriceRangeSlider
-                                    setValue={setPriceFilter}
                                     initialValue={priceFilter}
                                     min={0}
                                     max={maxPrice}
@@ -185,33 +131,7 @@ const Page = () => {
                 <div className="col-span-4 w-full">
                     <ProductGrid>
                         {products.map(product => {
-                            return (
-                                <ProductGrid.Item key={product.title}>
-                                    <Link href={'/products/' + product.handle}>
-                                        <ProductGrid.Image
-                                            src={product.featuredImage.src}
-                                            alt={product.featuredImage.altText || 'product image'}
-                                            width={product.featuredImage.width}
-                                            height={product.featuredImage.height}
-                                        />
-                                    </Link>
-                                    <ProductGrid.Details>
-                                        <Link href={'/products/' + product.handle}>
-                                            <ProductGrid.Title>{product.title}</ProductGrid.Title>
-                                        </Link>
-                                        {product.compareAtPrice ? (
-                                            <div>
-                                                <span className="text-red line-through">
-                                                    ${product.price.amount}
-                                                </span>
-                                                ${product.compareAtPrice.amount}
-                                            </div>
-                                        ) : (
-                                            <div>${product.price.amount}</div>
-                                        )}
-                                    </ProductGrid.Details>
-                                </ProductGrid.Item>
-                            )
+                            return <CollectionProductListItem product={product} key={product.id} />
                         })}
                     </ProductGrid>
                     <div className="flex flex-col gap-4 items-center py-10">

@@ -1,14 +1,12 @@
 'use client'
-import useProduct from '@/hooks/useProduct'
 import ProductDetails from '@/components/ProductDetails'
 import { BreadcrumbTrail, Product } from '@/types/store'
 import Image from 'next/image'
-import { Breadcrumb, BreadcrumbList } from '@/components/UI/Breadcrumb'
-import useMakeBreadcrumbItems from '@/hooks/useMakeBreadcrumbItems'
+import { useProductQuery } from '@/hooks'
+import Breadcrumb from '@/components/Breadcrumb'
 
 const Page: React.FunctionComponent<{ params: { handle: string } }> = ({ params }) => {
-    const { data, error, isPending } = useProduct(params.handle)
-    const makeBreadcrumbItems = useMakeBreadcrumbItems()
+    const { data, error, isPending } = useProductQuery(params.handle)
 
     if (error) {
         console.error(error)
@@ -38,9 +36,9 @@ const Page: React.FunctionComponent<{ params: { handle: string } }> = ({ params 
 
     return (
         <div>
-            <Breadcrumb className="pl-6 py-5 w-full border-b border-black">
-                <BreadcrumbList>{makeBreadcrumbItems(trail.product!, trail)}</BreadcrumbList>
-            </Breadcrumb>{' '}
+            <div className="pl-6 py-5 w-full border-b border-black">
+                <Breadcrumb endNode={trail.product!} trail={trail} />
+            </div>
             <div className="grid grid-cols-12">
                 <div className="col-span-8 flex flex-col gap-[1px] border-r border-black bg-black">
                     {product.images.map(image => (

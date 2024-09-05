@@ -1,5 +1,5 @@
 'use client'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useMemo } from 'react'
 import { z } from 'zod'
 import PersonalInfoFormSchema from './schema'
 import { useForm } from 'react-hook-form'
@@ -11,7 +11,7 @@ import { Button } from '@/components/UI/Button'
 import { useAccount } from '@/context/AccountContext/AccountContext'
 import { useRouter, usePathname } from 'next/navigation'
 import FormInputField from '@/components/UI/FormInputField/FormInputField'
-import { useAccountMutations } from '@/hooks/useAccountMutations'
+import { useUpdatePersonalDetails } from '@/hooks'
 
 type FormData = z.infer<typeof PersonalInfoFormSchema>
 
@@ -20,7 +20,11 @@ const PersonalInfoForm = () => {
     const pathname = usePathname()
 
     const { data: customer } = useAccount()
-    const { updatePersonalDetails } = useAccountMutations()
+    const {
+        mutate: updatePersonalDetails,
+        status: updateStatus,
+        error: updateError,
+    } = useUpdatePersonalDetails()
 
     const form = useForm<FormData>({
         resolver: zodResolver(PersonalInfoFormSchema),
@@ -32,8 +36,8 @@ const PersonalInfoForm = () => {
     })
 
     const formErrorMessage = useMemo(() => {
-        if (updatePersonalDetails.isError) {
-            const { message } = updatePersonalDetails.error as Error
+        if (updateStatus === 'error') {
+            const { message } = updateError as Error
             if (message === 'Session expired') {
                 const url = new URL('/login', window.location.origin)
                 url.searchParams.set('redirect', encodeURIComponent(pathname))
@@ -46,30 +50,30 @@ const PersonalInfoForm = () => {
             return message
         }
 
-        if (updatePersonalDetails.isPending) {
+        if (updateStatus === 'pending') {
             return ''
         }
 
         return ''
-    }, [updatePersonalDetails, pathname, router])
+    }, [updateStatus, updateError, pathname, router])
 
     const formSuccessMessage = useMemo(() => {
-        if (updatePersonalDetails.isSuccess) {
+        if (updateStatus === 'success') {
             const activeElement = document.activeElement as HTMLElement
             activeElement.blur()
 
             return 'Personal info updated successfully!'
         }
 
-        if (updatePersonalDetails.isPending) {
+        if (updateStatus === 'pending') {
             return ''
         }
 
         return ''
-    }, [updatePersonalDetails])
+    }, [updateStatus])
 
     const onSubmit = async (data: FormData) => {
-        updatePersonalDetails.mutate(data)
+        updatePersonalDetails(data)
     }
 
     return (

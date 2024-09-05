@@ -7,8 +7,9 @@ import Counter from '@/components/UI/Counter'
 import { MIN_CART_LINE_ITEM_QUANTITY } from '@/lib/utils/constants'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useCartMutations } from '@/hooks/useCartMutations'
 import eventEmitter from '@/lib/utils/eventEmitter'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { restClient } from '@/lib/clients/restClient'
 
 const Cart = ({ children }: PropsWithChildren) => {
     const { data: cart, error, isPending } = useCart()
@@ -90,15 +91,60 @@ const CartLineSizeAttr = ({ size }: CartLineSizeAttrProps) => {
 }
 
 const CartLineCounter = ({ quantity, availableQuantity, lineId }: CartLineCounterProps) => {
+    type UpdateCartLineVariables = {
+        cartId: string
+        lineId: string
+        quantity: number
+    }
+
+    const queryClient = useQueryClient()
+
+    const { mutate: updateCartLine } = useMutation({
+        mutationFn: async ({ cartId, lineId, quantity }: UpdateCartLineVariables) => {
+            try {
+                const response = await restClient(`/cart/${encodeURIComponent(cartId)}/cartLines`, {
+                    method: 'PATCH',
+                    body: JSON.stringify({
+                        lines: [
+                            {
+                                id: lineId,
+                                quantity,
+                            },
+                        ],
+                    }),
+                })
+
+                return response.data
+            } catch (error) {
+                throw error
+            }
+        },
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['getCart'] }),
+    })
+
     const { data: cart } = useCart()
-    const { updateCartLine } = useCartMutations(cart!.id)
+
+    const handleChangeQuantity = (quantity: number) => {
+        if (cart == undefined) {
+            return
+        }
+
+        const variables = {
+            cartId: cart.id,
+            lineId,
+            quantity,
+        }
+
+        updateCartLine(variables)
+    }
+
     return (
         <Counter
             value={quantity}
             min={MIN_CART_LINE_ITEM_QUANTITY}
             max={availableQuantity}
             canType={true}
-            onChange={quantity => updateCartLine.mutate({ lineId, quantity })}
+            onChange={quantity => handleChangeQuantity(quantity)}
         />
     )
 }
@@ -125,6 +171,58 @@ const CartLineImage = ({ image, productHref }: CartLineImageProps) => {
     )
 }
 
+type CartLineDeleteButtonProps = PropsWithChildren<{
+    lineId: string
+}>
+
+const CartLineDeleteButton = ({ children, lineId }: CartLineDeleteButtonProps) => {
+    type DeleteCartLineVariables = {
+        cartId: string
+        lineId: string
+    }
+
+    const queryClient = useQueryClient()
+
+    const { mutate: deleteCartLine } = useMutation({
+        mutationFn: async ({ cartId, lineId }: DeleteCartLineVariables) => {
+            try {
+                const response = await restClient(`/cart/${encodeURIComponent(cartId)}/cartLines`, {
+                    method: 'DELETE',
+                    body: JSON.stringify({
+                        lineIds: [lineId],
+                    }),
+                })
+
+                return response.data
+            } catch (error) {
+                throw error
+            }
+        },
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['getCart'] }),
+    })
+
+    const { data: cart } = useCart()
+
+    const handleDeleteCartLine = () => {
+        if (cart == undefined) {
+            return
+        }
+
+        const variables = {
+            cartId: cart.id,
+            lineId,
+        }
+
+        deleteCartLine(variables)
+    }
+
+    return (
+        <button data-testid="deleteButton" onClick={handleDeleteCartLine}>
+            {children}
+        </button>
+    )
+}
+
 const CartSubtotal = () => {
     const { data: cart } = useCart()
 
@@ -146,6 +244,7 @@ Cart.LinePrice = CartLinePrice
 Cart.LineSizeAttr = CartLineSizeAttr
 Cart.LineCounter = CartLineCounter
 Cart.LineImage = CartLineImage
+Cart.LineDeleteButton = CartLineDeleteButton
 Cart.Subtotal = CartSubtotal
 Cart.CheckoutButton = CartCheckoutButton
 Cart.ViewCartButton = CartViewCartButton

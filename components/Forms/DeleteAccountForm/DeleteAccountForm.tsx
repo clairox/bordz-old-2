@@ -1,5 +1,5 @@
 'use client'
-import React, { useEffect, useMemo } from 'react'
+import React, { useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -11,16 +11,16 @@ import { usePathname, useRouter } from 'next/navigation'
 import { useAccount } from '@/context/AccountContext/AccountContext'
 import { makeLoginRedirectURL } from '@/lib/utils/helpers'
 import FormInputField from '@/components/UI/FormInputField'
-import { useAuthMutations } from '@/hooks/useAuthMutations/useAuthMutations'
-import { useAccountMutations } from '@/hooks/useAccountMutations'
-import Redirect from '@/components/Redirect'
+import { useLogoutMutation } from '@/hooks'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { LoginData } from '@/types'
+import { RestClientError, restClient } from '@/lib/clients/restClient'
 
 type FormData = z.infer<typeof DeleteAccountFormSchema>
 
 const DeleteAccountForm = () => {
     const { data: customer } = useAccount()
-    const { deleteCustomer } = useAccountMutations()
-    const { logout, confirmCredentials } = useAuthMutations()
+    const { mutate: logout } = useLogoutMutation()
 
     const router = useRouter()
     const pathname = usePathname()
@@ -32,17 +32,67 @@ const DeleteAccountForm = () => {
         },
     })
 
+    const { mutate: confirmCredentials, status: confirmStatus } = useMutation({
+        mutationFn: async (credentials: LoginData) => {
+            try {
+                await restClient('/auth/confirm', {
+                    method: 'POST',
+                    body: JSON.stringify(credentials),
+                    cache: 'no-cache',
+                })
+
+                return true
+            } catch (error) {
+                throw error
+            }
+        },
+    })
+
+    const queryClient = useQueryClient()
+    const { mutate: deleteCustomer, error: deleteCustomerError } = useMutation({
+        mutationFn: async () => {
+            const customerId = customer?.id
+            if (customerId == undefined) {
+                return false
+            }
+
+            const config = {
+                method: 'DELETE',
+                body: JSON.stringify({ id: customerId }),
+            }
+
+            try {
+                await restClient('/customer', config)
+                return true
+            } catch (error) {
+                if (error instanceof RestClientError) {
+                    if (error.response.status === 401) {
+                        console.error('You are not allowed to do that!')
+                        throw new Error('Session expired')
+                    } else {
+                        throw new Error(error.response.data.message)
+                    }
+                } else {
+                    throw error
+                }
+            }
+        },
+
+        onSuccess: () =>
+            queryClient.invalidateQueries({ queryKey: ['getCustomer'], refetchType: 'none' }),
+    })
+
     const formErrorMessage = useMemo(() => {
-        if (confirmCredentials.isPending) {
+        if (confirmStatus === 'pending') {
             return ''
         }
 
-        if (confirmCredentials.isError) {
+        if (confirmStatus === 'error') {
             return 'Password is incorrect.'
         }
 
-        if (deleteCustomer.isError) {
-            const { message } = deleteCustomer.error as Error
+        if (deleteCustomerError) {
+            const { message } = deleteCustomerError as Error
             if (message === 'Session expired') {
                 const url = makeLoginRedirectURL(pathname, 'session_expired')
                 router.push(url.toString())
@@ -53,30 +103,26 @@ const DeleteAccountForm = () => {
         }
 
         return ''
-    }, [confirmCredentials, deleteCustomer, pathname, router])
+    }, [confirmStatus, deleteCustomerError, pathname, router])
 
     const onSubmit = async (data: FormData) => {
         if (customer == undefined) {
             return
         }
 
-        confirmCredentials.mutate(
+        confirmCredentials(
             { email: customer.email, password: data.confirmPassword },
-            {
-                onSuccess: () => handleConfirmCredentialsSuccess(),
-            },
+            { onSuccess: () => handleConfirmCredentialsSuccess() },
         )
 
         const handleConfirmCredentialsSuccess = () => {
-            deleteCustomer.mutate(undefined as void, {
-                onSuccess: () => handleDeleteCustomerSuccess(),
-            })
+            const options = { onSuccess: () => handleDeleteCustomerSuccess() }
+            deleteCustomer(undefined as void, options)
         }
 
         const handleDeleteCustomerSuccess = () => {
-            logout.mutate(undefined as void, {
-                onSuccess: () => (window.location.href = '/'),
-            })
+            const options = { onSuccess: () => (window.location.href = '/') }
+            logout(undefined as void, options)
         }
     }
 

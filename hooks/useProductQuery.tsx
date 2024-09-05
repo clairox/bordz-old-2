@@ -2,8 +2,8 @@ import { useCallback } from 'react'
 import { restClient } from '@/lib/clients/restClient'
 import { useQuery } from '@tanstack/react-query'
 
-const useProduct = (handle: string) => {
-    const fetchProduct = useCallback(async () => {
+const useProductQuery = (handle: string) => {
+    const queryFn = useCallback(async () => {
         const url = '/products/' + handle
 
         try {
@@ -14,16 +14,10 @@ const useProduct = (handle: string) => {
         }
     }, [handle])
 
-    const { data, error, isPending } = useQuery({
+    return useQuery({
         queryKey: ['getProduct', handle],
-        queryFn: fetchProduct,
+        queryFn,
     })
-
-    return {
-        data,
-        error,
-        isPending,
-    }
 }
 
-export default useProduct
+export default useProductQuery

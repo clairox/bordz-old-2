@@ -4,14 +4,14 @@ const conversionError = new Error('Conversion failed')
 
 export const ensureString = (value: any): string => {
     if (typeof value !== 'string') {
-        throw conversionError
+        throw new Error('String conversion failed on value:', value)
     }
     return value
 }
 
 export const ensureNumber = (value: any): number => {
     if (typeof value !== 'number') {
-        throw conversionError
+        throw new Error('Number conversion failed on value:', value)
     }
     return value
 }
@@ -19,21 +19,21 @@ export const ensureNumber = (value: any): number => {
 export const ensureDate = (value: any): Date => {
     value = new Date(value)
     if (isNaN(value)) {
-        throw conversionError
+        throw new Error('Date conversion failed on value:', value)
     }
     return value
 }
 
 export const ensureBoolean = (value: any): boolean => {
     if (typeof value !== 'boolean') {
-        throw conversionError
+        throw new Error('Boolean conversion failed on value:', value)
     }
     return value
 }
 
 export const ensureArray = <T>(value: any, itemGuard: (item: any) => T): T[] => {
     if (!Array.isArray(value)) {
-        throw conversionError
+        throw new Error('Array conversion failed on value:', value)
     }
     return value.map(itemGuard)
 }

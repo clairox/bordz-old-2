@@ -1,47 +1,22 @@
 import { Button } from '@/components/UI/Button'
 import { CartProvider, useCart } from '@/context/CartContext'
-import { useCartMutations } from '@/hooks/useCartMutations'
-import { useWishlistMutations } from '@/hooks/useWishlistMutations'
+import {
+    useAddCartLineMutation,
+    useAddWishlistItemMutation,
+    useRemoveWishlistItemMutation,
+} from '@/hooks'
 import { isItemInWishlist } from '@/lib/core/wishlists'
 import { Product, Variant } from '@/types/store'
 import { HeartStraight } from '@phosphor-icons/react'
-import { PropsWithChildren, createContext, useCallback, useContext, useState } from 'react'
+import { PropsWithChildren, createContext, useCallback, useContext, useMemo, useState } from 'react'
 
 const ProductDetailsContext = createContext<Product | undefined>(undefined)
 
 const useProductDetails = () => {
     const product = useContext(ProductDetailsContext)
 
-    const { data: cart } = useCart()
-    const { addCartLine } = useCartMutations(cart?.id || '')
-
     const [selectedVariant, setSelectedVariant] = useState<Variant>(product!.variants[0])
     const [isInWishlist, setIsInWishlist] = useState(isItemInWishlist(selectedVariant.id))
-
-    const handleSelectVariant = useCallback(
-        (id: string) => {
-            const variant = product?.variants.find(variant => variant.id === id)
-            if (variant) {
-                setSelectedVariant(variant)
-            }
-        },
-        [product?.variants],
-    )
-
-    const { addWishlistItem, removeWishlistItem } = useWishlistMutations()
-
-    const handleCartButton = useCallback(async () => {
-        addCartLine.mutate({ variantId: selectedVariant.id })
-    }, [addCartLine, selectedVariant])
-
-    const handleWishlistButton = useCallback(async () => {
-        const item = selectedVariant.id
-        if (item && isInWishlist) {
-            removeWishlistItem.mutate(item, { onSuccess: () => setIsInWishlist(false) })
-        } else if (item) {
-            addWishlistItem.mutate(item, { onSuccess: () => setIsInWishlist(true) })
-        }
-    }, [isInWishlist, selectedVariant, removeWishlistItem, addWishlistItem])
 
     if (product == undefined) {
         throw new Error('Cannot be used outside of context')
@@ -54,16 +29,16 @@ const useProductDetails = () => {
         description: product.description,
         variants: product.variants,
         selectedVariant,
+        setSelectedVariant,
         isInWishlist,
-        handleSelectVariant,
-        handleCartButton,
-        handleWishlistButton,
+        setIsInWishlist,
     }
 }
 
 type ProductDetailsProps = PropsWithChildren<{
     product: Product
 }>
+
 const ProductDetails = ({ children, product }: ProductDetailsProps) => {
     return (
         <ProductDetailsContext.Provider value={product}>
@@ -99,23 +74,46 @@ const ProductDetailsSelectors = ({ children }: PropsWithChildren) => {
 }
 
 const ProductDetailsSelector = () => {
-    const { variants, selectedVariant, handleSelectVariant } = useProductDetails()
+    const { variants, selectedVariant, setSelectedVariant } = useProductDetails()
+
+    const handleSelectVariant = useCallback(
+        (id: string) => {
+            const variant = variants.find(variant => variant.id === id)
+            if (variant) {
+                setSelectedVariant(variant)
+            }
+        },
+        [variants, setSelectedVariant],
+    )
 
     return (
         <div className="flex flex-col gap-2">
             <p>Size:</p>
             <div className="flex gap-3 flex-wrap">
                 {variants.map(variant => {
-                    return (
-                        <Button
-                            onClick={() => handleSelectVariant(variant.id)}
-                            disabled={variants.length === 1}
-                            key={variant.id}
-                            className={`${variants.length > 1 && selectedVariant.id === variant.id ? 'font-semibold bg-black text-white hover:bg-black hover:text-white cursor-default' : 'bg-gray-200 text-black hover:bg-gray-300'} w-14 h-14 `}
-                        >
-                            {variant.title}
-                        </Button>
-                    )
+                    const baseStyle = 'w-14 h-14'
+
+                    if (variant.id === selectedVariant.id) {
+                        return (
+                            <Button
+                                disabled={true}
+                                className={`${baseStyle} font-semibold bg-black text-white hover:bg-black hover:text-white cursor-default`}
+                                key={variant.id}
+                            >
+                                {variant.title}
+                            </Button>
+                        )
+                    } else {
+                        return (
+                            <Button
+                                onClick={() => handleSelectVariant(variant.id)}
+                                className={`${baseStyle} bg-gray-200 text-black hover:bg-gray-300`}
+                                key={variant.id}
+                            >
+                                {variant.title}
+                            </Button>
+                        )
+                    }
                 })}
             </div>
         </div>
@@ -134,24 +132,72 @@ const ProductDetailsDescription = () => {
 
 // TODO: should say out of stock if product.availableForSale === false
 const ProductDetailsCartButton = () => {
-    const { handleCartButton } = useProductDetails()
+    const { selectedVariant } = useProductDetails()
+    const { data: cart } = useCart()
+    const { mutate: addCartLine, status, reset } = useAddCartLineMutation()
+
+    const buttonContent = useMemo(() => {
+        if (status === 'idle') {
+            return 'Add to Bag'
+        }
+
+        if (status === 'pending') {
+            return 'Adding...'
+        }
+
+        if (status === 'success') {
+            setTimeout(() => reset(), 3000)
+            return 'Added!'
+        }
+    }, [status, reset])
+
+    const handleCartButton = useCallback(async () => {
+        if (cart == undefined) {
+            return
+        }
+
+        const variables = {
+            cartId: cart.id,
+            variantId: selectedVariant.id,
+        }
+
+        addCartLine(variables)
+    }, [cart, addCartLine, selectedVariant])
+
     return (
         <Button className="h-14 text-lg font-semibold" onClick={handleCartButton}>
-            Add to Bag
+            {buttonContent}
         </Button>
     )
 }
 
 const ProductDetailsWishlistButton = () => {
-    const { isInWishlist, handleWishlistButton } = useProductDetails()
-    const size = 35
+    const { isInWishlist, selectedVariant, setIsInWishlist } = useProductDetails()
+    const { mutate: addWishlistItem } = useAddWishlistItemMutation()
+    const { mutate: removeWishlistItem } = useRemoveWishlistItemMutation()
+
+    const handleWishlistButton = useCallback(async () => {
+        const item = selectedVariant.id
+        const variables = { item }
+
+        if (isInWishlist) {
+            const options = { onSuccess: () => setIsInWishlist(false) }
+            removeWishlistItem(variables, options)
+        } else {
+            const options = { onSuccess: () => setIsInWishlist(true) }
+            addWishlistItem(variables, options)
+        }
+    }, [isInWishlist, setIsInWishlist, selectedVariant, removeWishlistItem, addWishlistItem])
+
+    const iconSize = 35
+
     return (
         <div className="">
             <button onClick={handleWishlistButton}>
                 {isInWishlist ? (
-                    <HeartStraight size={size} weight="fill" />
+                    <HeartStraight size={iconSize} weight="fill" />
                 ) : (
-                    <HeartStraight size={size} weight="light" />
+                    <HeartStraight size={iconSize} weight="light" />
                 )}
             </button>
         </div>

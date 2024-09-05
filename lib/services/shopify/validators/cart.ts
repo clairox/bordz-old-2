@@ -37,8 +37,8 @@ const ensureCartLine = (line: any): CartLine => ({
 })
 
 export const validateCart = (cart: any): Cart => {
-    const error = new Error('Safe cart conversion failed')
     if (!cart) {
+        const error = new Error('Safe cart conversion failed. Cart is undefined.')
         console.error(error)
         throw error
     }
@@ -55,7 +55,7 @@ export const validateCart = (cart: any): Cart => {
         }
 
         return safeCart
-    } catch {
+    } catch (error) {
         console.error(error)
         throw error
     }

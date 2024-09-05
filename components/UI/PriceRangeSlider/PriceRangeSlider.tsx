@@ -2,16 +2,20 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { roundUp } from '@/lib/utils/number'
 import _ from 'lodash'
 import { Slider } from '../Slider'
+import useSetPriceFilter from '@/hooks/useSetPriceFilter'
+import { useSearchParams } from 'next/navigation'
 
 const PriceRangeSlider: React.FunctionComponent<{
-    setValue: (newValue: number[]) => void
     initialValue: number[]
     min: number
     max: number
     step?: number
-}> = ({ setValue, initialValue, min, max, step = 5 }) => {
+}> = ({ initialValue, min, max, step = 5 }) => {
     const [renderedValue, setRenderedValue] = useState(initialValue)
     const [minSelectedValue, maxSelectedValue] = useMemo(() => renderedValue, [renderedValue])
+
+    const searchParams = useSearchParams()
+    const setValue = useSetPriceFilter(searchParams)
 
     useEffect(() => {
         setRenderedValue(initialValue)

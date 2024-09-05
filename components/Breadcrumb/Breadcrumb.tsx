@@ -1,8 +1,19 @@
 import { BreadcrumbTrail, BreadcrumbTrailItem } from '@/types/store'
 import { Fragment } from 'react'
-import { BreadcrumbItem, BreadcrumbSeparator, BreadcrumbLink } from '@/components/UI/Breadcrumb'
+import {
+    Breadcrumb as BreadcrumbRoot,
+    BreadcrumbItem,
+    BreadcrumbLink,
+    BreadcrumbList,
+    BreadcrumbSeparator,
+} from '../UI/Breadcrumb'
 
-const useMakeBreadcrumbItems = () => {
+type BreadcrumbProps = {
+    endNode: BreadcrumbTrailItem
+    trail: BreadcrumbTrail
+}
+
+const Breadcrumb: React.FunctionComponent<BreadcrumbProps> = ({ endNode, trail }) => {
     const renderBreadcrumbItem = (node: BreadcrumbTrailItem) => (
         <Fragment key={node.title}>
             {node.parent && <BreadcrumbSeparator className="text-sm">/</BreadcrumbSeparator>}
@@ -35,7 +46,13 @@ const useMakeBreadcrumbItems = () => {
         return breadcrumbItems
     }
 
-    return makeBreadcrumbItems
+    const breadcrumb = makeBreadcrumbItems(endNode, trail)
+
+    return (
+        <BreadcrumbRoot>
+            <BreadcrumbList>{breadcrumb}</BreadcrumbList>
+        </BreadcrumbRoot>
+    )
 }
 
-export default useMakeBreadcrumbItems
+export default Breadcrumb
