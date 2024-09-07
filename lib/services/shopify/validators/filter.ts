@@ -1,4 +1,4 @@
-import { AvailableFilter } from '@/app/api/collection/types'
+import { AvailableFilter } from '@/types/store'
 import { ensureArray, ensureNumber, ensureString } from './typeGuards'
 
 const ensureAvailableFilterValue = (filterValue: any): { label: string; count: number } => ({
