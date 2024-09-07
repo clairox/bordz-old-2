@@ -4,7 +4,7 @@ import {
     removeWishlistItems,
 } from '@/lib/services/shopify/requestHandlers/admin'
 import { handleErrorResponse } from '@/lib/utils/api'
-import { isNumeric } from '@/lib/utils/number'
+import { DEFAULT_COLLECTION_LIMIT } from '@/lib/utils/constants'
 import { NextRequest, NextResponse } from 'next/server'
 
 export const POST = async (request: NextRequest) => {
@@ -16,7 +16,8 @@ export const POST = async (request: NextRequest) => {
         )
     }
 
-    const { ids, populate, start } = await request.json()
+    const { ids, populate, sz, cursor } = await request.json()
+    const size = Number(sz) || DEFAULT_COLLECTION_LIMIT
 
     try {
         const wishlistItemIds = await addWishlistItems(customerAccessToken.value, ids)
@@ -25,15 +26,16 @@ export const POST = async (request: NextRequest) => {
             return NextResponse.json(wishlistItemIds)
         }
 
-        const limit = 40 + (start && isNumeric(start) ? Number(start) : 0)
-        const { productVariants: wishlistItems, hasNextPage } = await getProductVariants(
-            wishlistItemIds,
-            limit,
-        )
+        const {
+            productVariants: wishlistItems,
+            hasNextPage,
+            endCursor,
+        } = await getProductVariants(wishlistItemIds, size, cursor)
         return NextResponse.json({
             wishlist: wishlistItemIds,
             populatedWishlist: wishlistItems,
             hasNextPage,
+            endCursor,
         })
     } catch (error) {
         return handleErrorResponse(error as Error)
@@ -49,7 +51,8 @@ export const DELETE = async (request: NextRequest) => {
         )
     }
 
-    const { ids, populate, start } = await request.json()
+    const { ids, populate, sz, cursor } = await request.json()
+    const size = Number(sz) || DEFAULT_COLLECTION_LIMIT
 
     try {
         const wishlistItemIds = await removeWishlistItems(customerAccessToken.value, ids)
@@ -58,15 +61,16 @@ export const DELETE = async (request: NextRequest) => {
             return NextResponse.json(wishlistItemIds)
         }
 
-        const limit = 40 + (start && isNumeric(start) ? Number(start) : 0)
-        const { productVariants: wishlistItems, hasNextPage } = await getProductVariants(
-            wishlistItemIds,
-            limit,
-        )
+        const {
+            productVariants: wishlistItems,
+            hasNextPage,
+            endCursor,
+        } = await getProductVariants(wishlistItemIds, size, cursor)
         return NextResponse.json({
             wishlist: wishlistItemIds,
             populatedWishlist: wishlistItems,
             hasNextPage,
+            endCursor,
         })
     } catch (error) {
         return handleErrorResponse(error as Error)
