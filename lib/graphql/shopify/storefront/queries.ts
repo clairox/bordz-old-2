@@ -142,11 +142,11 @@ const GET_COLLECTION = gql(`
 const GET_PRODUCT_FILTERS = gql(`
 	query GetProductFilters(
 		$handle: String!
-        $limit: Int!
+        $first: Int!
 		$filters: [ProductFilter!]
 	) {
 		collection(handle: $handle) {
-			products(first: $limit, filters: $filters) {
+			products(first: $first, filters: $filters) {
 				filters {
 					label
 					values {

@@ -4,25 +4,16 @@ import { storefrontClient } from './base'
 
 export const getProductFilters = async (
     handle: string,
+    size: number,
     priceRange: number[],
-    subcategory?: string,
-    limit: number = 40,
-    brands: string[] = [],
-    sizes: string[] = [],
-    colors: string[] = [],
+    filterGroups: Record<string, string[]>,
 ) => {
-    const filters = makeProductFilters({
-        subcategory,
-        brands,
-        sizes,
-        colors,
-        price: priceRange,
-    })
+    const filters = makeProductFilters(filterGroups, priceRange)
 
     const config = {
         variables: {
             handle,
-            limit,
+            first: size,
             filters,
         },
     }

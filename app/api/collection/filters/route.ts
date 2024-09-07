@@ -1,50 +1,33 @@
 import { searchParamsToObject } from '@/lib/utils/conversions'
-import { isNumeric } from '@/lib/utils/number'
 import { NextRequest, NextResponse } from 'next/server'
 import { handleErrorResponse } from '@/lib/utils/api'
-import { isValidPriceRange } from '@/lib/core/collections'
 import { getProductFilters } from '@/lib/services/shopify/requestHandlers/storefront/getProductFilters'
 import { processPriceParam } from '@/lib/utils/helpers'
+import { DEFAULT_COLLECTION_LIMIT, FILTER_GROUP_NAMES } from '@/lib/utils/constants'
 
 export const GET = async (request: NextRequest) => {
-    const searchParams = searchParamsToObject(request.nextUrl.searchParams)
-    const { handle, subcategory, brand, size, color, price, start } = searchParams
+    const searchParams = request.nextUrl.searchParams
+    const searchParamsObject = searchParamsToObject(searchParams)
+    const { handle, price, sz } = searchParamsObject
 
-    const limit = 40 + (start && isNumeric(start) ? Number(start) : 0)
-    const brands = brand?.split(',')
-    const sizes = size?.split(',')
-    const colors = color?.split(',')
     const priceRange = processPriceParam(price)
+    const size = Number(sz) || DEFAULT_COLLECTION_LIMIT
+
+    const filterGroups: Record<string, string[]> = {}
+    Array.from(searchParams.entries())
+        .filter(entry => {
+            const [key] = entry
+            return FILTER_GROUP_NAMES.includes(key)
+        })
+        .forEach(entry => {
+            const [key, value] = entry
+            filterGroups[key] = value.split(',')
+        })
 
     try {
-        const productFilters = await getProductFilters(
-            handle,
-            priceRange,
-            subcategory,
-            limit,
-            brands,
-            sizes,
-            colors,
-        )
+        const productFilters = await getProductFilters(handle, size, priceRange, filterGroups)
 
-        const selectedProductFilters: Record<string, string[]> = {}
-        if (brands?.length > 0) {
-            selectedProductFilters['brand'] = brands
-        }
-
-        if (sizes?.length > 0) {
-            selectedProductFilters['size'] = sizes
-        }
-
-        if (colors?.length > 0) {
-            selectedProductFilters['color'] = colors
-        }
-
-        if (isValidPriceRange(priceRange)) {
-            selectedProductFilters['price'] = [priceRange[0].toString(), priceRange[1].toString()]
-        }
-
-        const response = NextResponse.json({ productFilters, selectedProductFilters })
+        const response = NextResponse.json({ productFilters })
         return response
     } catch (error) {
         return handleErrorResponse(error as Error)
