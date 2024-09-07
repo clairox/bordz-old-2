@@ -22,7 +22,7 @@ const Layout = ({ children }: React.PropsWithChildren) => {
     }
 
     return (
-        <AccountProvider customerId={data.id}>
+        <AccountProvider>
             <div className="grid grid-cols-12 w-[950px]">
                 <aside className="col-span-3">
                     <AccountSidebar />
