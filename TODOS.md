@@ -15,8 +15,8 @@ A mock ecommerce app focused on selling skateboard and snowboard parts or someth
 -   [x] check login status before making requests to protected api routes
 -   [x] breadcrumb
 -   [x] refactor
+-   [x] rewrite tests
 -   [ ] do todos
--   [ ] rewrite tests
 -   [ ] handle errors properly
 -   [ ] implement loading UI
 -   [ ] move context hooks to @/hooks
