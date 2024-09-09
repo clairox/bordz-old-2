@@ -29,6 +29,6 @@
 		".next/types/**/*.ts",
 		"components/CartItemQuantityCounter",
 		"components/Collection/CollectionView"
-	],
+, "lib/services/shopify/requestHandlers"	],
 	"exclude": ["node_modules"]
 }

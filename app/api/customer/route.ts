@@ -1,133 +1,89 @@
-import prisma from '@/prisma/client'
-import { serialize } from 'cookie'
+import { handleErrorResponse } from '@/lib/utils/api'
 import { NextRequest, NextResponse } from 'next/server'
-import { deleteCustomer, getCustomer, updateCustomer } from './utils'
-import { APIError, DEFAULT_ERROR_RESPONSE } from '@/lib/utils/api'
+import { serialize } from 'cookie'
+import { getCustomer, updateCustomer } from '@/lib/services/shopify/requestHandlers/storefront'
+import { deleteCustomer } from '@/lib/services/shopify/requestHandlers/admin'
 
 export const GET = async (request: NextRequest) => {
-	const customerAccessToken = request.cookies.get('customerAccessToken')
-	if (!customerAccessToken) {
-		return NextResponse.json(
-			{ message: 'Missing customer access token', code: 'UNAUTHORIZED' },
-			{ status: 401 }
-		)
-	}
+    const customerAccessToken = request.cookies.get('customerAccessToken')
+    if (!customerAccessToken) {
+        return NextResponse.json(
+            { message: 'Missing customer access token', code: 'UNAUTHORIZED' },
+            { status: 401 },
+        )
+    }
 
-	try {
-		const { customer } = await getCustomer(customerAccessToken.value)
-
-		const internalCustomer = await prisma.customer.findUnique({
-			where: {
-				id: customer.id,
-			},
-		})
-
-		if (internalCustomer == undefined) {
-			return DEFAULT_ERROR_RESPONSE
-		}
-
-		const response = NextResponse.json(internalCustomer)
-		response.headers.append('Access-Control-Allow-Origin', '*')
-		return response
-	} catch (error) {
-		if (error instanceof APIError) {
-			const { message, code, status } = error
-			return NextResponse.json({ message, code }, { status })
-		} else {
-			return DEFAULT_ERROR_RESPONSE
-		}
-	}
+    try {
+        const customer = await getCustomer(customerAccessToken.value)
+        return NextResponse.json(customer)
+    } catch (error) {
+        return handleErrorResponse(error as Error)
+    }
 }
 
 export const PATCH = async (request: NextRequest) => {
-	const customerAccessToken = request.cookies.get('customerAccessToken')
-	if (!customerAccessToken) {
-		return NextResponse.json(
-			{ message: 'Missing customer access token', code: 'UNAUTHORIZED' },
-			{ status: 401 }
-		)
-	}
+    const customerAccessToken = request.cookies.get('customerAccessToken')
+    if (!customerAccessToken) {
+        return NextResponse.json(
+            { message: 'Missing customer access token', code: 'UNAUTHORIZED' },
+            { status: 401 },
+        )
+    }
 
-	const { email, password, firstName, lastName, birthDate, cartId, wishlist } = await request.json()
+    const body = await request.json()
 
-	try {
-		const { customer, newAccessToken } = await updateCustomer(
-			customerAccessToken.value,
-			email,
-			password,
-			firstName,
-			lastName
-		)
+    const values = {
+        email: body.email,
+        password: body.password,
+        firstName: body.firstName,
+        lastName: body.lastName,
+        birthDate: body.birthDate,
+        phone: body.phone,
+        cartId: body.cartId,
+        wishlist: body.wishlist,
+    }
 
-		const internalCustomer = await prisma.customer.update({
-			where: {
-				id: customer.id,
-			},
-			data: {
-				cartId,
-				birthDate,
-				wishlist,
-			},
-		})
+    try {
+        const { customer, newAccessToken } = await updateCustomer(customerAccessToken.value, values)
 
-		const response = NextResponse.json(internalCustomer)
+        const response = NextResponse.json(customer)
+        if (newAccessToken) {
+            const { accessToken, expiresAt } = newAccessToken
 
-		if (newAccessToken) {
-			const { accessToken, expiresAt } = newAccessToken
+            const expiryTime = new Date(expiresAt).getTime()
+            const now = new Date().getTime()
+            const cookie = serialize('customerAccessToken', accessToken, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV !== 'development',
+                maxAge: expiryTime - now,
+                sameSite: 'strict',
+                path: '/',
+            })
 
-			const expiryTime = new Date(expiresAt).getTime()
-			const now = new Date().getTime()
-			const cookie = serialize('customerAccessToken', accessToken, {
-				httpOnly: true,
-				secure: process.env.NODE_ENV !== 'development',
-				maxAge: expiryTime - now,
-				sameSite: 'strict',
-				path: '/',
-			})
+            response.headers.append('Set-Cookie', cookie)
+        }
 
-			response.headers.append('Set-Cookie', cookie)
-		}
-
-		response.headers.append('Access-Control-Allow-Origin', '*')
-		return response
-	} catch (error) {
-		if (error instanceof APIError) {
-			const { message, code, status } = error
-			return NextResponse.json({ message, code }, { status })
-		} else {
-			return DEFAULT_ERROR_RESPONSE
-		}
-	}
+        return response
+    } catch (error) {
+        return handleErrorResponse(error as Error)
+    }
 }
 
 export const DELETE = async (request: NextRequest) => {
-	const customerAccessToken = request.cookies.get('customerAccessToken')
-	if (!customerAccessToken) {
-		return NextResponse.json(
-			{ message: 'Missing customer access token', code: 'UNAUTHORIZED' },
-			{ status: 401 }
-		)
-	}
+    const customerAccessToken = request.cookies.get('customerAccessToken')
+    if (!customerAccessToken) {
+        return NextResponse.json(
+            { message: 'Missing customer access token', code: 'UNAUTHORIZED' },
+            { status: 401 },
+        )
+    }
 
-	try {
-		const { customer } = await getCustomer(customerAccessToken.value)
-		const { deletedCustomerId } = await deleteCustomer(customer.id)
+    const { id } = await request.json()
 
-		await prisma.customer.delete({
-			where: {
-				id: deletedCustomerId,
-			},
-		})
-
-		const response = NextResponse.json({})
-		response.headers.append('Access-Control-Allow-Origin', '*')
-		return response
-	} catch (error) {
-		if (error instanceof APIError) {
-			const { message, code, status } = error
-			return NextResponse.json({ message, code }, { status })
-		} else {
-			return DEFAULT_ERROR_RESPONSE
-		}
-	}
+    try {
+        await deleteCustomer(id)
+        return new NextResponse(null, { status: 204 })
+    } catch (error) {
+        return handleErrorResponse(error as Error)
+    }
 }

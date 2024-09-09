@@ -1,33 +1,48 @@
 'use client'
-import { GetCustomerQuery } from '@/__generated__/storefront/graphql'
+import { restClient } from '@/lib/clients/restClient'
+import { Customer } from '@/types/store'
+import { useQuery } from '@tanstack/react-query'
 import React, { createContext, useContext } from 'react'
-import { Customer, toSafeCustomer } from './utils'
 
-const AccountContext = createContext<GetCustomerQuery['customer'] | undefined>(undefined)
-
-export const AccountProvider: React.FunctionComponent<
-	React.PropsWithChildren<{ customer: GetCustomerQuery['customer'] }>
-> = ({ customer, children }) => (
-	<AccountContext.Provider value={customer}>{children}</AccountContext.Provider>
-)
-
-type AccountContextType = {
-	customer: Customer
+type AccountContextValue = {
+    data: Customer | undefined
+    error: Error | null
 }
 
-export const useAccountContext = (): AccountContextType => {
-	const customer = useContext(AccountContext)
+const AccountContext = createContext<AccountContextValue>({
+    data: undefined,
+    error: null,
+})
 
-	if (customer === undefined) {
-		throw new Error('useAccountContext cannot be used outside of AccountContext')
-	}
+export const useAccount = () => useContext(AccountContext)
 
-	const safeCustomer = toSafeCustomer(customer)
-	if (safeCustomer === null) {
-		throw new Error('Customer is null')
-	}
+export const AccountProvider: React.FunctionComponent<React.PropsWithChildren> = ({ children }) => {
+    const queryKey = ['getCustomer']
 
-	return {
-		customer: safeCustomer,
-	}
+    const { data, error, isPending } = useQuery({
+        queryKey,
+        queryFn: async () => {
+            try {
+                const response = await restClient('/customer')
+                return response.data
+            } catch (error) {
+                throw error
+            }
+        },
+    })
+
+    if (isPending) {
+        return <>Loading...</>
+    }
+
+    return (
+        <AccountContext.Provider
+            value={{
+                data,
+                error,
+            }}
+        >
+            {children}
+        </AccountContext.Provider>
+    )
 }

@@ -1,160 +1,113 @@
 'use client'
 import { Button } from '@/components/UI/Button'
-import { useCartContext } from '@/context/CartContext'
-import { fetcher } from '@/lib/fetcher'
-import { MAX_PRODUCTS_PER_LOAD } from '@/lib/utils/collection'
-import { getLocalWishlist, removeWishlistItem } from '@/lib/utils/wishlist'
+import { ProductGrid } from '@/components/UI/ProductGrid'
+import { useCart } from '@/context/CartContext'
+import { useAddCartLineMutation, useRemoveWishlistItemMutation, useWishlistQuery } from '@/hooks'
+import { WishlistItem } from '@/types/store'
 import { Trash } from '@phosphor-icons/react'
-import _ from 'lodash'
-import Image from 'next/image'
 import Link from 'next/link'
-import { useRouter, useSearchParams } from 'next/navigation'
-import React, { useEffect, useState, useCallback } from 'react'
-import { GetProductVariants_ProductVariant } from '../api/variants/types'
-import { Image as ProductImage } from '@/types/store'
 
 const Page = () => {
-	const router = useRouter()
-	const searchParams = useSearchParams()
+    const limit = 40
+    const { data: cart } = useCart()
+    const { data, error, fetchNextPage, hasNextPage, isFetchingNextPage, status } =
+        useWishlistQuery(limit)
+    const { mutate: removeWishlistItem } = useRemoveWishlistItemMutation()
+    const { mutate: addCartLine } = useAddCartLineMutation()
 
-	const { addCartLine } = useCartContext()
+    if (error) {
+        // TODO: handle error
+        console.error(error)
+        return <></>
+    }
 
-	const limit = _.toInteger(searchParams.get('start') || MAX_PRODUCTS_PER_LOAD)
+    if (status === 'pending') {
+        return <div>Loading...</div>
+    }
 
-	const [productVariants, setProductVariants] = useState<
-		GetProductVariants_ProductVariant[] | undefined
-	>(undefined)
-	const [hasNextPage, setHasNextPage] = useState<boolean | undefined>(undefined)
-	const [loading, setLoading] = useState(true)
+    const wishlist: WishlistItem[] = []
+    data!.pages.forEach(item =>
+        item.populatedWishlist.forEach(wishlistItem => wishlist.push(wishlistItem)),
+    )
 
-	const loadVariants = useCallback(async () => {
-		const wishlist = getLocalWishlist()
-		if (wishlist.length === 0) {
-			setProductVariants([])
-			return
-		}
+    const handleAddToCart = (item: string) => {
+        if (cart == undefined) {
+            return
+        }
 
-		try {
-			const response = await fetcher(`/variants`, {
-				method: 'POST',
-				body: JSON.stringify({
-					ids: wishlist,
-					limit,
-				}),
-			})
+        const variables = {
+            cartId: cart.id,
+            variantId: item,
+        }
+        const options = {
+            onSuccess: () => removeWishlistItem({ item }),
+        }
 
-			setProductVariants(response.data.variants)
-			setHasNextPage(response.data.hasNextPage)
-		} catch (error) {
-			// TODO redirect to 500 error page
-			console.error(error)
-		}
+        addCartLine(variables, options)
+    }
 
-		setLoading(false)
-	}, [limit])
+    const handleRemoveWishlistItem = (item: string) => {
+        removeWishlistItem({ item })
+    }
 
-	useEffect(() => {
-		loadVariants()
-	}, [loadVariants])
-
-	const handleAddItemToCart = async (id: string, title: string, image: ProductImage) => {
-		const itemAdded = addCartLine(id, 1)
-		if (!itemAdded) {
-			// TODO toast('An error has occurred while adding item to cart. Please try again')
-			return
-		}
-		// TODO toast(`${title} added to cart`, image)
-		handleRemoveItem(id)
-	}
-
-	const handleRemoveItem = async (id: string) => {
-		const itemRemoved = await removeWishlistItem(id)
-		if (!itemRemoved) {
-			// TODO toast('An error has occurred while removing item. Please try again.')
-			return
-		}
-		loadVariants()
-	}
-
-	if (productVariants == undefined) {
-		return <div>Loading...</div>
-	}
-
-	if (productVariants.length === 0) {
-		return <div>Wishlist is empty</div>
-	}
-
-	return (
-		<div>
-			<h1>Wishlist</h1>
-			<main className="grid grid-cols-4 border-l border-black">
-				{productVariants.map(variant => {
-					const { id, title, price, product, selectedOptions } = variant
-					const { name: variantName, value: variantValue } = selectedOptions[0]
-					return (
-						<article key={product.handle} className="border-r border-b border-black">
-							<Link href={`/shop/products/${product.handle}`}>
-								<div className="relative border-b border-gray">
-									<Image
-										src={product.featuredImage?.src}
-										alt="skateboard deck graphic"
-										width={product.featuredImage?.width!}
-										height={product.featuredImage?.height!}
-									/>
-									<div
-										className="absolute top-0 right-0 flex justify-center items-center m-3 w-10 h-10 rounded-full bg-white"
-										onClick={e => {
-											e.preventDefault()
-											handleRemoveItem(id)
-										}}
-									>
-										<Trash size={30} weight={'light'} />
-									</div>
-								</div>
-								<div className="px-4 pt-4 pb-2 leading-5 tracking-tight">
-									<div className="h-12">
-										<p className="line-clamp-2">{product.title}</p>
-									</div>
-									<div className="mb-1 text-gray-600">
-										{variantName}: {variantValue}
-									</div>
-									<div className="font-semibold text-lg">${price}</div>
-								</div>
-								<div className="w-full h-14">
-									<Button
-										className="w-full h-full border-t border-black bg-white text-lg text-black hover:bg-gray-100"
-										onClick={e => {
-											e.preventDefault()
-											handleAddItemToCart(id, title, product.featuredImage)
-										}}
-									>
-										Add to Cart
-									</Button>
-								</div>
-							</Link>
-						</article>
-					)
-				})}
-			</main>
-			<div>
-				<p>
-					Showing {productVariants.length} of {getLocalWishlist().length} products
-				</p>
-				{hasNextPage && (
-					<Button
-						onClick={() => {
-							setLoading(true)
-							const params = new URLSearchParams(searchParams.toString())
-							params.set('start', (limit + 2).toString())
-							router.replace('/wishlist?' + params.toString(), { scroll: false })
-						}}
-					>
-						{loading ? 'Loading...' : 'Load More'}
-					</Button>
-				)}
-			</div>
-		</div>
-	)
+    // TODO: wrap in CartProvider and move add to cart logic to CartButton
+    return (
+        <div>
+            <h1>Wishlist</h1>
+            <ProductGrid>
+                {wishlist.map(item => {
+                    const { product } = item
+                    return (
+                        <ProductGrid.Item key={item.id}>
+                            <div className="relative">
+                                <Link href={'/products/' + product.handle}>
+                                    <ProductGrid.Image
+                                        src={product.featuredImage.src}
+                                        alt={product.featuredImage.altText || 'product image'}
+                                        width={product.featuredImage.width}
+                                        height={product.featuredImage.height}
+                                    />
+                                </Link>
+                                <button
+                                    className="absolute top-0 right-0 flex justify-center items-center m-3 w-10 h-10 rounded-full bg-white"
+                                    onClick={() => handleRemoveWishlistItem(item.id)}
+                                >
+                                    <Trash size={30} weight={'light'} />
+                                </button>
+                            </div>
+                            <ProductGrid.Details>
+                                <Link href={'/products/' + product.handle}>
+                                    <ProductGrid.Title>{product.title}</ProductGrid.Title>
+                                </Link>
+                                <div className="mb-1 text-gray-600">
+                                    {item.selectedOptions[0].name}: {item.selectedOptions[0].value}
+                                </div>{' '}
+                                {item.compareAtPrice ? (
+                                    <div>
+                                        <span className="text-red line-through">${item.price}</span>
+                                        ${item.compareAtPrice}
+                                    </div>
+                                ) : (
+                                    <div>${item.price}</div>
+                                )}
+                                <div className="w-full h-14">
+                                    <Button
+                                        className="w-full h-full rounded-none border-t border-black bg-white text-lg text-black hover:bg-gray-100"
+                                        onClick={() => handleAddToCart(item.id)}
+                                    >
+                                        Add to Bag
+                                    </Button>
+                                </div>{' '}
+                            </ProductGrid.Details>
+                        </ProductGrid.Item>
+                    )
+                })}
+            </ProductGrid>
+            {hasNextPage && !isFetchingNextPage && (
+                <Button onClick={() => fetchNextPage()}>Load More</Button>
+            )}
+        </div>
+    )
 }
 
 export default Page

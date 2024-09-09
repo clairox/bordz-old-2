@@ -1,128 +1,110 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/UI/Form'
-import { Input } from '@/components/UI/Input'
+import { Form } from '@/components/UI/Form'
 import { Button } from '@/components/UI/Button'
 import LoginFormSchema from './schema'
 import Link from 'next/link'
-import PasswordInput from '@/components/UI/PasswordInput'
 import FormErrorBox from '@/components/UI/FormResponseBox/FormErrorBox'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { login } from '@/lib/auth'
+import { RestClientError } from '@/lib/clients/restClient'
+import FormInputField from '@/components/UI/FormInputField'
+import { useLoginMutation } from '@/hooks'
 
 type FormData = z.infer<typeof LoginFormSchema>
 
 type RedirectMessage = { [key: string]: string }
 
 const redirectMessages: RedirectMessage = {
-	session_expired: 'Your session has expired, please log in again.',
+    session_expired: 'Your session has expired, please log in again.',
 }
 
 const LoginForm = () => {
-	const router = useRouter()
-	const searchParams = useSearchParams()
-	const reason = searchParams.get('reason')
-	const redirect = searchParams.get('redirect')
+    const { mutate: login, status: loginStatus, error: loginError } = useLoginMutation()
 
-	const form = useForm<FormData>({
-		resolver: zodResolver(LoginFormSchema),
-		defaultValues: {
-			email: '',
-			password: '',
-		},
-	})
-	const errors = form.formState.errors
+    const router = useRouter()
+    const searchParams = useSearchParams()
+    const reason = searchParams.get('reason')
+    const redirect = searchParams.get('redirect')
 
-	let initialFormErrorMessage = ''
-	if (reason && Object.keys(redirectMessages).includes(reason)) {
-		initialFormErrorMessage = redirectMessages[reason]
-	}
-	const [formErrorMessage, setFormErrorResponse] = useState(initialFormErrorMessage)
+    const form = useForm<FormData>({
+        resolver: zodResolver(LoginFormSchema),
+        defaultValues: {
+            email: '',
+            password: '',
+        },
+    })
 
-	const onSubmit = async (data: FormData) => {
-		setFormErrorResponse('')
+    let initialFormErrorMessage = ''
+    if (reason && Object.keys(redirectMessages).includes(reason)) {
+        initialFormErrorMessage = redirectMessages[reason]
+    }
 
-		const { email, password } = data
-		const { success, error } = await login(email, password)
+    const formErrorMessage = useMemo(() => {
+        if (loginStatus === 'pending') {
+            return ''
+        }
 
-		if (success === false) {
-			return setFormErrorResponse(error?.message || 'Something went wrong, please try again.')
-		}
+        if (loginStatus === 'error') {
+            const error = loginError as RestClientError
+            if (!form.formState.isSubmitted || error == undefined) {
+                return
+            }
+            switch (error.response.status) {
+                case 401:
+                    return 'Login failed. Please verify your email and password.'
+                default:
+                    return 'Something went wrong, please try again.'
+            }
+        }
+    }, [loginStatus, loginError, form.formState.isSubmitted])
 
-		if (redirect) {
-			return router.push(redirect)
-		} else {
-			return window.location.reload()
-		}
-	}
+    const onSubmit = async (data: FormData) => {
+        const options = {
+            onSuccess: () => (redirect ? router.push(redirect) : window.location.reload()),
+        }
 
-	return (
-		<Form {...form}>
-			<form
-				onSubmit={form.handleSubmit(onSubmit)}
-				className="w-full max-w-[300px] space-y-4"
-				noValidate
-			>
-				<h1 className="mb-2 text-xl font-semibold">Login</h1>
-				<div className="space-y-3">
-					{formErrorMessage && <FormErrorBox>{formErrorMessage}</FormErrorBox>}
-					<FormField
-						control={form.control}
-						name="email"
-						render={({ field }) => (
-							<FormItem>
-								<FormLabel className="text-black">Email</FormLabel>
-								<FormControl>
-									<Input
-										className={`${errors.email && 'border-red-500 text-red-500'}`}
-										{...field}
-										type="email"
-									/>
-								</FormControl>
-								{errors.email && <p className="text-red-500 text-sm">{errors.email.message}</p>}
-							</FormItem>
-						)}
-					/>
-					<FormField
-						control={form.control}
-						name="password"
-						render={({ field }) => (
-							<FormItem>
-								<FormLabel className="text-black">Password</FormLabel>
-								<FormControl>
-									<PasswordInput
-										className={`${errors.password && 'border-red-500 text-red-500'}`}
-										{...field}
-									/>
-								</FormControl>
-								{errors.password && (
-									<p className="text-red-500 text-sm">{errors.password.message}</p>
-								)}
-							</FormItem>
-						)}
-					/>
-				</div>
-				<div>
-					<Link href="#" className="text-sm hover:underline">
-						Forgot password?
-					</Link>
-				</div>
-				<Button type="submit">Submit</Button>
-				<p className="text-sm">
-					New customer?{' '}
-					<Link
-						href={{ pathname: '/login', query: { register: true } }}
-						className="hover:underline"
-					>
-						Create an account
-					</Link>
-				</p>
-			</form>
-		</Form>
-	)
+        login(data, options)
+    }
+
+    return (
+        <Form {...form}>
+            <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="w-full max-w-[300px] space-y-4"
+                noValidate
+            >
+                <h1 className="mb-2 text-xl font-semibold">Login</h1>
+                <div className="space-y-3">
+                    {formErrorMessage && <FormErrorBox>{formErrorMessage}</FormErrorBox>}
+                    <FormInputField control={form.control} name={'email'} label={'Email'} />
+                    <FormInputField
+                        control={form.control}
+                        type={'password'}
+                        name={'password'}
+                        label={'Password'}
+                    />
+                </div>
+                <div>
+                    <Link href="#" className="text-sm hover:underline">
+                        Forgot password?
+                    </Link>
+                </div>
+                <Button type="submit">Submit</Button>
+                <p className="text-sm">
+                    New customer?{' '}
+                    <Link
+                        href={{ pathname: '/login', query: { register: true } }}
+                        className="hover:underline"
+                    >
+                        Create an account
+                    </Link>
+                </p>
+            </form>
+        </Form>
+    )
 }
 
 export default LoginForm
