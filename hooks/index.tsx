@@ -6,6 +6,7 @@ import useLoginMutation from './useLoginMutation'
 import useLogoutMutation from './useLogoutMutation'
 import useProductQuery from './useProductQuery'
 import useSelectFilterOption from './useSelectFilterOption'
+import useSetPriceFilter from './useSetPriceFilter'
 import useSignupMutation from './useSignupMutation'
 import useRefineCollectionSearchParams from './useRefineCollectionSearchParams'
 import useRemoveWishlistItemMutation from './useRemoveWishlistItemMutation'
@@ -22,6 +23,7 @@ export {
     useLogoutMutation,
     useProductQuery,
     useSelectFilterOption,
+    useSetPriceFilter,
     useSignupMutation,
     useRefineCollectionSearchParams,
     useRemoveWishlistItemMutation,

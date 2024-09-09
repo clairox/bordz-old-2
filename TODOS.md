@@ -19,6 +19,9 @@ A mock ecommerce app focused on selling skateboard and snowboard parts or someth
 -   [ ] rewrite tests
 -   [ ] handle errors properly
 -   [ ] implement loading UI
+-   [ ] move context hooks to @/hooks
+-   [ ] look into useFormState for form error messages and stuff
+-   [ ] make date select component and test it
 -   [ ] change wishlist to savedItems and savedItemIds
 -   [ ] Implement collection searching
 -   [ ] Implement ordering and orders

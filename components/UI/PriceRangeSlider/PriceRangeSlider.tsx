@@ -1,8 +1,9 @@
+'use client'
 import React, { useEffect, useMemo, useState } from 'react'
 import { roundUp } from '@/lib/utils/number'
 import _ from 'lodash'
 import { Slider } from '../Slider'
-import useSetPriceFilter from '@/hooks/useSetPriceFilter'
+import { useSetPriceFilter } from '@/hooks'
 import { useSearchParams } from 'next/navigation'
 
 const PriceRangeSlider: React.FunctionComponent<{

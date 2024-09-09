@@ -1,5 +1,8 @@
-import { useDeselectFilterOption, useRefineCollectionSearchParams } from '@/hooks'
-import useSetPriceFilter from '@/hooks/useSetPriceFilter'
+import {
+    useDeselectFilterOption,
+    useRefineCollectionSearchParams,
+    useSetPriceFilter,
+} from '@/hooks'
 import { FilterGroup } from '@/types/store'
 import { X } from '@phosphor-icons/react/dist/ssr'
 import { useSearchParams } from 'next/navigation'

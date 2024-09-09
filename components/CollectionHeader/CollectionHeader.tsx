@@ -1,4 +1,4 @@
-import React, { FunctionComponent, PropsWithChildren } from 'react'
+import { PropsWithChildren } from 'react'
 import Link, { LinkProps } from 'next/link'
 import _ from 'lodash'
 import { CaretRight } from '@phosphor-icons/react/dist/ssr'
