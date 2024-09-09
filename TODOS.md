@@ -16,6 +16,7 @@ A mock ecommerce app focused on selling skateboard and snowboard parts or someth
 -   [x] breadcrumb
 -   [x] refactor
 -   [x] rewrite tests
+-   [x] Remove prisma and delete database
 -   [ ] do todos
 -   [ ] handle errors properly
 -   [ ] implement loading UI
@@ -27,6 +28,5 @@ A mock ecommerce app focused on selling skateboard and snowboard parts or someth
 -   [ ] Implement ordering and orders
 -   [ ] Implement addresses
 -   [ ] Implement checkout and payments
--   [ ] Remove prisma and delete database
 -   [ ] Recently visited carousel
 -   [ ] Footer
