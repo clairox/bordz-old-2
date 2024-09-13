@@ -1,7 +1,7 @@
 'use client'
 import { useState } from 'react'
 import CollectionHeader from '@/components/CollectionHeader'
-import { useSearchParams } from 'next/navigation'
+import { useParams, useSearchParams } from 'next/navigation'
 import Heading from '@/components/UI/Heading'
 import _ from 'lodash'
 import { Button } from '@/components/UI/Button'
@@ -16,9 +16,10 @@ import CollectionProductListItem from '@/components/CollectionProductListItem/Co
 import Breadcrumb from '@/components/Breadcrumb'
 
 const Page = () => {
+    const params = useParams()
     const searchParams = useSearchParams()
     const { data, error, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage, status } =
-        useCollectionQuery(searchParams)
+        useCollectionQuery(params.collection[0], searchParams)
 
     const [openRefinements, setOpenRefinements] = useState<string[]>([])
 
