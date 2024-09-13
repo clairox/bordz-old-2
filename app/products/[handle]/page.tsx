@@ -1,4 +1,4 @@
-import ProductView from '@/components/Views/ProductView/ProductView'
+import ProductView from '@/components/Views/ProductView'
 import { FunctionComponent } from 'react'
 
 type ProductPageProps = {
