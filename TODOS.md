@@ -31,3 +31,6 @@ A mock ecommerce app focused on selling skateboard and snowboard parts or someth
 -   [ ] Implement checkout and payments
 -   [ ] Recently visited carousel
 -   [ ] Footer
+-   [ ] Make clear to customer that trucks are sold individually
+-   [ ] Add counter to product details
+-   [ ] Default skateboard truck quantity to 2 in product details
