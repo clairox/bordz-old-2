@@ -73,27 +73,36 @@ const CollectionView: FunctionComponent<CollectionViewProps> = ({ handle, search
     const products: ProductListItem[] = []
     data!.pages.forEach(item => item.products.forEach(product => products.push(product)))
 
-    // TODO: add sort select on bottom right of CollectionHeader
     return (
         <div className="w-full h-full">
             <CollectionHeader>
-                <div className="flex flex-col gap-5 pl-5 py-5">
+                <div className="flex flex-col gap-5 px-5 py-5">
                     <div className="pl-1">
                         <Breadcrumb endNode={trail.collection!} trail={trail} />
                     </div>
-                    <Heading>{title}</Heading>
-                    {relatedCollections && (
-                        <div className="flex gap-6">
-                            {relatedCollections.map(collection => {
-                                return (
-                                    <CollectionHeader.Link
-                                        href={'/' + collection.handle}
-                                        key={collection.title}
-                                    >
-                                        {collection.title}
-                                    </CollectionHeader.Link>
-                                )
-                            })}
+                    {relatedCollections ? (
+                        <div className="flex flex-col gap-3">
+                            <Heading>{title}</Heading>
+                            <div className="flex justify-between items-center">
+                                <div className="flex gap-6">
+                                    {relatedCollections.map(collection => {
+                                        return (
+                                            <CollectionHeader.Link
+                                                href={'/' + collection.handle}
+                                                key={collection.title}
+                                            >
+                                                {collection.title}
+                                            </CollectionHeader.Link>
+                                        )
+                                    })}
+                                </div>
+                                <CollectionHeader.Select />
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="flex justify-between items-center">
+                            <Heading>{title}</Heading>
+                            <CollectionHeader.Select />
                         </div>
                     )}
                 </div>
