@@ -52,18 +52,24 @@ const MiniCartLine: React.FunctionComponent<MiniCartLineProps> = ({ cartLine }) 
             </div>
             <div className="basis-2/3 flex flex-col justify-between pr-4 pt-3 pb-4">
                 <div className="flex justify-between items-start gap-10">
-                    <Cart.LineTitle title={merchandise.product.title} productHref={productHref} />
+                    <div className="flex flex-col gap-2">
+                        <Cart.LineTitle
+                            title={merchandise.product.title}
+                            productHref={productHref}
+                        />
+                        <Cart.LineSizeAttr size={merchandise.title} />
+                    </div>
                     <Cart.LineDeleteButton lineId={cartLine.id}>
                         <Trash size={20} weight="regular" />
                     </Cart.LineDeleteButton>
                 </div>
                 <div className="flex justify-between items-center">
-                    <Cart.LineSizeAttr size={merchandise.title} />
                     <Cart.LineCounter
                         quantity={cartLine.quantity}
                         availableQuantity={merchandise.quantityAvailable}
                         lineId={cartLine.id}
                     />
+                    <Cart.LinePrice price={cartLine.cost.totalAmount.amount} />
                 </div>
             </div>
         </Cart.LineItem>

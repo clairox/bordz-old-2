@@ -70,7 +70,7 @@ type CartLinePriceProps = {
 }
 
 const CartLinePrice = ({ price }: CartLinePriceProps) => {
-    return <p>${price}</p>
+    return <p>${price.toFixed(2)}</p>
 }
 
 type CartLineCounterProps = {
