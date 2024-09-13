@@ -17,7 +17,7 @@ A mock ecommerce app focused on selling skateboard and snowboard parts or someth
 -   [x] refactor
 -   [x] rewrite tests
 -   [x] Remove prisma and delete database
--   [ ] Prefetch collection query
+-   [x] Prefetch collection query
 -   [ ] do todos
 -   [ ] handle errors properly
 -   [ ] implement loading UI

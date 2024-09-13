@@ -1,23 +1,8 @@
-import { useCallback } from 'react'
-import { restClient } from '@/lib/clients/restClient'
 import { useQuery } from '@tanstack/react-query'
+import { getProductQueryOptions } from '@/lib/utils/helpers'
 
 const useProductQuery = (handle: string) => {
-    const queryFn = useCallback(async () => {
-        const url = '/products/' + handle
-
-        try {
-            const response = await restClient(url)
-            return response.data
-        } catch (error) {
-            throw error as Error
-        }
-    }, [handle])
-
-    return useQuery({
-        queryKey: ['getProduct', handle],
-        queryFn,
-    })
+    return useQuery(getProductQueryOptions(handle))
 }
 
 export default useProductQuery
