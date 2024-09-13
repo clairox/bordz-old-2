@@ -264,7 +264,7 @@ const CREATE_CART = gql(`
 			cart {
 				id
     			totalQuantity
-    			lines(first: 20) {
+    			lines(first: 20, reverse: true) {
     				nodes {
     					id
     					quantity
@@ -427,7 +427,7 @@ const ADD_CART_LINE = gql(`
 			cart {
 				id
 				totalQuantity
-				lines(first: 20) {
+				lines(first: 20, reverse: true) {
 					nodes {
 						id
 						quantity
@@ -508,7 +508,7 @@ const UPDATE_CART_LINES = gql(`
 			cart {
 				id
 				totalQuantity
-				lines(first: 20) {
+				lines(first: 20, reverse: true) {
 					nodes {
 						id
 						quantity
@@ -589,7 +589,7 @@ const REMOVE_CART_LINES = gql(`
 			cart {
 				id
 				totalQuantity
-				lines(first: 20) {
+				lines(first: 20, reverse: true) {
 					nodes {
 						id
 						quantity

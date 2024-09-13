@@ -5,7 +5,7 @@ const GET_CART = gql(`
 		cart(id: $id) {
 			id
 			totalQuantity
-			lines(first: 20) {
+			lines(first: 20, reverse: true) {
 				nodes {
 					id
 					quantity
