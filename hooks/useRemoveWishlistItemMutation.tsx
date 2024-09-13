@@ -1,5 +1,4 @@
 import { useAuth } from '@/context/AuthContext/AuthContext'
-import { queryClient } from '@/lib/clients/queryClient'
 import { restClient } from '@/lib/clients/restClient'
 import {
     getLocalWishlistUnpopulated,
@@ -8,11 +7,12 @@ import {
 } from '@/lib/core/wishlists'
 import { DEFAULT_COLLECTION_LIMIT } from '@/lib/utils/constants'
 import { WishlistData } from '@/types/store'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useCallback } from 'react'
 
 const useRemoveWishlistItemMutation = () => {
     const { isLoggedIn } = useAuth()
+    const queryClient = useQueryClient()
 
     const removeLocalWishlistItem = useCallback(
         async (item: string, limit: number = DEFAULT_COLLECTION_LIMIT): Promise<WishlistData> => {

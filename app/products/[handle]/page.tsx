@@ -1,4 +1,6 @@
 import ProductView from '@/components/Views/ProductView'
+import { getQueryClient } from '@/lib/clients/queryClient'
+import { restClient } from '@/lib/clients/restClient'
 import { FunctionComponent } from 'react'
 
 type ProductPageProps = {
@@ -6,7 +8,20 @@ type ProductPageProps = {
 }
 
 const ProductPage: FunctionComponent<ProductPageProps> = ({ params }) => {
-    // TODO: prefetch product
+    const queryClient = getQueryClient()
+    void queryClient.prefetchQuery({
+        queryKey: ['getProduct', params.handle],
+        queryFn: async () => {
+            const url = '/products/' + params.handle
+
+            try {
+                const response = await restClient(url)
+                return response.data
+            } catch (error) {
+                throw error as Error
+            }
+        },
+    })
 
     return <ProductView handle={params.handle} />
 }
