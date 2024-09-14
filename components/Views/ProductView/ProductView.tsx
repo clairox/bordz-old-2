@@ -210,8 +210,9 @@ const VariantSelectorButton: FunctionComponent<VariantSelectorButtonProps> = ({
 
     return (
         <Button
-            onClick={isSelected ? () => {} : handleClick}
-            className={`w-14 h-10 ${isSelected ? 'bg-black text-white' : 'border border-black bg-white text-black hover:bg-gray-100'} font-semibold`}
+            disabled={isSelected}
+            onClick={handleClick}
+            className={`w-14 h-10 disabled:opacity-100 disabled:bg-black disabled:text-white border border-black bg-white text-black hover:bg-gray-100 font-semibold`}
         >
             {variant.title}
         </Button>
