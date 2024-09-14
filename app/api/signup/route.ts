@@ -18,7 +18,7 @@ export const POST = async (request: NextRequest) => {
         birthDate,
         phone,
         guestCartId,
-        guestWishlist: wishlist,
+        guestSavedItemsIds: savedItemsIds,
     } = await request.json()
 
     try {
@@ -30,7 +30,7 @@ export const POST = async (request: NextRequest) => {
             lastName,
             new Date(birthDate),
             cart.id,
-            wishlist,
+            savedItemsIds,
             phone,
         )
 
@@ -58,7 +58,7 @@ export const POST = async (request: NextRequest) => {
         const response = NextResponse.json({
             data: extractCustomerAuthData(customer),
             cartId,
-            wishlist: customer.wishlist,
+            savedItemsIds: customer.savedItemsIds,
         })
         response.headers.append('Set-Cookie', cookie)
         return response

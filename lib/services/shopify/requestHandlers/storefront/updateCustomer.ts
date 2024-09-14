@@ -4,7 +4,7 @@ import { storefrontClient } from './base'
 import { validateCustomer } from '@/lib/services/shopify/validators'
 
 export const updateCustomer = async (customerAccessToken: string, values: UpdateCustomerValues) => {
-    const { cartId, birthDate, wishlist, ...rest } = values
+    const { cartId, birthDate, savedItemsIds, ...rest } = values
 
     const config = {
         variables: {

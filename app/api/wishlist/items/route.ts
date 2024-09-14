@@ -1,7 +1,7 @@
 import {
-    addWishlistItems,
+    addSavedItems,
     getProductVariants,
-    removeWishlistItems,
+    removeSavedItems,
 } from '@/lib/services/shopify/requestHandlers/admin'
 import { handleErrorResponse } from '@/lib/utils/api'
 import { DEFAULT_COLLECTION_LIMIT } from '@/lib/utils/constants'
@@ -20,20 +20,20 @@ export const POST = async (request: NextRequest) => {
     const size = Number(sz) || DEFAULT_COLLECTION_LIMIT
 
     try {
-        const wishlistItemIds = await addWishlistItems(customerAccessToken.value, ids)
+        const savedItemsIds = await addSavedItems(customerAccessToken.value, ids)
 
         if (typeof populate !== 'boolean' || populate !== true) {
-            return NextResponse.json(wishlistItemIds)
+            return NextResponse.json(savedItemsIds)
         }
 
         const {
-            productVariants: wishlistItems,
+            productVariants: savedItems,
             hasNextPage,
             endCursor,
-        } = await getProductVariants(wishlistItemIds, size, cursor)
+        } = await getProductVariants(savedItemsIds, size, cursor)
         return NextResponse.json({
-            wishlist: wishlistItemIds,
-            populatedWishlist: wishlistItems,
+            savedItemsIds,
+            populatedItems: savedItems,
             hasNextPage,
             endCursor,
         })
@@ -55,20 +55,20 @@ export const DELETE = async (request: NextRequest) => {
     const size = Number(sz) || DEFAULT_COLLECTION_LIMIT
 
     try {
-        const wishlistItemIds = await removeWishlistItems(customerAccessToken.value, ids)
+        const savedItemsIds = await removeSavedItems(customerAccessToken.value, ids)
 
         if (typeof populate !== 'boolean' || populate !== true) {
-            return NextResponse.json(wishlistItemIds)
+            return NextResponse.json(savedItemsIds)
         }
 
         const {
-            productVariants: wishlistItems,
+            productVariants: savedItems,
             hasNextPage,
             endCursor,
-        } = await getProductVariants(wishlistItemIds, size, cursor)
+        } = await getProductVariants(savedItemsIds, size, cursor)
         return NextResponse.json({
-            wishlist: wishlistItemIds,
-            populatedWishlist: wishlistItems,
+            savedItemsIds,
+            populatedItems: savedItems,
             hasNextPage,
             endCursor,
         })

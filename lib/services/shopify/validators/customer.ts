@@ -95,7 +95,7 @@ export const validateCustomer = (customer: any): Customer => {
             updatedAt: ensureDate(customer.updatedAt),
             cartId: ensureString(cartIdMetafield.value),
             birthDate: ensureDate(birthDateMetafield.value),
-            wishlist: ensureArray(JSON.parse(wishlistMetafield.value), ensureString),
+            savedItemsIds: ensureArray(JSON.parse(wishlistMetafield.value), ensureString),
         }
 
         return safeCustomer

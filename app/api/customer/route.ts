@@ -40,7 +40,7 @@ export const PATCH = async (request: NextRequest) => {
         birthDate: body.birthDate,
         phone: body.phone,
         cartId: body.cartId,
-        wishlist: body.wishlist,
+        savedItemsIds: body.savedItemsIds,
     }
 
     try {

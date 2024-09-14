@@ -1,5 +1,5 @@
 import useAddCartLineMutation from './useAddCartLineMutation'
-import useAddWishlistItemMutation from './useAddWishlistItemMutation'
+import useAddSavedItemMutation from './useAddSavedItemMutation'
 import useCollectionQuery from './useCollectionQuery'
 import useDeselectFilterOption from './useDeselectFilterOption'
 import useLoginMutation from './useLoginMutation'
@@ -9,14 +9,14 @@ import useSelectFilterOption from './useSelectFilterOption'
 import useSetPriceFilter from './useSetPriceFilter'
 import useSignupMutation from './useSignupMutation'
 import useRefineCollectionSearchParams from './useRefineCollectionSearchParams'
-import useRemoveWishlistItemMutation from './useRemoveWishlistItemMutation'
+import useRemoveSavedItemMutation from './useRemoveSavedItemMutation'
 import useUpdatePassword from './useUpdatePassword'
 import useUpdatePersonalDetails from './useUpdatePersonalDetails'
-import useWishlistQuery from './useWishlistQuery'
+import useSavedItemsQuery from './useSavedItemsQuery'
 
 export {
     useAddCartLineMutation,
-    useAddWishlistItemMutation,
+    useAddSavedItemMutation,
     useCollectionQuery,
     useDeselectFilterOption,
     useLoginMutation,
@@ -26,8 +26,8 @@ export {
     useSetPriceFilter,
     useSignupMutation,
     useRefineCollectionSearchParams,
-    useRemoveWishlistItemMutation,
+    useRemoveSavedItemMutation,
     useUpdatePassword,
     useUpdatePersonalDetails,
-    useWishlistQuery,
+    useSavedItemsQuery,
 }

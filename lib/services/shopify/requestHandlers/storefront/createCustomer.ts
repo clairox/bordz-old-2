@@ -11,7 +11,7 @@ export const createCustomer = async (
     lastName: string,
     birthDate: Date,
     cartId: string,
-    wishlist: string[],
+    savedItemsIds: string[],
     phone?: string,
 ) => {
     const config = {
@@ -37,7 +37,7 @@ export const createCustomer = async (
             throw new Error('An error occurred during signup')
         }
 
-        await createCustomerMetafields(id, birthDate, cartId, wishlist)
+        await createCustomerMetafields(id, birthDate, cartId, savedItemsIds)
         const customerAccessToken = await createCustomerAccessToken(email, password)
         const customer = await getCustomer(customerAccessToken.accessToken)
 

@@ -2,9 +2,9 @@ import { GET_WISHLIST } from '@/lib/graphql/shopify/storefront/queries'
 import _ from 'lodash'
 import { storefrontClient } from './base'
 
-export const getWishlistAndCustomerId = async (
+export const getSavedItemsIdsAndCustomerId = async (
     customerAccessToken: string,
-): Promise<{ wishlistIds: string[]; customerId: string }> => {
+): Promise<{ savedItemsIds: string[]; customerId: string }> => {
     const config = {
         variables: { customerAccessToken },
     }
@@ -12,17 +12,17 @@ export const getWishlistAndCustomerId = async (
     try {
         const { customer } = await storefrontClient(GET_WISHLIST, 'customer', config)
 
-        const wishlistIds = JSON.parse(customer?.metafield?.value || '[]') as string[]
-        if (wishlistIds == undefined || !Array.isArray(wishlistIds)) {
-            throw new Error('Wishlist is not of array type')
+        const savedItemsIds = JSON.parse(customer?.metafield?.value || '[]') as string[]
+        if (savedItemsIds == undefined || !Array.isArray(savedItemsIds)) {
+            throw new Error('savedItemsIds is not of array type')
         }
 
         const customerId = customer?.id
         if (typeof customerId !== 'string') {
-            throw new Error('Customer id is not of string type')
+            throw new Error('customerId is not of string type')
         }
 
-        return { wishlistIds, customerId }
+        return { savedItemsIds, customerId }
     } catch (error) {
         throw error
     }

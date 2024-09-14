@@ -50,10 +50,10 @@ const AccountSidebar = () => {
             </Link>
             <Link
                 className="flex items-center gap-3 px-5 h-16 border border-t-0 border-black hover:bg-gray-100"
-                href="/wishlist"
+                href="/saved"
             >
                 <HeartStraight size={28} weight="light" />
-                Wishlist
+                Saved Items
             </Link>
             <Link
                 className="flex items-center gap-3 px-5 h-16 border border-t-0 border-black hover:bg-gray-100"

@@ -7,11 +7,11 @@ import {
     getCart,
     getCustomer,
 } from '@/lib/services/shopify/requestHandlers/storefront'
-import { addWishlistItems } from '@/lib/services/shopify/requestHandlers/admin'
+import { addSavedItems } from '@/lib/services/shopify/requestHandlers/admin'
 import { extractCustomerAuthData } from '@/lib/utils/helpers'
 
 export const POST = async (request: NextRequest) => {
-    const { email, password, guestCartId, guestWishlist } = await request.json()
+    const { email, password, guestCartId, guestSavedItemsIds } = await request.json()
 
     try {
         const customerAccessToken = await createCustomerAccessToken(email, password)
@@ -29,7 +29,7 @@ export const POST = async (request: NextRequest) => {
                 quantity: line.quantity,
             })),
         )
-        const wishlist = await addWishlistItems(accessToken, guestWishlist)
+        const savedItemsIds = await addSavedItems(accessToken, guestSavedItemsIds)
 
         const expiryTime = new Date(expiresAt).getTime()
         const now = new Date().getTime()
@@ -44,7 +44,7 @@ export const POST = async (request: NextRequest) => {
         const response = NextResponse.json({
             data: extractCustomerAuthData(customer),
             cartId,
-            wishlist,
+            savedItemsIds,
         })
         response.headers.append('Set-Cookie', cookie)
         return response

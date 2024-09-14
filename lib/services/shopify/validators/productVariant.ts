@@ -6,16 +6,16 @@ import {
     ensureSelectedOption,
     ensureString,
 } from './typeGuards'
-import { WishlistItem, WishlistItemProduct } from '@/types/store'
+import { VariantItem, VariantItemProduct } from '@/types/store'
 
-const ensureProduct = (product: any): WishlistItemProduct => ({
+const ensureProduct = (product: any): VariantItemProduct => ({
     featuredImage: ensureImage(product.featuredImage),
     handle: ensureString(product.handle),
     id: ensureString(product.id),
     title: ensureString(product.title),
 })
 
-export const validateProductVariantItem = (item: any): WishlistItem => {
+export const validateProductVariantItem = (item: any): VariantItem => {
     const error = new Error('Safe product variant item conversion failed')
     if (item == undefined) {
         console.error(error)
@@ -23,7 +23,7 @@ export const validateProductVariantItem = (item: any): WishlistItem => {
     }
 
     try {
-        const safeWishlistItem = {
+        const safeVariantItem = {
             availableForSale: ensureBoolean(item.availableForSale),
             compareAtPrice: ensureNumber(+item.compareAtPrice),
             id: ensureString(item.id),
@@ -33,7 +33,7 @@ export const validateProductVariantItem = (item: any): WishlistItem => {
             selectedOptions: ensureArray(item.selectedOptions, ensureSelectedOption),
         }
 
-        return safeWishlistItem
+        return safeVariantItem
     } catch (error) {
         console.error(error)
         throw error

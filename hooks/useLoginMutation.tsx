@@ -1,5 +1,8 @@
 import { restClient } from '@/lib/clients/restClient'
-import { getLocalWishlistUnpopulated, setLocalWishlistUnpopulated } from '@/lib/core/wishlists'
+import {
+    getLocallySavedItemsUnpopulated,
+    setLocallySavedItemsUnpopulated,
+} from '@/lib/core/wishlists'
 import { LoginData } from '@/types'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useCallback } from 'react'
@@ -9,18 +12,22 @@ const useLoginMutation = () => {
 
     const mutationFn = useCallback(async (loginData: LoginData) => {
         const guestCartId = localStorage.getItem('cartId')
-        const guestWishlist = getLocalWishlistUnpopulated()
+        const guestSavedItemsIds = getLocallySavedItemsUnpopulated()
 
         try {
             const response = await restClient('/login', {
                 method: 'POST',
-                body: JSON.stringify({ ...loginData, guestCartId, guestWishlist }),
+                body: JSON.stringify({
+                    ...loginData,
+                    guestCartId,
+                    guestSavedItemsIds,
+                }),
             })
 
-            const { cartId, wishlist, data } = response.data
+            const { cartId, savedItemsIds, data } = response.data
 
             localStorage.setItem('cartId', cartId)
-            setLocalWishlistUnpopulated(wishlist)
+            setLocallySavedItemsUnpopulated(savedItemsIds)
 
             return { isLoggedIn: true, data }
         } catch (error) {

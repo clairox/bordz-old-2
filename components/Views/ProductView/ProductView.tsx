@@ -4,12 +4,12 @@ import { BreadcrumbTrail, Image as Img, Product, Variant } from '@/types/store'
 import Image from 'next/image'
 import {
     useAddCartLineMutation,
-    useAddWishlistItemMutation,
+    useAddSavedItemMutation,
     useProductQuery,
-    useRemoveWishlistItemMutation,
+    useRemoveSavedItemMutation,
 } from '@/hooks'
 import Breadcrumb from '@/components/Breadcrumb'
-import { isItemInWishlist } from '@/lib/core/wishlists'
+import { isItemSaved } from '@/lib/core/wishlists'
 import { HeartStraight } from '@phosphor-icons/react'
 import { Button } from '@/components/UI/Button'
 import { CartProvider, useCart } from '@/context/CartContext'
@@ -158,14 +158,14 @@ type SaveButtonProps = {
 }
 
 const SaveButton: FunctionComponent<SaveButtonProps> = ({ variant }) => {
-    const [isSaved, setIsSaved] = useState(isItemInWishlist(variant.id))
+    const [isSaved, setIsSaved] = useState(isItemSaved(variant.id))
 
-    const { mutate: saveItem } = useAddWishlistItemMutation()
-    const { mutate: unsaveItem } = useRemoveWishlistItemMutation()
+    const { mutate: saveItem } = useAddSavedItemMutation()
+    const { mutate: unsaveItem } = useRemoveSavedItemMutation()
 
     const handleClick = () => {
-        const item = variant.id
-        const variables = { item }
+        const id = variant.id
+        const variables = { id }
 
         if (isSaved) {
             const options = { onSuccess: () => setIsSaved(false) }

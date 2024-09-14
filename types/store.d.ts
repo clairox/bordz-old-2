@@ -82,7 +82,7 @@ type Customer = {
     updatedAt: Date
     cartId: string
     birthDate: Date
-    wishlist: string[]
+    savedItemsIds: string[]
 }
 
 export type Money = {
@@ -180,7 +180,7 @@ type UpdatePersonalInfoValues = Partial<{
 
 type UpdateCustomerValues = UpdatePersonalInfoValues & {
     cartId: string
-    wishlist: string[]
+    savedItemsIds: string[]
     password: string
 }
 
@@ -201,26 +201,29 @@ type ProductListItem = {
     compareAtPrice?: Money
 }
 
-type WishlistItemProduct = {
+type SavedItemProduct = {
     featuredImage: Image
     handle: string
     id: string
     title: string
 }
 
-type WishlistItem = {
+type SavedItem = {
     availableForSale: boolean
     id: string
     price: number
     title: string
-    product: WishlistProduct
+    product: SavedItemProduct
     selectedOptions: SelectedOption[]
     compareAtPrice?: number
 }
 
-type WishlistData = {
-    wishlist: string[]
-    populatedWishlist: WishlistItem[]
+type VariantItemProduct = SavedItemProduct
+type VariantItem = SavedItem
+
+type SavedItemsData = {
+    savedItemsIds: string[]
+    populatedItems: SavedItem[]
     hasNextPage: boolean
     endCursor?: string
 }

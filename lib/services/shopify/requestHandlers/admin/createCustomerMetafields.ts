@@ -5,13 +5,13 @@ export const createCustomerMetafields = async (
     customerId: string,
     birthDate: Date,
     cartId: string,
-    wishlist: string[],
+    savedItemsIds: string[],
 ) => {
     const config = {
         variables: {
             id: customerId,
             birthDate: birthDate.toISOString(),
-            wishlist: JSON.stringify(wishlist),
+            wishlist: JSON.stringify(savedItemsIds),
             cartId,
         },
     }

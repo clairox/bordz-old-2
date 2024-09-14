@@ -1,47 +1,47 @@
 import { restClient } from '@/lib/clients/restClient'
-import { WishlistData } from '@/types/store'
+import { SavedItemsData } from '@/types/store'
 
 const DEFAULT_LIMIT = 40
 
-export const mergeWishlists = (sourceWishlist: string[], targetWislist: string[]): string[] => {
-    const mergedWishlist = new Array(...targetWislist)
-    sourceWishlist.forEach(item => {
-        if (!targetWislist.includes(item)) {
-            mergedWishlist.push(item)
+export const mergeSavedItemLists = (source: string[], target: string[]): string[] => {
+    const mergedList = new Array(...target)
+    source.forEach(item => {
+        if (!target.includes(item)) {
+            mergedList.push(item)
         }
     })
 
-    return mergedWishlist
+    return mergedList
 }
 
-export const populateWishlist = async (
-    wishlist: string[],
+export const populateSavedItems = async (
+    savedItemsIds: string[],
     limit: number = DEFAULT_LIMIT,
     cursor?: string,
-): Promise<WishlistData> => {
+): Promise<SavedItemsData> => {
     try {
         const response = await restClient('/productVariants', {
             method: 'POST',
             body: JSON.stringify({
-                ids: wishlist,
+                ids: savedItemsIds,
                 sz: limit,
                 cursor,
             }),
         })
 
-        const { productVariants: populatedWishlist, hasNextPage, endCursor } = response.data
-        return { wishlist, populatedWishlist, hasNextPage, endCursor }
+        const { productVariants: populatedItems, hasNextPage, endCursor } = response.data
+        return { savedItemsIds, populatedItems, hasNextPage, endCursor }
     } catch (error) {
         throw error
     }
 }
 
-export const getLocalWishlistUnpopulated = (): string[] =>
+export const getLocallySavedItemsUnpopulated = (): string[] =>
     JSON.parse(localStorage.getItem('wishlist') || '[]')
 
-export const setLocalWishlistUnpopulated = (wishlist: string[]) =>
-    localStorage.setItem('wishlist', JSON.stringify(wishlist))
+export const setLocallySavedItemsUnpopulated = (savedItemsIds: string[]) =>
+    localStorage.setItem('wishlist', JSON.stringify(savedItemsIds))
 
-export const isItemInWishlist = (item: string): boolean => {
-    return getLocalWishlistUnpopulated().includes(item)
+export const isItemSaved = (id: string): boolean => {
+    return getLocallySavedItemsUnpopulated().includes(id)
 }

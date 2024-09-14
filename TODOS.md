@@ -18,13 +18,13 @@ A mock ecommerce app focused on selling skateboard and snowboard parts or someth
 -   [x] rewrite tests
 -   [x] Remove prisma and delete database
 -   [x] Prefetch collection query
+-   [x] change wishlist to savedItems and savedItemsIds
 -   [ ] do todos
 -   [ ] handle errors properly
 -   [ ] implement loading UI
 -   [ ] move context hooks to @/hooks
 -   [ ] look into useFormState for form error messages and stuff
 -   [ ] make date select component and test it
--   [ ] change wishlist to savedItems and savedItemIds
 -   [ ] Implement collection searching
 -   [ ] Implement ordering and orders
 -   [ ] Implement addresses
@@ -34,3 +34,4 @@ A mock ecommerce app focused on selling skateboard and snowboard parts or someth
 -   [ ] Make clear to customer that trucks are sold individually
 -   [ ] Add counter to product details
 -   [ ] Default skateboard truck quantity to 2 in product details
+-   [ ] Implement saved items sorting

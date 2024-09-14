@@ -2,8 +2,8 @@
 import { Button } from '@/components/UI/Button'
 import { ProductGrid } from '@/components/UI/ProductGrid'
 import { useCart } from '@/context/CartContext'
-import { useAddCartLineMutation, useRemoveWishlistItemMutation, useWishlistQuery } from '@/hooks'
-import { WishlistItem } from '@/types/store'
+import { useAddCartLineMutation, useRemoveSavedItemMutation, useSavedItemsQuery } from '@/hooks'
+import { SavedItem } from '@/types/store'
 import { Trash } from '@phosphor-icons/react'
 import Link from 'next/link'
 
@@ -11,8 +11,8 @@ const Page = () => {
     const limit = 40
     const { data: cart } = useCart()
     const { data, error, fetchNextPage, hasNextPage, isFetchingNextPage, status } =
-        useWishlistQuery(limit)
-    const { mutate: removeWishlistItem } = useRemoveWishlistItemMutation()
+        useSavedItemsQuery(limit)
+    const { mutate: removeSavedItem } = useRemoveSavedItemMutation()
     const { mutate: addCartLine } = useAddCartLineMutation()
 
     if (error) {
@@ -25,37 +25,37 @@ const Page = () => {
         return <div>Loading...</div>
     }
 
-    const wishlist: WishlistItem[] = []
+    const savedItems: SavedItem[] = []
     data!.pages.forEach(item =>
-        item.populatedWishlist.forEach(wishlistItem => wishlist.push(wishlistItem)),
+        item.populatedItems.forEach(savedItem => savedItems.push(savedItem)),
     )
 
-    const handleAddToCart = (item: string) => {
+    const handleAddToCart = (id: string) => {
         if (cart == undefined) {
             return
         }
 
         const variables = {
             cartId: cart.id,
-            variantId: item,
+            variantId: id,
         }
         const options = {
-            onSuccess: () => removeWishlistItem({ item }),
+            onSuccess: () => removeSavedItem({ id }),
         }
 
         addCartLine(variables, options)
     }
 
-    const handleRemoveWishlistItem = (item: string) => {
-        removeWishlistItem({ item })
+    const handleRemoveSavedItem = (id: string) => {
+        removeSavedItem({ id })
     }
 
     // TODO: wrap in CartProvider and move add to cart logic to CartButton
     return (
         <div>
-            <h1>Wishlist</h1>
+            <h1>Saved Items</h1>
             <ProductGrid>
-                {wishlist.map(item => {
+                {savedItems.map(item => {
                     const { product } = item
                     return (
                         <ProductGrid.Item key={item.id}>
@@ -70,7 +70,7 @@ const Page = () => {
                                 </Link>
                                 <button
                                     className="absolute top-0 right-0 flex justify-center items-center m-3 w-10 h-10 rounded-full bg-white"
-                                    onClick={() => handleRemoveWishlistItem(item.id)}
+                                    onClick={() => handleRemoveSavedItem(item.id)}
                                 >
                                     <Trash size={30} weight={'light'} />
                                 </button>

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { handleErrorResponse } from '@/lib/utils/api'
-import { getWishlist } from '@/lib/services/shopify/requestHandlers/storefront'
+import { getSavedItemsIds } from '@/lib/services/shopify/requestHandlers/storefront'
 import { getProductVariants } from '@/lib/services/shopify/requestHandlers/admin'
 import { DEFAULT_COLLECTION_LIMIT } from '@/lib/utils/constants'
 
@@ -19,23 +19,21 @@ export const GET = async (request: NextRequest) => {
     const cursor = searchParams.get('cursor') as string
 
     try {
-        const wishlistItemIds = await getWishlist(customerAccessToken.value)
+        const savedItemsIds = await getSavedItemsIds(customerAccessToken.value)
 
         if (populate !== 'true') {
-            return NextResponse.json({ wishlist: wishlistItemIds, hasNextPage: false })
+            return NextResponse.json({ savedItemsIds, hasNextPage: false })
         }
 
-        console.log(size, cursor)
-
         const {
-            productVariants: wishlistItems,
+            productVariants: savedItems,
             hasNextPage,
             endCursor,
-        } = await getProductVariants(wishlistItemIds, size, cursor)
+        } = await getProductVariants(savedItemsIds, size, cursor)
 
         return NextResponse.json({
-            wishlist: wishlistItemIds,
-            populatedWishlist: wishlistItems,
+            savedItemsIds,
+            populatedItems: savedItems,
             hasNextPage,
             endCursor,
         })

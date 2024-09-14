@@ -4,13 +4,13 @@ import { HeartStraight } from '@phosphor-icons/react/dist/ssr'
 import Link from 'next/link'
 
 const WishlistAction = () => {
-	return (
-		<Link href="/wishlist">
-			<HeaderAction>
-				<HeartStraight size={28} weight={'light'} />
-			</HeaderAction>
-		</Link>
-	)
+    return (
+        <Link href="/saved">
+            <HeaderAction>
+                <HeartStraight size={28} weight={'light'} />
+            </HeaderAction>
+        </Link>
+    )
 }
 
 export default WishlistAction

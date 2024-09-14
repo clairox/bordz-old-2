@@ -1,7 +1,7 @@
 import { GET_WISHLIST } from '@/lib/graphql/shopify/storefront/queries'
 import { storefrontClient } from './base'
 
-export const getWishlist = async (customerAccessToken: string) => {
+export const getSavedItemsIds = async (customerAccessToken: string) => {
     const config = {
         variables: { customerAccessToken },
         cache: 'no-cache' as RequestCache,
@@ -9,12 +9,12 @@ export const getWishlist = async (customerAccessToken: string) => {
     try {
         const { customer } = await storefrontClient(GET_WISHLIST, 'customer', config)
 
-        const wishlistIds = JSON.parse(customer?.metafield?.value || '[]') as string[]
-        if (wishlistIds == undefined || !Array.isArray(wishlistIds)) {
-            throw new Error('Wishlist is not of array type')
+        const savedItemsIds = JSON.parse(customer?.metafield?.value || '[]') as string[]
+        if (savedItemsIds == undefined || !Array.isArray(savedItemsIds)) {
+            throw new Error('savedItemsIds is not of array type')
         }
 
-        return wishlistIds
+        return savedItemsIds
     } catch (error) {
         throw error
     }
