@@ -1,16 +1,16 @@
 import React from 'react'
-import HeaderAction from '@/components/Header/HeaderAction/HeaderAction'
 import { HeartStraight } from '@phosphor-icons/react/dist/ssr'
 import Link from 'next/link'
+import NavAction from '@/components/NavAction'
 
-const WishlistAction = () => {
+const SavedNavAction = () => {
     return (
         <Link href="/saved">
-            <HeaderAction>
+            <NavAction>
                 <HeartStraight size={28} weight={'light'} />
-            </HeaderAction>
+            </NavAction>
         </Link>
     )
 }
 
-export default WishlistAction
+export default SavedNavAction

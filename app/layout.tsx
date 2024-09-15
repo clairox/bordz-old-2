@@ -1,10 +1,10 @@
 import type { Metadata } from 'next'
 import { Inter as FontSans } from 'next/font/google'
-import Header from '@/components/Header/Header'
 import { cn } from '@/lib/utils/cn'
 import '@/styles/globals.css'
 import { CartProvider } from '@/context/CartContext'
 import AppProviders from '@/components/AppProviders'
+import Navbar from '@/components/Navbar'
 
 const fontSans = FontSans({ subsets: ['latin'], variable: '--font-sans' })
 
@@ -19,7 +19,7 @@ export default async function RootLayout({ children }: Readonly<React.PropsWithC
             <body className={cn('', fontSans.className)}>
                 <AppProviders>
                     <CartProvider>
-                        <Header />
+                        <Navbar />
                     </CartProvider>
                     <main className="flex justify-center mx-auto max-w-[1366px]">{children}</main>
                     <div className="w-full h-96 border-t border-black bg-green-100"></div>

@@ -19,12 +19,12 @@ A mock ecommerce app focused on selling skateboard and snowboard parts or someth
 -   [x] Remove prisma and delete database
 -   [x] Prefetch collection query
 -   [x] change wishlist to savedItems and savedItemsIds
+-   [x] make date select component and test it
 -   [ ] do todos
 -   [ ] handle errors properly
 -   [ ] implement loading UI
 -   [ ] move context hooks to @/hooks
 -   [ ] look into useFormState for form error messages and stuff
--   [x] make date select component and test it
 -   [ ] Implement collection searching
 -   [ ] Implement ordering and orders
 -   [ ] Implement addresses
