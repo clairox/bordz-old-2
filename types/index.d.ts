@@ -77,3 +77,10 @@ type CustomerAuthData = {
     lastName: string
     displayName: string
 }
+
+type DateSelectProps = {
+    value: Date | undefined
+    onChange: (value: Date) => void
+    minYear?: number
+    maxYear?: number
+}
