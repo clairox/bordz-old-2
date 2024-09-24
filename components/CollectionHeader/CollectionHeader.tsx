@@ -4,7 +4,7 @@ import _ from 'lodash'
 import { CaretRight } from '@phosphor-icons/react/dist/ssr'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../UI/Select'
 import { useSearchParams } from 'next/navigation'
-import { useRefineCollectionSearchParams } from '@/hooks'
+import { useRefineSearchParams } from '@/hooks'
 
 const CollectionHeader = function ({ children }: PropsWithChildren) {
     return <div className="border-b border-black">{children}</div>
@@ -12,7 +12,7 @@ const CollectionHeader = function ({ children }: PropsWithChildren) {
 
 const CollectionHeaderSelect = function () {
     const searchParams = useSearchParams()
-    const refineSearchParams = useRefineCollectionSearchParams()
+    const refineSearchParams = useRefineSearchParams()
 
     const defaultValue = searchParams.get('sortBy') || 'newest'
 

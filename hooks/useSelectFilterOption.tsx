@@ -1,9 +1,9 @@
 import { SEARCH_PARAM_SEPARATOR } from '@/lib/utils/constants'
-import useRefineCollectionSearchParams from './useRefineCollectionSearchParams'
+import useRefineSearchParams from './useRefineSearchParams'
 import { useCallback } from 'react'
 
 const useSelectFilterOption = (searchParams: URLSearchParams) => {
-    const refineSearchParams = useRefineCollectionSearchParams()
+    const refineSearchParams = useRefineSearchParams()
 
     return useCallback(
         (groupName: string, optionName: string) => {

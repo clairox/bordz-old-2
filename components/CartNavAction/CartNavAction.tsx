@@ -1,7 +1,7 @@
 'use client'
 import React, { useState, useEffect } from 'react'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/UI/Popover'
-import { BagSimple } from '@phosphor-icons/react/dist/ssr'
+import { BagSimple } from '@phosphor-icons/react'
 import MiniCart from '@/components/MiniCart'
 import eventEmitter from '@/lib/utils/eventEmitter'
 import NavAction from '@/components/NavAction'

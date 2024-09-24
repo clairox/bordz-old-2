@@ -1,8 +1,4 @@
-import {
-    useDeselectFilterOption,
-    useRefineCollectionSearchParams,
-    useSetPriceFilter,
-} from '@/hooks'
+import { useDeselectFilterOption, useRefineSearchParams, useSetPriceFilter } from '@/hooks'
 import { FilterGroup } from '@/types/store'
 import { X } from '@phosphor-icons/react/dist/ssr'
 import { useSearchParams } from 'next/navigation'
@@ -34,14 +30,16 @@ const FilterChips: FunctionComponent<FilterChipsProps> = ({
         [deselectFilterOption, maxPrice, setPriceFilter],
     )
 
-    const refineSearchParams = useRefineCollectionSearchParams()
+    const refineSearchParams = useRefineSearchParams()
     const reset = useCallback(() => {
         const keys = Array.from(searchParams.keys())
         const newSearchParams = new URLSearchParams(searchParams)
         keys.forEach(key => {
-            if (key !== 'sortBy') {
-                newSearchParams.delete(key)
+            if (key === 'sortBy' || (window.location.pathname === '/search' && key === 'q')) {
+                return
             }
+
+            newSearchParams.delete(key)
         })
 
         refineSearchParams(newSearchParams)

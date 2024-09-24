@@ -10,8 +10,7 @@ import { FILTER_GROUP_NAMES, DEFAULT_COLLECTION_LIMIT } from '@/lib/utils/consta
 
 export const GET = async (request: NextRequest) => {
     const searchParams = request.nextUrl.searchParams
-    const searchParamsObject = searchParamsToObject(searchParams)
-    const { handle, price, sz, cursor, sortBy } = searchParamsObject
+    const { handle, price, sz, cursor, sortBy } = searchParamsToObject(searchParams)
 
     const priceRange = processPriceParam(price)
     const size = Number(sz) || DEFAULT_COLLECTION_LIMIT

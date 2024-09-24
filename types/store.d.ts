@@ -279,6 +279,18 @@ type CollectionFilterObject =
 
 type CollectionFilterArray = Partial<FilterObject[]>
 
+type ProductSearchResults = {
+    filterGroups: FilterGroup[]
+    hasNextPage: boolean
+    maxPrice: number
+    priceFilter: number[]
+    products: ProductListItem[]
+    totalProductCount: number
+    endCursor?: string
+}
+
+type ProductSearchResultsSortKeyAlias = 'relevance' | 'priceLowToHigh' | 'priceHighToLow'
+
 type SortByKey = 'recommended' | 'newest' | 'priceLowToHigh' | 'priceHighToLow'
 
 type AvailableFilter = {

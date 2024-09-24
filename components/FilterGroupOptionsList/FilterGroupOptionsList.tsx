@@ -1,4 +1,4 @@
-import { useDeselectFilterOption, useRefineCollectionSearchParams } from '@/hooks'
+import { useDeselectFilterOption, useRefineSearchParams } from '@/hooks'
 import { FilterGroup } from '@/types/store'
 import { useSearchParams } from 'next/navigation'
 import FilterOptionCheckbox from '../FilterOptionCheckbox'
@@ -14,7 +14,7 @@ const FilterGroupOptionsList: React.FunctionComponent<FilterGroupOptionsListProp
     filterGroup,
 }) => {
     const searchParams = useSearchParams()
-    const refineSearchParams = useRefineCollectionSearchParams()
+    const refineSearchParams = useRefineSearchParams()
 
     const deselectFilterOption = useDeselectFilterOption(searchParams)
     const selectFilterOption = useCallback(

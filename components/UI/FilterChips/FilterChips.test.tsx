@@ -8,7 +8,7 @@ vi.mock('next/navigation', () => ({
 
 vi.mock('@/hooks', () => ({
     useDeselectFilterOption: vi.fn(),
-    useRefineCollectionSearchParams: vi.fn(),
+    useRefineSearchParams: vi.fn(),
     useSetPriceFilter: vi.fn(),
 }))
 

@@ -1,4 +1,3 @@
-import { makeProductFilters } from '@/lib/utils/helpers'
 import { storefrontClient } from './base'
 import { GET_COLLECTION_MAX_PRICE } from '@/lib/graphql/shopify/storefront/queries'
 import { roundUp } from '@/lib/utils/number'

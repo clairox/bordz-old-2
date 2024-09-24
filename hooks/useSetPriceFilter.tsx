@@ -1,9 +1,9 @@
-import useRefineCollectionSearchParams from './useRefineCollectionSearchParams'
+import useRefineSearchParams from './useRefineSearchParams'
 import { useCallback } from 'react'
 import { isValidPriceRange } from '@/lib/core/collections'
 
 const useSetPriceFilter = (searchParams: URLSearchParams) => {
-    const refineSearchParams = useRefineCollectionSearchParams()
+    const refineSearchParams = useRefineSearchParams()
 
     return useCallback(
         (priceRange: number[]) => {

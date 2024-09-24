@@ -5,10 +5,11 @@ import useDeselectFilterOption from './useDeselectFilterOption'
 import useLoginMutation from './useLoginMutation'
 import useLogoutMutation from './useLogoutMutation'
 import useProductQuery from './useProductQuery'
+import useSearchQuery from './useSearchQuery'
 import useSelectFilterOption from './useSelectFilterOption'
 import useSetPriceFilter from './useSetPriceFilter'
 import useSignupMutation from './useSignupMutation'
-import useRefineCollectionSearchParams from './useRefineCollectionSearchParams'
+import useRefineSearchParams from './useRefineSearchParams'
 import useRemoveSavedItemMutation from './useRemoveSavedItemMutation'
 import useUpdatePassword from './useUpdatePassword'
 import useUpdatePersonalDetails from './useUpdatePersonalDetails'
@@ -22,10 +23,11 @@ export {
     useLoginMutation,
     useLogoutMutation,
     useProductQuery,
+    useSearchQuery,
     useSelectFilterOption,
     useSetPriceFilter,
     useSignupMutation,
-    useRefineCollectionSearchParams,
+    useRefineSearchParams,
     useRemoveSavedItemMutation,
     useUpdatePassword,
     useUpdatePersonalDetails,

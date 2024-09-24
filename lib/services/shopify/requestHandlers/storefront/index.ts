@@ -4,6 +4,8 @@ export { getCollectionMaxPrice } from './getCollectionMaxPrice'
 export { getCustomer } from './getCustomer'
 export { getCustomerId } from './getCustomerId'
 export { getProduct } from './getProduct'
+export { getProductSearchResults } from './getProductSearchResults'
+export { getProductSearchResultsMaxPrice } from './getProductSearchResultsMaxPrice'
 export { getSavedItemsIds } from './getSavedItemsIds'
 export { getSavedItemsIdsAndCustomerId } from './getSavedItemsIdsAndCustomerId'
 

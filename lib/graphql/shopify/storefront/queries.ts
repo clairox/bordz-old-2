@@ -139,6 +139,68 @@ const GET_COLLECTION = gql(`
 	}
 `)
 
+const GET_PRODUCT_SEARCH = gql(`
+	query GetProductSearch(
+		$query: String!
+		$first: Int!
+        $after: String
+		$sortKey: SearchSortKeys
+		$filters: [ProductFilter!]
+		$reverse: Boolean = false
+	) {
+		search(
+            query: $query 
+            first: $first
+            after: $after
+            sortKey: $sortKey
+            reverse: $reverse
+            productFilters: $filters
+            unavailableProducts: LAST
+        ) {
+            nodes {
+                ... on Product {
+                    availableForSale
+                    handle
+                    id    					
+                    title
+                    totalInventory
+                    updatedAt
+                    vendor
+                    featuredImage {
+                        src
+                        width    						
+                        height
+                    }
+                    compareAtPriceRange {
+                        maxVariantPrice {
+                            amount    							
+                            currencyCode
+                        }
+                    }
+                    priceRange {
+                        maxVariantPrice {
+                            amount
+                            currencyCode
+                        }
+                    }
+                }
+            } 
+            pageInfo {
+                endCursor
+                hasNextPage
+            }
+            productFilters {
+                label
+                values {
+                    label
+                    count
+                    input 
+                }
+            }
+        }
+	}
+`)
+
 const GET_PRODUCT_FILTERS = gql(`
 	query GetProductFilters(
 		$handle: String!
@@ -175,6 +237,30 @@ const GET_COLLECTION_MAX_PRICE = gql(`
 				}
 			}
 		}
+	}
+`)
+
+const GET_PRODUCT_SEARCH_MAX_PRICE = gql(`
+	query GetProductSearchMaxPrice(
+		$query: String!
+	) {
+        search(
+            query: $query
+            first: 1
+            sortKey: PRICE
+            reverse: true
+            unavailableProducts: LAST
+        ) {
+            nodes {
+                ... on Product {
+                    priceRange {
+                        maxVariantPrice {
+                            amount
+                        }
+                    }
+                }
+            }
+        }
 	}
 `)
 
@@ -352,8 +438,10 @@ const GET_WISHLIST = gql(`
 export {
     GET_CART,
     GET_COLLECTION,
-    GET_PRODUCT_FILTERS,
     GET_COLLECTION_MAX_PRICE,
+    GET_PRODUCT_SEARCH,
+    GET_PRODUCT_SEARCH_MAX_PRICE,
+    GET_PRODUCT_FILTERS,
     GET_PRODUCT,
     GET_CUSTOMER,
     GET_CUSTOMER_ID_ONLY,
