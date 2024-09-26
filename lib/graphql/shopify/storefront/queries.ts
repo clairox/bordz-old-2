@@ -380,7 +380,7 @@ const GET_CUSTOMER = gql(`
 					billingAddress {
 						...AddressFields
 					}
-					lineItems {
+					lineItems(first: 25) {
 						nodes {
 							currentQuantity
 							quantity

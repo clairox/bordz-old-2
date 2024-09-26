@@ -21,17 +21,18 @@ A mock ecommerce app focused on selling skateboard and snowboard parts or someth
 -   [x] change wishlist to savedItems and savedItemsIds
 -   [x] make date select component and test it
 -   [x] Implement collection searching
--   [ ] do todos
--   [ ] handle errors properly
--   [ ] implement loading UI
--   [ ] move context hooks to @/hooks
--   [ ] look into useFormState for form error messages and stuff
--   [ ] Implement ordering and orders
--   [ ] Implement addresses
 -   [ ] Implement checkout and payments
+-   [ ] Implement addresses
+-   [ ] Implement ordering and orders
+-   [ ] Implement cart page
 -   [ ] Recently visited carousel
 -   [ ] Footer
--   [ ] Make clear to customer that trucks are sold individually
 -   [ ] Add counter to product details
--   [ ] Default skateboard truck quantity to 2 in product details
 -   [ ] Implement saved items sorting
+-   [ ] implement loading UI
+-   [ ] handle errors properly
+-   [ ] move context hooks to @/hooks
+-   [ ] look into useFormState for form error messages and stuff
+-   [ ] Make clear to customer that trucks are sold individually
+-   [ ] Default skateboard truck quantity to 2 in product details
+-   [ ] do todos

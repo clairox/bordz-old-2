@@ -49,7 +49,7 @@ type Order = {
     id: string
     lineItems: OrderLineItem[]
     name: string
-    orderNumber: string
+    orderNumber: number
     originalTotalPrice: Money
     phone?: string
     processedAt: Date

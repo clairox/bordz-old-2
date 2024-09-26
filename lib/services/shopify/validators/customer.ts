@@ -23,7 +23,7 @@ const ensureMailingAddress = (address: any): MailingAddress => ({
     address2: ensureNullableString(address.address2),
     city: ensureString(address.city),
     country: ensureString(address.country),
-    formatted: ensureArray(address.formatted.nodes, ensureString),
+    formatted: ensureArray(address.formatted, ensureString),
     formattedArea: ensureString(address.formattedArea),
     firstName: ensureString(address.firstName),
     id: ensureString(address.id),
@@ -53,14 +53,14 @@ const ensureOrder = (order: any): Order => ({
     id: ensureString(order.id),
     lineItems: ensureArray(order.lineItems.nodes, ensureOrderLineItem),
     name: ensureString(order.name),
-    orderNumber: ensureString(order.orderNumber),
+    orderNumber: ensureNumber(order.orderNumber),
     originalTotalPrice: ensureMoney(order.originalTotalPrice),
     phone: ensureNullableString(order.phone),
     processedAt: ensureDate(order.processedAt),
     shippingAddress: ensureMailingAddress(order.shippingAddress),
     statusUrl: ensureNullableString(order.statusUrl),
-    totalPrice: ensureMoney(order.totalPrice),
-    totalShippingPrice: ensureMoney(order.totalShippingPrice),
+    totalPrice: ensureMoney(order.totalPriceV2),
+    totalShippingPrice: ensureMoney(order.totalShippingPriceV2),
 })
 
 export const validateCustomer = (customer: any): Customer => {
